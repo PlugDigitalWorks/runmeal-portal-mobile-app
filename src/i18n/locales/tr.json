@@ -257,8 +257,18 @@
   "orderStatus": {},
   "search": {
     "title": "Ara",
-    "placeholderTitle": "Arama yakında",
-    "placeholderBody": "Restoran, ürün ve mutfak araması bu ekrana gelecek."
+    "placeholder": "Restoran veya yemek ara",
+    "back": "Geri",
+    "clear": "Aramayı temizle",
+    "recent": "Son aramalar",
+    "clearRecent": "Temizle",
+    "popular": "Popüler aramalar (Mock)",
+    "cuisines": "Mutfaklar",
+    "restaurants": "Restoranlar",
+    "products": "Ürünler",
+    "loadingMenus": "Menüler taranıyor…",
+    "noResults": "“{{q}}” için sonuç bulunamadı",
+    "noResultsBody": "Yazımı kontrol et ya da başka bir restoran veya yemek dene."
   },
   "account": {
     "title": "Hesabım",

@@ -43,7 +43,7 @@ export default function RootLayout() {
                   <Stack.Screen name="checkout" options={{ title: t('checkout.title') }} />
                   <Stack.Screen name="payment" options={{ presentation: 'fullScreenModal', headerShown: false, gestureEnabled: false }} />
                   <Stack.Screen name="restaurants" options={{ title: t('restaurants.title') }} />
-                  <Stack.Screen name="search" options={{ title: t('search.title') }} />
+                  <Stack.Screen name="search" options={{ headerShown: false }} />
                   <Stack.Screen
                     name="deals"
                     options={{ presentation: 'modal', headerShown: false, contentStyle: { backgroundColor: colors.background } }}

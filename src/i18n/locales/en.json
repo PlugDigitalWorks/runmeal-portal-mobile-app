@@ -257,8 +257,18 @@
   "orderStatus": {},
   "search": {
     "title": "Search",
-    "placeholderTitle": "Search is coming soon",
-    "placeholderBody": "Searching restaurants, dishes and cuisines will live on this screen."
+    "placeholder": "Search restaurants or dishes",
+    "back": "Back",
+    "clear": "Clear search",
+    "recent": "Recent searches",
+    "clearRecent": "Clear",
+    "popular": "Popular searches (Mock)",
+    "cuisines": "Cuisines",
+    "restaurants": "Restaurants",
+    "products": "Dishes",
+    "loadingMenus": "Scanning menus…",
+    "noResults": "No results for “{{q}}”",
+    "noResultsBody": "Check the spelling or try another restaurant or dish."
   },
   "account": {
     "title": "My account",

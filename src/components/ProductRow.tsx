@@ -12,14 +12,14 @@ import { MockTag } from '@/ui/MockTag';
 
 const PHOTO = 104;
 
-type Props = { product: MenuProduct; onPress: () => void };
+type Props = { product: MenuProduct; onPress: () => void; /** A small line above the name, e.g. the restaurant when the row is out of its own menu (search). */ caption?: string };
 
 /**
  * One menu line, the widest thing on the page: name, two-line description, price (sale price in the promo
  * colour with the old one struck through) and the mock "liked" line on the left; a 104 px photo with a white
  * round add button on the right. Tapping the row or the button opens the product sheet.
  */
-export function ProductRow({ product, onPress }: Props) {
+export function ProductRow({ product, onPress, caption }: Props) {
   const { t } = useTranslation();
   const price = (value: number | null) => formatMoney(value, product.currency, { symbol: product.currencySymbol });
   const sale = isDiscounted(product);
@@ -27,6 +27,11 @@ export function ProductRow({ product, onPress }: Props) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [styles.row, pressed && { backgroundColor: colors.primarySoft }]}>
       <View style={styles.body}>
+        {caption ? (
+          <Text style={styles.caption} numberOfLines={1}>
+            {caption}
+          </Text>
+        ) : null}
         <Text style={styles.name} numberOfLines={2}>
           {product.name}
         </Text>
@@ -66,6 +71,7 @@ export function ProductRow({ product, onPress }: Props) {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: space.md, paddingVertical: space.md + 2, marginHorizontal: space.lg, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
   body: { flex: 1, gap: 4 },
+  caption: { fontSize: font.small, fontWeight: weight.semibold, color: colors.primarySoftForeground },
   name: { fontSize: font.base, fontWeight: weight.semibold, color: colors.foreground },
   description: { fontSize: font.body, color: colors.mutedForeground, lineHeight: 19 },
   prices: { flexDirection: 'row', alignItems: 'baseline', gap: space.sm, marginTop: 2 },
