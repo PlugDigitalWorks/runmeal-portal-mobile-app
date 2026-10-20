@@ -259,10 +259,44 @@
   },
   "orders": {
     "title": "Orders",
-    "placeholderTitle": "Your orders will show up here",
-    "placeholderBody": "You will be able to follow your orders and their status here."
+    "detailTitle": "Order",
+    "number": "Order #{{number}}",
+    "emptyTitle": "No orders yet",
+    "emptyBody": "You can follow your orders and their status here.",
+    "loadFailed": "Couldn't load your orders",
+    "detailFailed": "Couldn't load this order",
+    "active": "Active",
+    "past": "Past",
+    "back": "Back",
+    "placed": "Order placed",
+    "placedBody": "You can follow its status live right here.",
+    "cancelled": "Order cancelled",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "credit": "Credit",
+    "total": "Total",
+    "type": "Order type",
+    "payment": "Payment",
+    "types": {
+      "DELIVERY": "Delivery",
+      "SCHEDULED_DELIVERY": "Scheduled delivery",
+      "PICKUP": "Pick-up",
+      "SCHEDULED_PICKUP": "Scheduled pick-up"
+    },
+    "reorder": "Order again (Mock)",
+    "reorderSoon": "Coming soon (Mock)",
+    "courier": "Courier: {{name}} · 🛵 on the way",
+    "eta": "Estimated arrival {{time}} (Mock)"
   },
-  "orderStatus": {},
+  "orderStatus": {
+    "PENDING": "Order received",
+    "CONFIRMED": "Confirmed",
+    "PREPARING": "Preparing",
+    "READY": "Ready",
+    "DELIVERED": "Delivered",
+    "CANCELLED": "Cancelled"
+  },
   "search": {
     "cuisineQuery": {
       "coffee": "coffee",
@@ -459,6 +493,7 @@
     "confirmBody": "Your account and loyalty stamps will be gone for good.",
     "confirm": "Delete",
     "failed": "Couldn't delete your account. Try again.",
+    "unavailable": "Account deletion isn't available right now. Please contact support.",
     "doneTitle": "Account deleted",
     "doneBody": "Your account has been deleted."
   },
@@ -493,7 +528,6 @@
     "mockNote": "This offer is a sample (Mock).",
     "notFound": "This offer was not found",
     "items": {
-    "unavailable": "Account deletion isn't available right now. Please contact support.",
       "basket20": {
         "title": "20% off your basket",
         "headline": "20% OFF YOUR BASKET",

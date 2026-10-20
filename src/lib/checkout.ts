@@ -79,9 +79,5 @@ export function resolveOrderType(types: OrderType[], choice: OrderTypeChoice | n
   return types.find((type) => isDelivery(type) === choice.delivery) ?? types[0] ?? null;
 }
 
-/**
- * The order screen is Task 11's; until its route exists typed routes cannot name it, so the cast lives here
- * (one place) and goes when the route lands.
- */
-export const orderHref = (order: { id: string; branchId: string; brandId: string }): Href =>
-  ({ pathname: '/orders/[id]', params: { ...order, placed: '1' } }) as unknown as Href;
+/** The order screen after checkout or payment: `placed` shows the "Siparişin alındı" strip and sends back to the tabs. */
+export const orderHref = (order: { id: string; branchId: string; brandId: string }): Href => ({ pathname: '/orders/[id]', params: { ...order, placed: '1' } });

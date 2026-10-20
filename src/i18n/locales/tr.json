@@ -259,10 +259,44 @@
   },
   "orders": {
     "title": "Siparişlerim",
-    "placeholderTitle": "Siparişlerin burada görünecek",
-    "placeholderBody": "Verdiğin siparişleri ve durumlarını burada takip edebileceksin."
+    "detailTitle": "Sipariş",
+    "number": "Sipariş #{{number}}",
+    "emptyTitle": "Henüz siparişin yok",
+    "emptyBody": "Verdiğin siparişleri ve durumlarını burada takip edebilirsin.",
+    "loadFailed": "Siparişler yüklenemedi",
+    "detailFailed": "Sipariş yüklenemedi",
+    "active": "Aktif",
+    "past": "Geçmiş",
+    "back": "Geri",
+    "placed": "Siparişin alındı",
+    "placedBody": "Durumunu buradan canlı takip edebilirsin.",
+    "cancelled": "Sipariş iptal edildi",
+    "items": "Ürünler",
+    "subtotal": "Ara toplam",
+    "discount": "İndirim",
+    "credit": "Kredi",
+    "total": "Toplam",
+    "type": "Sipariş türü",
+    "payment": "Ödeme",
+    "types": {
+      "DELIVERY": "Teslimat",
+      "SCHEDULED_DELIVERY": "İleri saatli teslimat",
+      "PICKUP": "Gel al",
+      "SCHEDULED_PICKUP": "İleri saatli gel al"
+    },
+    "reorder": "Tekrar sipariş ver (Mock)",
+    "reorderSoon": "Yakında (Mock)",
+    "courier": "Kurye: {{name}} · 🛵 yolda",
+    "eta": "Tahmini varış {{time}} (Mock)"
   },
-  "orderStatus": {},
+  "orderStatus": {
+    "PENDING": "Sipariş alındı",
+    "CONFIRMED": "Onaylandı",
+    "PREPARING": "Hazırlanıyor",
+    "READY": "Hazır",
+    "DELIVERED": "Teslim edildi",
+    "CANCELLED": "İptal edildi"
+  },
   "search": {
     "cuisineQuery": {
       "coffee": "kahve",
@@ -459,6 +493,7 @@
     "confirmBody": "Hesabın ve damgaların kalıcı olarak silinir.",
     "confirm": "Sil",
     "failed": "Hesabın silinemedi. Tekrar dene.",
+    "unavailable": "Hesap silme şu an kullanılamıyor, lütfen destekle iletişime geç.",
     "doneTitle": "Hesap silindi",
     "doneBody": "Hesabın silindi."
   },
@@ -493,7 +528,6 @@
     "mockNote": "Bu kampanya örnek gösterimdir (Mock).",
     "notFound": "Bu kampanya bulunamadı",
     "items": {
-    "unavailable": "Hesap silme şu an kullanılamıyor, lütfen destekle iletişime geç.",
       "basket20": {
         "title": "Sepette %20 indirim",
         "headline": "SEPETTE %20 İNDİRİM",

@@ -74,8 +74,12 @@ export interface Order {
   orderType?: string;
   paymentMethod?: string;
   currency?: string;
+  /** The API's symbol for `currency` ("₺"); the lists carry it too. */
+  currencySymbol?: string;
   scheduledFor?: string | null;
   discountAmount?: number | string | null;
+  /** Runmeal credit spent on the order. */
+  creditUsedAmount?: number | string | null;
   note?: string | null;
   addressText?: string;
 }

@@ -34,3 +34,17 @@ jest.mock('expo-location', () => ({
   reverseGeocodeAsync: jest.fn(async () => [{ city: 'İstanbul', district: 'Kadıköy', street: 'Moda Cd.', streetNumber: '10', postalCode: '34710', isoCountryCode: 'TR' }]),
   Accuracy: { Balanced: 3 },
 }));
+// Reanimated's worklets runtime does not exist under Jest (its own mock still loads it), so animations become no-ops on plain views.
+jest.mock('react-native-reanimated', () => {
+  const { View } = require('react-native');
+  const keep = (value) => value;
+  return {
+    __esModule: true,
+    default: { View },
+    useSharedValue: (value) => ({ value }),
+    useAnimatedStyle: (fn) => fn(),
+    withRepeat: keep,
+    withSequence: (...steps) => steps[0],
+    withTiming: keep,
+  };
+});

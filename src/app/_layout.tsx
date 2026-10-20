@@ -59,6 +59,7 @@ export default function RootLayout() {
                   <Stack.Screen name="account/feedback" options={{ title: t('account.feedback.title') }} />
                   <Stack.Screen name="account/security" options={{ title: t('account.security.title') }} />
                   <Stack.Screen name="account/more" options={{ title: t('account.more.title') }} />
+                  <Stack.Screen name="orders/[id]" options={{ title: t('orders.detailTitle') }} />
                   <Stack.Screen name="rewards" options={{ title: t('rewards.title') }} />
                   <Stack.Screen name="legal/[page]" options={({ route }) => ({ title: (route.params as { page?: string } | undefined)?.page === 'terms' ? t('account.more.terms') : t('account.more.privacy') })} />
                   <Stack.Screen name="delete-account" options={{ title: t('deleteAccount.title') }} />
