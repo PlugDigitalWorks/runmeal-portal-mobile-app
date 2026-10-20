@@ -19,3 +19,19 @@ describe('resolveEnv', () => {
     expect(env.googleWebClientId).toBe('709162763845-204l0a59busg4vglg9uv24aphlaq9j7r.apps.googleusercontent.com');
   });
 });
+
+describe('API_URL default', () => {
+  it('talks to the staging API host directly when EXPO_PUBLIC_API_URL is unset', () => {
+    const saved = process.env.EXPO_PUBLIC_API_URL;
+    delete process.env.EXPO_PUBLIC_API_URL;
+    try {
+      // API_URL is read at import time, so load a fresh module graph after clearing the env var.
+      jest.isolateModules(() => {
+        const config = jest.requireActual<typeof import('@/config')>('@/config');
+        expect(config.API_URL).toBe('https://staging-api.runmeal.com');
+      });
+    } finally {
+      if (saved !== undefined) process.env.EXPO_PUBLIC_API_URL = saved;
+    }
+  });
+});

@@ -1,5 +1,10 @@
-/** Staging by default; a store build sets EXPO_PUBLIC_API_URL=https://api.runmeal.com. */
-export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://api-staging.runmeal.com/api';
+/**
+ * Staging by default; a store build sets EXPO_PUBLIC_API_URL=https://api.runmeal.com.
+ * Not api-staging.runmeal.com/api: that is the Cloudflare brand edge. It tags every
+ * request with a tenant host and rejects sign-in with BRAND_DOMAIN_NOT_FOUND, so the
+ * app talks to the staging API host directly, the same one the portal web uses.
+ */
+export const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://staging-api.runmeal.com';
 
 const STAGING = {
   portalWebOrigin: 'https://staging-portalfe.runmeal.com',

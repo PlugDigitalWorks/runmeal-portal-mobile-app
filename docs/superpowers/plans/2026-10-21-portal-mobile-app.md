@@ -25,7 +25,7 @@
 - Route'lar `src/app/` altındadır. Route olmayan kod `src/app` dışında tutulur. `@/*` → `./src/*`.
 - `ios/` ve `android/` elle oluşturulmaz veya düzenlenmez (CNG).
 - Uygulama adı `Runmeal`, bundle ve package `com.runmeal.portal`, scheme `runmealportal`, Apple Team `T776LGPKWZ`.
-- Varsayılan API: `https://api-staging.runmeal.com/api`. Production: `https://api.runmeal.com`. `EXPO_PUBLIC_API_URL` ile seçilir.
+- Varsayılan API: `https://staging-api.runmeal.com` (`api-staging.runmeal.com/api` Cloudflare brand edge'i girişte `BRAND_DOMAIN_NOT_FOUND` verdiği için kullanılmaz). Production: `https://api.runmeal.com`. `EXPO_PUBLIC_API_URL` ile seçilir.
 - Her istekte `x-auth-mode: body` ve `x-device-id` gönderilir. Global `x-brand-id` gönderilmez. Auth body'lerinde `client: 'user'` kullanılır.
 - API yanıtları `{ status, message, data }` zarfındadır, `unwrap()` ile açılır.
 - Testler `src/app` dışında olmalıdır: `src/__tests__`, `src/lib/__tests__`, `src/services/__tests__`.

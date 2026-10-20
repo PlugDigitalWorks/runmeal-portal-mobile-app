@@ -17,13 +17,15 @@ The environment is picked from the host of `API_URL`: a host containing `staging
 
 | Setting | Variable | Staging (default) | Production |
 |---|---|---|---|
-| `API_URL` | `EXPO_PUBLIC_API_URL` | `https://api-staging.runmeal.com/api` | `https://api.runmeal.com` |
+| `API_URL` | `EXPO_PUBLIC_API_URL` | `https://staging-api.runmeal.com` | `https://api.runmeal.com` |
 | `PORTAL_WEB_ORIGIN` | `EXPO_PUBLIC_PORTAL_WEB_ORIGIN` | `https://staging-portalfe.runmeal.com` | `https://portalfe.runmeal.com` |
 | `RECAPTCHA_SITE_KEY` | `EXPO_PUBLIC_RECAPTCHA_SITE_KEY` | portal web `.env.staging` key | portal web `.env.production` key |
 | `GOOGLE_WEB_CLIENT_ID` | `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | staging web client id | production web client id |
 | `GOOGLE_IOS_CLIENT_ID` | `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | empty | empty |
 | `SIGN_IN_GOOGLE` | `EXPO_PUBLIC_SIGN_IN_GOOGLE` | on (`0` turns it off) | on (`0` turns it off) |
 | `SIGN_IN_APPLE` | `EXPO_PUBLIC_SIGN_IN_APPLE` | on (`0` turns it off) | on (`0` turns it off) |
+
+`API_URL` defaults to `https://staging-api.runmeal.com`, not `api-staging.runmeal.com/api`: that host is the Cloudflare brand edge and rejects sign-in with `BRAND_DOMAIN_NOT_FOUND`.
 
 Build-time only: `GOOGLE_IOS_URL_SCHEME` (adds the Google Sign-In config plugin; derived from `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` when unset) and `PERSONAL_TEAM=1` (build for a free Apple team without Sign in with Apple).
 

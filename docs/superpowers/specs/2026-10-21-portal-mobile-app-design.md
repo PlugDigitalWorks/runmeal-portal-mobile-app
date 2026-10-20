@@ -18,7 +18,7 @@
    - Krem zemin, turuncu üst bant (adres ve arama), yumuşak kenarlı beyaz kartlar, turuncu vurgular.
    - Sistem fontu kullanılır.
 8. **Backend adresi:**
-   - Varsayılan staging: `https://api-staging.runmeal.com/api`. Bu Cloudflare edge'den geçer ve `staging-api.runmeal.com` ile aynı sunucuya gider.
+   - Varsayılan staging: `https://staging-api.runmeal.com`. `api-staging.runmeal.com/api` Cloudflare brand edge'i olduğu için girişte `BRAND_DOMAIN_NOT_FOUND` döner; uygulama API host'una doğrudan bağlanır (portal web ile aynı).
    - Production: `https://api.runmeal.com`.
    - Seçim `EXPO_PUBLIC_API_URL` ile yapılır. Production'a yazma yapan test yapılmaz.
 9. **Push bildirimi, puan/yorum, canlı kurye haritası, masa QR akışı v1'de yok.**
@@ -114,7 +114,7 @@ src/
 ```
 
 ### API istemcisi (`src/lib/api.ts`)
-- Base URL `EXPO_PUBLIC_API_URL` ile verilir. Varsayılan `https://api-staging.runmeal.com/api`.
+- Base URL `EXPO_PUBLIC_API_URL` ile verilir. Varsayılan `https://staging-api.runmeal.com` (`api-staging` brand edge'i girişte `BRAND_DOMAIN_NOT_FOUND` verdiği için kullanılmaz).
 - Her istekte `x-auth-mode: body`, `x-device-id` ve oturum varsa `Authorization: Bearer` gönderilir. Global `x-brand-id` yoktur.
 - Şube kapsamlı çağrılar `branchHeaders(branch)` yardımcı fonksiyonuyla o istek için `x-branch-id` ve `x-brand-id` ekler.
 - 401 gelince tek seferlik `POST /auth/refresh {client:'user', refreshToken, sid}` yapılır ve istek bir kez tekrar denenir. Refresh 400, 401 veya 403 ile reddedilirse oturum silinir ve `onSessionExpired` dinleyicileri çağrılır, bu da giriş ekranına götürür. Bu mantık brand app'ten aynen alınır.
@@ -124,7 +124,7 @@ src/
 
 | Ayar | Staging (varsayılan) | Production |
 |---|---|---|
-| `API_URL` | `https://api-staging.runmeal.com/api` | `https://api.runmeal.com` |
+| `API_URL` | `https://staging-api.runmeal.com` | `https://api.runmeal.com` |
 | `PORTAL_WEB_ORIGIN` | `https://staging-portalfe.runmeal.com` | `https://portalfe.runmeal.com` |
 | `RECAPTCHA_SITE_KEY` | portal web'in `.env.staging` anahtarı | portal web'in `.env.production` anahtarı |
 | `GOOGLE_WEB_CLIENT_ID` | brand app'teki staging değeri | brand app'teki production değeri |
