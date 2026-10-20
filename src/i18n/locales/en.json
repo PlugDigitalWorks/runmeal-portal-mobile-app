@@ -72,7 +72,7 @@
     "sponsored": "Sponsored",
     "distinguished": "Top restaurant",
     "hero1": "LEGENDARY BASKET DEALS",
-    "hero2": "UP TO 300 ₺ OFF"
+    "hero2": "UP TO 30% OFF"
   },
   "categories": {
     "all": "All",
@@ -256,11 +256,11 @@
     }
   },
   "promos": {
-    "firstFive": "200 ₺ off your first 5 orders",
-    "twoPizzas": "2 large pizzas 499 ₺",
-    "over450": "15% off over 450 ₺",
+    "firstFive": "{{amount}} off your first 5 orders",
+    "twoPizzas": "2 large pizzas {{amount}}",
+    "over450": "15% off over {{amount}}",
     "bigBoy": "Large size deal",
-    "basket300": "300 ₺ off your basket"
+    "basket300": "{{amount}} off your basket"
   },
   "countdown": {
     "minutesShort": "min",
@@ -272,6 +272,12 @@
   "deals": {
     "title": "Deals (Mock)",
     "emptyTitle": "No restaurants with deals right now",
-    "notFound": "Deals are not available right now"
+    "notFound": "Deals are not available right now",
+    "brand": "RUNMEAL",
+    "minimize": "Minimize",
+    "tierMin": "{{amount}} and over",
+    "tierOff": "OFF",
+    "disclaimer": "Applies to orders that meet the restaurant's minimum basket. Cannot be combined with coupons or other basket discounts.",
+    "featured": "Featured restaurants ({{count}})"
   }
 }

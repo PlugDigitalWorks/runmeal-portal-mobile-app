@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { ChevronDown, MapPin, User as UserIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthContext';
 import { useLocation } from '@/context/LocationContext';
 import { addressLabel } from '@/lib/address';
@@ -18,14 +17,13 @@ const SLOT = 32;
  */
 export function HomeHeader({ onOpenAddress }: Props) {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const { user } = useAuth();
   const { activeAddress } = useLocation();
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase();
 
   return (
-    <View style={[styles.row, { paddingTop: insets.top }]}>
+    <View style={styles.row}>
       <View style={styles.slot} />
       <View style={styles.center}>
         <Pressable onPress={onOpenAddress} style={[styles.address, { maxWidth: width * 0.55 }]} accessibilityRole="button" testID="home-address">
@@ -47,7 +45,7 @@ export function HomeHeader({ onOpenAddress }: Props) {
 }
 
 const styles = StyleSheet.create({
-  // 52 below the status bar; the side slots keep the same width so the pill is exactly centred.
+  // The screen keeps the list below the status bar; 52 tall; the side slots keep the same width so the pill is exactly centred.
   row: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.lg, paddingBottom: space.sm },
   slot: { width: SLOT, height: SLOT },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', height: 44 },

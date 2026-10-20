@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SHOW_MOCKS } from '@/config';
 import { bannerOf, formatDistance, isOpenNow, nextOpening } from '@/lib/branch-model';
-import { formatMoney } from '@/lib/money';
-import { branchPromos, hasPlusBadge, isDistinguished, isSponsored, mockDelivery, mockMinBasket, mockRating, mockRatingCount } from '@/mocks/home-mocks';
+import { formatMoneyWhole } from '@/lib/money';
+import { branchPromos, hasPlusBadge, isDistinguished, isSponsored, mockDelivery, mockMinBasket, mockRating, mockRatingCount, promoAmount } from '@/mocks/home-mocks';
 import { colors, font, radius, shadow, space, weight } from '@/theme';
 import type { Branch } from '@/types/branch';
 import { MockTag } from '@/ui/MockTag';
@@ -21,6 +21,8 @@ type Props = {
   variant?: 'full' | 'compact';
   /** Name of the first cuisine the branch matches (an estimate, see categories.ts). */
   cuisineLabel?: string;
+  /** Replaces the default "open the restaurant page" tap, for a card inside a sheet that must close first. */
+  onOpen?: () => void;
 };
 
 /**
@@ -29,16 +31,16 @@ type Props = {
  * delivery time. Promos, rating, medal, sponsoring, delivery time and a missing minimum basket are
  * mock values; one small "Mock" tag above the heart labels them all.
  */
-export function BranchCard({ branch, isFavorite, onToggleFavorite, variant = 'full', cuisineLabel }: Props) {
+export function BranchCard({ branch, isFavorite, onToggleFavorite, variant = 'full', cuisineLabel, onOpen }: Props) {
   const { t, i18n } = useTranslation();
   const open = isOpenNow(branch.business_hour);
   const opensAt = open ? null : nextOpening(branch.business_hour);
   const banner = bannerOf(branch);
   const apiMin = branch.minBasketPrice != null ? Number(branch.minBasketPrice) : 0;
-  const min = apiMin > 0 ? apiMin : SHOW_MOCKS ? mockMinBasket(branch.id) : 0;
+  const min = apiMin > 0 ? apiMin : SHOW_MOCKS ? mockMinBasket(branch.id, branch.currency) : 0;
   const promos = SHOW_MOCKS && open ? branchPromos(branch.id) : [];
   const info = [
-    min > 0 ? t('home.minBasket', { amount: formatMoney(min, branch.currency) }) : '',
+    min > 0 ? t('home.minBasket', { amount: formatMoneyWhole(min, branch.currency) }) : '',
     formatDistance(branch.distanceM, i18n.language === 'tr' ? 'tr' : 'en'),
     cuisineLabel ?? '',
   ].filter(Boolean);
@@ -46,13 +48,13 @@ export function BranchCard({ branch, isFavorite, onToggleFavorite, variant = 'fu
 
   return (
     <Pressable
-      onPress={() => router.push({ pathname: '/restaurant/[branchId]', params: { branchId: branch.id } })}
+      onPress={onOpen ?? (() => router.push({ pathname: '/restaurant/[branchId]', params: { branchId: branch.id } }))}
       style={[styles.card, variant === 'compact' && styles.compact, !open && styles.closed]}
       accessibilityRole="button"
     >
       <View style={styles.banner}>
         {banner ? (
-          <Image source={{ uri: banner }} contentFit="cover" style={StyleSheet.absoluteFill} />
+          <Image source={{ uri: banner }} contentFit="cover" cachePolicy="memory-disk" transition={150} style={StyleSheet.absoluteFill} />
         ) : branch.logoUrl ? (
           <Image source={{ uri: branch.logoUrl }} contentFit="contain" style={styles.placeholderLogo} />
         ) : null}
@@ -70,7 +72,7 @@ export function BranchCard({ branch, isFavorite, onToggleFavorite, variant = 'fu
               <View key={key} style={styles.promo}>
                 <BadgePercent size={14} color={colors.primaryForeground} />
                 <Text style={styles.promoText} numberOfLines={1}>
-                  {t(`promos.${key}`)}
+                  {t(`promos.${key}`, { amount: formatMoneyWhole(promoAmount(key, branch.currency), branch.currency) })}
                 </Text>
               </View>
             ))}

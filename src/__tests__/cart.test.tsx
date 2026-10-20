@@ -155,7 +155,7 @@ describe('cart screen', () => {
     // The minimum comes from the branch call, which lands after the cart.
     await waitFor(() => expect(client.getQueryData(qk.branch('b1'))).toBeTruthy());
     await fireEvent.press(screen.getByText('Ödemeye geç'));
-    await waitFor(() => expect(alert).toHaveBeenCalledWith('Minimum sepet tutarı ₺200,00'));
+    await waitFor(() => expect(alert).toHaveBeenCalledWith('Minimum sepet tutarı ₺200'));
     expect(mockPush).not.toHaveBeenCalled();
   });
 

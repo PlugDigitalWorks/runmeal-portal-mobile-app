@@ -31,7 +31,7 @@ export function CountdownClock() {
 
 /**
  * Orange strip pinned to the bottom of Keşfet, right above the tab bar (mock): a 15-minute countdown that
- * starts over at zero. A tap opens /deals, the X closes it for as long as the screen lives. The clock is
+ * starts over at zero. A tap on the strip opens the deals sheet (/deals), the X closes it for as long as the screen lives. The clock is
  * a shared store (lib/countdown), so a tick re-renders this strip, not the feed.
  */
 export function CountdownStrip() {
@@ -39,23 +39,27 @@ export function CountdownStrip() {
   const [closed, setClosed] = useState(false);
   if (!SHOW_MOCKS || closed) return null;
   return (
-    <Pressable style={styles.strip} onPress={() => router.push('/deals')} accessibilityRole="button" accessibilityLabel={t('countdown.open')}>
-      <CountdownClock />
-      <Text style={styles.text} numberOfLines={2}>
-        {t('countdown.text')}
-      </Text>
+    <View style={styles.strip}>
+      <Pressable style={styles.open} onPress={() => router.push('/deals')} accessibilityRole="button" accessibilityLabel={t('countdown.open')}>
+        <CountdownClock />
+        <Text style={styles.text} numberOfLines={2}>
+          {t('countdown.text')}
+        </Text>
+      </Pressable>
       <View style={styles.tag}>
         <MockTag />
       </View>
       <Pressable style={styles.close} onPress={() => setClosed(true)} hitSlop={8} accessibilityRole="button" accessibilityLabel={t('common.close')}>
         <X size={14} color={colors.foreground} />
       </Pressable>
-    </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   strip: { position: 'absolute', left: 0, right: 0, bottom: 0, height: COUNTDOWN_HEIGHT, flexDirection: 'row', alignItems: 'center', gap: space.md, paddingHorizontal: space.md, backgroundColor: colors.primary },
+  // The tap target and the X are siblings, so the X is not nested inside another button.
+  open: { flex: 1, height: '100%', flexDirection: 'row', alignItems: 'center', gap: space.md },
   clock: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   box: { width: 36, height: 40, borderRadius: radius.sm, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   digits: { fontSize: 18, lineHeight: 20, fontWeight: '800', color: colors.foreground, fontVariant: ['tabular-nums'] },

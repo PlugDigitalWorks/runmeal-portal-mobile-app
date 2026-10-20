@@ -14,3 +14,11 @@ export function formatMoney(value: number | string | null | undefined, currency:
     .format(Number.isFinite(amount) ? amount : 0)
     .replace(/\u00a0/g, ' ');
 }
+
+/** Whole units for round figures (a minimum basket, a promo amount): "₺250", never "₺250,00". */
+export function formatMoneyWhole(value: number | string | null | undefined, currency: string): string {
+  const amount = Number(value ?? 0);
+  return new Intl.NumberFormat(getMoneyLocale(), { style: 'currency', currency, currencyDisplay: 'narrowSymbol', minimumFractionDigits: 0, maximumFractionDigits: 0 })
+    .format(Number.isFinite(amount) ? amount : 0)
+    .replace(/ /g, ' ');
+}

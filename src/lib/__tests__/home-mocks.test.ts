@@ -9,6 +9,7 @@ import {
   isSponsored,
   mockDelivery,
   mockMinBasket,
+  promoAmount,
   mockRating,
   mockRatingCount,
   photoUrl,
@@ -152,6 +153,22 @@ describe('sponsored and minimum basket', () => {
     expect(share).toBeGreaterThan(0.18);
     expect(share).toBeLessThan(0.32);
     expect(sample.filter(isSponsored)).toEqual(sample.filter(isSponsored));
+  });
+
+  it('scales the invented minimum basket to the currency: 10 to 30 for pounds, euros and dollars', () => {
+    for (const id of sample) {
+      for (const currency of ['GBP', 'EUR', 'USD']) {
+        const min = mockMinBasket(id, currency);
+        expect(min).toBeGreaterThanOrEqual(10);
+        expect(min).toBeLessThanOrEqual(30);
+      }
+    }
+  });
+
+  it('gives promo amounts per currency and none for the amount-free promo', () => {
+    expect(promoAmount('firstFive', 'TRY')).toBe(200);
+    expect(promoAmount('firstFive', 'GBP')).toBe(20);
+    expect(promoAmount('bigBoy', 'TRY')).toBeUndefined();
   });
 
   it('invents a minimum basket from 150 to 500 in fifties', () => {

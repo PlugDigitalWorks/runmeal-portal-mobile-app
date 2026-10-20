@@ -72,7 +72,7 @@
     "sponsored": "Sponsorlu",
     "distinguished": "Seçkin restoran",
     "hero1": "SEPETTE EFSANE İNDİRİMLER",
-    "hero2": "300 ₺'YE VARAN İNDİRİM"
+    "hero2": "%30'A VARAN İNDİRİM"
   },
   "categories": {
     "all": "Tümü",
@@ -256,11 +256,11 @@
     }
   },
   "promos": {
-    "firstFive": "İlk 5 siparişe özel 200 ₺ indirim",
-    "twoPizzas": "2 büyük pizza 499 ₺",
-    "over450": "450 ₺ üzeri %15 indirim",
+    "firstFive": "İlk 5 siparişe özel {{amount}} indirim",
+    "twoPizzas": "2 büyük pizza {{amount}}",
+    "over450": "{{amount}} üzeri %15 indirim",
     "bigBoy": "Büyük boy fırsatı",
-    "basket300": "Sepette 300 ₺ indirim"
+    "basket300": "Sepette {{amount}} indirim"
   },
   "countdown": {
     "minutesShort": "dk",
@@ -272,6 +272,12 @@
   "deals": {
     "title": "Fırsatlar (Mock)",
     "emptyTitle": "Şu an kampanyalı restoran yok",
-    "notFound": "Fırsatlar şu an kullanılamıyor"
+    "notFound": "Fırsatlar şu an kullanılamıyor",
+    "brand": "RUNMEAL",
+    "minimize": "Küçült",
+    "tierMin": "{{amount}} ve üzerine",
+    "tierOff": "İNDİRİM",
+    "disclaimer": "İndirimli sepet tutarının sipariş verilen restoranın minimum sepet tutarına uygun verilecek siparişlerde uygulanır. Kupon ve sepet indirimleri ile birleştirilemez.",
+    "featured": "Öne çıkan restoranlar ({{count}})"
   }
 }

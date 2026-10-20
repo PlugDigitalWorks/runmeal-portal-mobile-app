@@ -247,6 +247,25 @@ describe('mock sections', () => {
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/restaurant/[branchId]', params: { branchId: '2' } });
   });
 
+  it('puts the hero banner first and the chain stories directly below it', async () => {
+    jest.spyOn(branches, 'getNearbyBranches').mockResolvedValue([
+      row('1', 'Pizza House #1', 900, { brandSlug: 'pizza-house' }),
+      row('2', 'Pizza House #2', 300, { brandSlug: 'pizza-house' }),
+    ]);
+    await renderHome();
+    await screen.findByText('Zincir restoranlar (Mock)');
+    const texts: string[] = [];
+    const walk = (node: unknown) => {
+      if (typeof node === 'string') texts.push(node);
+      else if (node && typeof node === 'object' && 'children' in node && Array.isArray(node.children)) node.children.forEach(walk);
+    };
+    walk(screen.toJSON());
+    const at = (label: string) => texts.indexOf(label);
+    const labels = ['SEPETTE EFSANE İNDİRİMLER', 'Zincir restoranlar (Mock)', 'Kampanyalar (5) (Mock)'].map(at);
+    expect(labels.every((i) => i >= 0)).toBe(true);
+    expect([...labels].sort((x, y) => x - y)).toEqual(labels);
+  });
+
   it('has no chain stories when mocks are off', async () => {
     mockShowMocks = false;
     jest.spyOn(branches, 'getNearbyBranches').mockResolvedValue([
@@ -262,7 +281,7 @@ describe('mock sections', () => {
 
 describe('campaign artwork and promo strips', () => {
   const openRow = (id: string, name: string) => row(id, name, 400, { business_hour: hours(true) });
-  const PROMO_TEXT = ['İlk 5 siparişe özel 200 ₺ indirim', '2 büyük pizza 499 ₺', '450 ₺ üzeri %15 indirim', 'Büyük boy fırsatı', 'Sepette 300 ₺ indirim'];
+  const PROMO_TEXT = ['İlk 5 siparişe özel ₺200 indirim', '2 büyük pizza ₺499', '₺450 üzeri %15 indirim', 'Büyük boy fırsatı', 'Sepette ₺300 indirim'];
 
   it('draws the campaign posters, the hero banner and the strips with their labels', async () => {
     const id = idWhere((x) => branchPromos(x).length > 0);
@@ -344,5 +363,32 @@ describe('countdown strip', () => {
       jest.advanceTimersByTime(1000);
     });
     expect(screen.getByLabelText('15 dk : 00 sn')).toBeTruthy();
+  });
+});
+
+describe('card money', () => {
+  it('shows the minimum basket in whole units and the branch currency, real or mock', async () => {
+    jest.spyOn(branches, 'getNearbyBranches').mockResolvedValue([
+      row('real', 'Real Min Place', 300, { minBasketPrice: 250 }),
+      row('gbp', 'Pound Place', 400, { currency: 'GBP', currencySymbol: '£' }),
+    ]);
+    await renderHome();
+    await waitFor(() => expect(listNames()).toHaveLength(2));
+    expect(screen.getAllByText(/^Min ₺250 ·/).length).toBeGreaterThan(0);
+    // Mock minimum on a pound branch: 10 to 30 pounds, no decimals, no lira sign anywhere on the card.
+    const gbp = screen.getAllByText(/^Min £(1\d|2\d|30) ·/);
+    expect(gbp.length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Min TRY/)).toBeNull();
+    expect(screen.queryByText(/,00/)).toBeNull();
+  });
+
+  it('writes promo amounts in the branch currency', async () => {
+    const id = idWhere((x) => branchPromos(x).some((k) => k !== 'bigBoy'));
+    jest.spyOn(branches, 'getNearbyBranches').mockResolvedValue([row(id, 'Pound Promo Place', 300, { currency: 'GBP', currencySymbol: '£', business_hour: hours(true) })]);
+    await renderHome();
+    await waitFor(() => expect(listNames()).toEqual(['Pound Promo Place']));
+    const card = within(screen.getByTestId('all-restaurants-item'));
+    expect(card.queryAllByText(/₺/)).toEqual([]);
+    expect(card.getAllByText(/£\d/).length).toBeGreaterThan(0);
   });
 });

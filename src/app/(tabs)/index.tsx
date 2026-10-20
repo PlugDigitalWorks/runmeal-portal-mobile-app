@@ -4,6 +4,7 @@ import { Heart, MapPinOff } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AddressSheet } from '@/components/AddressSheet';
 import { BranchCard } from '@/components/BranchCard';
 import { BranchCarousel } from '@/components/BranchCarousel';
@@ -41,6 +42,7 @@ export default function Home() {
   const { setCategory, setFilters } = useHomeView();
   const { isFavorite, toggle } = useFavorites();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const insets = useSafeAreaInsets();
 
   const cuisineLabelOf = (b: Branch) => {
     const id = cuisineOf(b);
@@ -52,7 +54,9 @@ export default function Home() {
   const chains = chainsOf(branches);
 
   return (
-    <View style={styles.root}>
+    // The top inset is padding on the screen, not on the header: the list starts below the status bar, so
+    // scrolled content is clipped there instead of sliding under the clock, and the refresh spinner stays visible.
+    <View style={[styles.root, { paddingTop: insets.top }]}>
       <StatusBar style="dark" />
       <FlatList
         data={ready ? visible : []}
@@ -64,8 +68,8 @@ export default function Home() {
             <HomeHeader onOpenAddress={() => setSheetOpen(true)} />
             <SearchBar />
             <SortFilterBar />
+            {ready && SHOW_MOCKS ? <HeroBanner /> : null}
             {ready && SHOW_MOCKS && chains.length > 0 ? <ChainStories chains={chains} /> : null}
-            {SHOW_MOCKS ? <HeroBanner /> : null}
             {ready && SHOW_MOCKS ? (
               <>
                 <SectionHeader title={t('home.campaigns', { count: CAMPAIGNS.length })} mock onSeeAll={() => router.push('/campaigns')} />

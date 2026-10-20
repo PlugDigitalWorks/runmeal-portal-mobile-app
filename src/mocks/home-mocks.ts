@@ -142,8 +142,23 @@ export const isSponsored = (id: string) => traitOf(id, 'sponsored', 4) === 0;
 /** The "Seçkin restoran" medal next to the name: about a third of the branches. */
 export const isDistinguished = (id: string) => traitOf(id, 'medal', 3) === 0;
 
-/** 150 to 500 ₺ in fifties, for branches whose API row carries no minimum basket. */
-export const mockMinBasket = (id: string) => 150 + 50 * traitOf(id, 'min', 8);
+/**
+ * A minimum basket for branches whose API row carries none: 150 to 500 in fifties for lira, 10 to 30 in
+ * twos for the other (pound, euro, dollar) currencies, so the figure is sensible in the branch's own money.
+ */
+export const mockMinBasket = (id: string, currency = 'TRY') => (currency === 'TRY' ? 150 + 50 * traitOf(id, 'min', 8) : 10 + 2 * traitOf(id, 'min', 11));
+
+/** The amounts in a promo text, in lira and in the other currencies; `bigBoy` has none. */
+const PROMO_AMOUNTS: Partial<Record<PromoKey, { try: number; other: number }>> = {
+  firstFive: { try: 200, other: 20 },
+  twoPizzas: { try: 499, other: 25 },
+  over450: { try: 450, other: 30 },
+  basket300: { try: 300, other: 15 },
+};
+export const promoAmount = (key: PromoKey, currency: string): number | undefined => {
+  const amounts = PROMO_AMOUNTS[key];
+  return amounts ? (currency === 'TRY' ? amounts.try : amounts.other) : undefined;
+};
 
 /** One food photo per cuisine tile; the keys are the category ids of lib/categories. */
 export const CUISINE_PHOTO_SEEDS: Record<string, number> = { coffee: 21, pizza: 12, burger: 34, kebab: 47, dessert: 58, breakfast: 63, healthy: 75, world: 89 };
@@ -182,3 +197,20 @@ export function dealBranches(branches: Branch[]): Branch[] {
     .filter((b) => branchPromos(b.id).length > 0)
     .sort((a, b) => branchPromos(b.id).length - branchPromos(a.id).length || (a.distanceM ?? Infinity) - (b.distanceM ?? Infinity) || a.id.localeCompare(b.id));
 }
+
+/** The four "flash" tiers on the deals sheet: spend `min`, get `off` taken off. Lira first, then a scaled set for pounds, euros and dollars. */
+export const FLASH_TIERS: Record<'try' | 'other', { min: number; off: number }[]> = {
+  try: [
+    { min: 275, off: 70 },
+    { min: 350, off: 100 },
+    { min: 450, off: 150 },
+    { min: 550, off: 200 },
+  ],
+  other: [
+    { min: 15, off: 4 },
+    { min: 20, off: 6 },
+    { min: 25, off: 8 },
+    { min: 30, off: 12 },
+  ],
+};
+export const flashTiers = (currency: string) => FLASH_TIERS[currency === 'TRY' ? 'try' : 'other'];

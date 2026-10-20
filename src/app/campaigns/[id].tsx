@@ -3,6 +3,7 @@ import { Gift } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { CampaignArt } from '@/components/CampaignArt';
+import { SHOW_MOCKS } from '@/config';
 import { campaignById } from '@/mocks/home-mocks';
 import { colors, font, space, weight } from '@/theme';
 import { Button } from '@/ui/Button';
@@ -12,7 +13,8 @@ import { EmptyState } from '@/ui/EmptyState';
 export default function CampaignDetail() {
   const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const campaign = campaignById(id);
+  // The campaigns are mock data: with mocks off the route behaves as if there were none.
+  const campaign = SHOW_MOCKS ? campaignById(id) : undefined;
 
   if (!campaign) {
     return (

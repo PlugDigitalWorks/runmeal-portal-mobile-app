@@ -52,6 +52,13 @@ describe('campaign detail', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/(tabs)');
   });
 
+  it('is not available with mocks off', async () => {
+    mockShowMocks = false;
+    await renderWithProviders(<CampaignDetail />);
+    expect(screen.getByText('Bu kampanya bulunamadı')).toBeTruthy();
+    expect(screen.queryByText('2 AL 1 ÖDE PİZZA')).toBeNull();
+  });
+
   it('says so for an unknown campaign', async () => {
     mockId = 'nope';
     await renderWithProviders(<CampaignDetail />);

@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CartLineRow } from '@/components/CartLineRow';
 import { apiErrorMessage } from '@/lib/api-error';
 import { cartLinesFromBackend, summarize, type CartLine } from '@/lib/cart-model';
-import { formatMoney } from '@/lib/money';
+import { formatMoney, formatMoneyWhole } from '@/lib/money';
 import { useBranch } from '@/queries/useBranch';
 import { useApplyPromotion, useCart, useRemoveCartLine, useRemovePromotion, useUpdateCartLine } from '@/queries/useCart';
 import { cartIdOf } from '@/services/cart.service';
@@ -117,7 +117,7 @@ export function CartScreen({ variant = 'stack' }: Props) {
     const minimum = branch?.minBasketPrice != null ? Number(branch.minBasketPrice) : null;
     // Unknown minimum: the checkout call is the one that judges it.
     if (minimum != null && summary.total < minimum) {
-      Alert.alert(t('cart.minBasket', { amount: formatMoney(minimum, currency) }));
+      Alert.alert(t('cart.minBasket', { amount: formatMoneyWhole(minimum, currency) }));
       return;
     }
     // The checkout screen arrives with Task 10; the cast keeps typed routes happy until it exists.
