@@ -42,6 +42,7 @@ export function CartScreen({ variant = 'stack' }: Props) {
   const cartId = cartIdOf(cart);
   const lines = cartLinesFromBackend(cart ?? null);
   const currency = branch?.currency ?? 'TRY';
+  const symbol = branch?.currencySymbol;
   const scope = cart ? { branchId: cart.branchId, brandId: cart.brandId } : null;
   const busy = updateLine.isPending || removeLine.isPending;
   // Inside the tabs a Stack.Screen would rename the tab itself, so the tab draws its own title instead.
@@ -117,7 +118,7 @@ export function CartScreen({ variant = 'stack' }: Props) {
     const minimum = branch?.minBasketPrice != null ? Number(branch.minBasketPrice) : null;
     // Unknown minimum: the checkout call is the one that judges it.
     if (minimum != null && summary.total < minimum) {
-      Alert.alert(t('cart.minBasket', { amount: formatMoneyWhole(minimum, currency) }));
+      Alert.alert(t('cart.minBasket', { amount: formatMoneyWhole(minimum, currency, symbol) }));
       return;
     }
     // The checkout screen arrives with Task 10; the cast keeps typed routes happy until it exists.
@@ -129,7 +130,7 @@ export function CartScreen({ variant = 'stack' }: Props) {
       {header}
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         {lines.map((line) => (
-          <CartLineRow key={line.id} line={line} currency={currency} busy={busy} onQty={(qty) => onQty(line, qty)} />
+          <CartLineRow key={line.id} line={line} currency={currency} symbol={symbol} busy={busy} onQty={(qty) => onQty(line, qty)} />
         ))}
 
         <View style={styles.section}>
@@ -171,9 +172,9 @@ export function CartScreen({ variant = 'stack' }: Props) {
         </View>
 
         <View style={styles.section}>
-          <SummaryRow label={t('cart.subtotal')} value={formatMoney(summary.subtotal, currency)} />
-          {summary.discount > 0 ? <SummaryRow label={t('cart.discount')} value={`-${formatMoney(summary.discount, currency)}`} tone="success" /> : null}
-          <SummaryRow label={t('cart.total')} value={formatMoney(summary.total, currency)} strong />
+          <SummaryRow label={t('cart.subtotal')} value={formatMoney(summary.subtotal, currency, { symbol })} />
+          {summary.discount > 0 ? <SummaryRow label={t('cart.discount')} value={`-${formatMoney(summary.discount, currency, { symbol })}`} tone="success" /> : null}
+          <SummaryRow label={t('cart.total')} value={formatMoney(summary.total, currency, { symbol })} strong />
         </View>
       </ScrollView>
 

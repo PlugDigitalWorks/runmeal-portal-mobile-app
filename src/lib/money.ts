@@ -8,17 +8,35 @@ export function setMoneyLocale(lang: 'tr' | 'en'): void {
 
 export const getMoneyLocale = (): MoneyLocale => locale;
 
-export function formatMoney(value: number | string | null | undefined, currency: string, override?: string): string {
-  const amount = Number(value ?? 0);
-  return new Intl.NumberFormat(override ?? getMoneyLocale(), { style: 'currency', currency, currencyDisplay: 'narrowSymbol' })
-    .format(Number.isFinite(amount) ? amount : 0)
+type MoneyOptions = {
+  /** The API's own symbol ("₺", "£"). Hermes on iOS prints the ISO code ("TRY 300") for some currencies, so a given symbol wins. */
+  symbol?: string | null;
+  /** Round figures (a minimum basket, a promo amount): no decimals. */
+  whole?: boolean;
+  /** A locale other than the app language, e.g. for tests. */
+  locale?: string;
+};
+
+/** Number with the symbol in front: the lira and pound way ("₺1.234,50", "£15"). */
+function withSymbol(amount: number, symbol: string, whole: boolean, lang: string): string {
+  const digits = whole ? 0 : 2;
+  const number = new Intl.NumberFormat(lang, { style: 'decimal', minimumFractionDigits: digits, maximumFractionDigits: digits }).format(Math.abs(amount));
+  return `${amount < 0 ? '-' : ''}${symbol}${number}`;
+}
+
+/** The third argument is the locale (old callers) or an options object. */
+export function formatMoney(value: number | string | null | undefined, currency: string, options?: string | MoneyOptions): string {
+  const opts: MoneyOptions = typeof options === 'string' ? { locale: options } : (options ?? {});
+  const parsed = Number(value ?? 0);
+  const amount = Number.isFinite(parsed) ? parsed : 0;
+  const lang = opts.locale ?? getMoneyLocale();
+  if (opts.symbol) return withSymbol(amount, opts.symbol, !!opts.whole, lang);
+  const digits = opts.whole ? { minimumFractionDigits: 0, maximumFractionDigits: 0 } : {};
+  return new Intl.NumberFormat(lang, { style: 'currency', currency, currencyDisplay: 'narrowSymbol', ...digits })
+    .format(amount)
     .replace(/\u00a0/g, ' ');
 }
 
-/** Whole units for round figures (a minimum basket, a promo amount): "₺250", never "₺250,00". */
-export function formatMoneyWhole(value: number | string | null | undefined, currency: string): string {
-  const amount = Number(value ?? 0);
-  return new Intl.NumberFormat(getMoneyLocale(), { style: 'currency', currency, currencyDisplay: 'narrowSymbol', minimumFractionDigits: 0, maximumFractionDigits: 0 })
-    .format(Number.isFinite(amount) ? amount : 0)
-    .replace(/ /g, ' ');
-}
+/** Whole units for round figures: "₺250", never "₺250,00". */
+export const formatMoneyWhole = (value: number | string | null | undefined, currency: string, symbol?: string | null): string =>
+  formatMoney(value, currency, { whole: true, symbol });

@@ -6,10 +6,10 @@ import { formatMoney } from '@/lib/money';
 import { colors, font, radius, space, weight } from '@/theme';
 import { QuantityStepper } from '@/ui/QuantityStepper';
 
-type Props = { line: CartLine; currency: string; busy?: boolean; onQty: (qty: number) => void };
+type Props = { line: CartLine; currency: string; symbol?: string | null; busy?: boolean; onQty: (qty: number) => void };
 
 /** One cart line: photo, name, chosen options, note, a stepper that can go down to zero (which removes the line) and the line price. */
-export function CartLineRow({ line, currency, busy, onQty }: Props) {
+export function CartLineRow({ line, currency, symbol, busy, onQty }: Props) {
   const { t } = useTranslation();
   return (
     <View style={[styles.row, busy && styles.busy]} pointerEvents={busy ? 'none' : 'auto'}>
@@ -20,7 +20,7 @@ export function CartLineRow({ line, currency, busy, onQty }: Props) {
         {line.note ? <Text style={styles.meta}>{t('cart.note', { note: line.note })}</Text> : null}
         <View style={styles.bottom}>
           <QuantityStepper value={line.qty} min={0} onChange={onQty} />
-          <Text style={styles.price}>{formatMoney(line.lineTotal, currency)}</Text>
+          <Text style={styles.price}>{formatMoney(line.lineTotal, currency, { symbol })}</Text>
         </View>
       </View>
     </View>

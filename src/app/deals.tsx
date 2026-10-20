@@ -37,7 +37,7 @@ export default function Deals() {
 }
 
 /** The orange panel: title art, four discount tiers, the live countdown. It runs edge to edge under the sheet's rounded top. */
-function FlashHeader({ currency }: { currency: string }) {
+function FlashHeader({ currency, symbol }: { currency: string; symbol?: string }) {
   const { t } = useTranslation();
   const tiers = flashTiers(currency);
   return (
@@ -60,12 +60,12 @@ function FlashHeader({ currency }: { currency: string }) {
             <View key={tier.min} style={styles.tier}>
               <View style={styles.tierTab}>
                 <Text style={styles.tierTabText} numberOfLines={2}>
-                  {t('deals.tierMin', { amount: formatMoneyWhole(tier.min, currency) })}
+                  {t('deals.tierMin', { amount: formatMoneyWhole(tier.min, currency, symbol) })}
                 </Text>
               </View>
               <View style={[styles.tierCard, top && styles.tierCardTop]}>
                 <Text style={[styles.tierAmount, top && styles.tierTextTop]} adjustsFontSizeToFit minimumFontScale={0.75} numberOfLines={1}>
-                  {formatMoneyWhole(tier.off, currency)}
+                  {formatMoneyWhole(tier.off, currency, symbol)}
                 </Text>
                 <Text style={[styles.tierOff, top && styles.tierTextTop]}>{t('deals.tierOff')}</Text>
               </View>
@@ -94,6 +94,7 @@ function DealsSheet() {
   // Two columns: an odd last tile gets an empty neighbour so it keeps the column width.
   const cells: Cell[] = useMemo(() => (deals.length % 2 ? [...deals, { id: 'spacer' }] : deals), [deals]);
   const currency = branches[0]?.currency ?? 'TRY';
+  const symbol = branches[0]?.currencySymbol;
   // The sheet closes as the restaurant opens: replacing it leaves Keşfet underneath and back returns there.
   const open = (branch: Branch) => router.replace({ pathname: '/restaurant/[branchId]', params: { branchId: branch.id } });
 
@@ -107,7 +108,7 @@ function DealsSheet() {
       contentContainerStyle={styles.content}
       ListHeaderComponent={
         <View>
-          <FlashHeader currency={currency} />
+          <FlashHeader currency={currency} symbol={symbol} />
           <View style={styles.sectionRow}>
             <Crown size={22} color={colors.foreground} />
             <Text style={styles.section} numberOfLines={2} accessibilityRole="header">

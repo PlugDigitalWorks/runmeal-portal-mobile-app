@@ -3,19 +3,19 @@ import { formatMoney } from '@/lib/money';
 import { colors, font, space, weight } from '@/theme';
 
 type Size = 'sm' | 'md' | 'lg';
-type Props = { value: number | string | null | undefined; currency: string; original?: number | null; size?: Size };
+type Props = { value: number | string | null | undefined; currency: string; /** The API's symbol for the currency; wins over the ISO code. */ symbol?: string | null; original?: number | null; size?: Size };
 
 const valueSize: Record<Size, number> = { sm: font.body, md: font.base, lg: font.heading };
 const originalSize: Record<Size, number> = { sm: font.small, md: font.body, lg: font.base };
 
 /** Price with an optional struck-through original, shown only when it is actually higher (a real discount). */
-export function Price({ value, currency, original, size = 'md' }: Props) {
+export function Price({ value, currency, symbol, original, size = 'md' }: Props) {
   const discounted = original != null && original > Number(value ?? 0);
   return (
     <View style={styles.row}>
-      <Text style={[styles.value, { fontSize: valueSize[size] }]}>{formatMoney(value, currency)}</Text>
+      <Text style={[styles.value, { fontSize: valueSize[size] }]}>{formatMoney(value, currency, { symbol })}</Text>
       {discounted ? (
-        <Text style={[styles.original, { fontSize: originalSize[size] }]}>{formatMoney(original, currency)}</Text>
+        <Text style={[styles.original, { fontSize: originalSize[size] }]}>{formatMoney(original, currency, { symbol })}</Text>
       ) : null}
     </View>
   );

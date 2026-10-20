@@ -38,7 +38,7 @@ export function CartBar({ safeBottom }: Props) {
             </Text>
           ) : null}
         </View>
-        <Text style={styles.total}>{formatMoney(summary.total, branch?.currency ?? 'TRY')}</Text>
+        <Text style={styles.total}>{formatMoney(summary.total, branch?.currency ?? 'TRY', { symbol: branch?.currencySymbol })}</Text>
       </Pressable>
     </View>
   );

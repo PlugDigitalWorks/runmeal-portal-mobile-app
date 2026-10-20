@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Award, BadgePercent, Bike, Heart, Star } from 'lucide-react-native';
+import { Award, BadgePercent, Bike, Heart } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SHOW_MOCKS } from '@/config';
@@ -10,6 +10,7 @@ import { branchPromos, hasPlusBadge, isDistinguished, isSponsored, mockDelivery,
 import { colors, font, radius, shadow, space, weight } from '@/theme';
 import type { Branch } from '@/types/branch';
 import { MockTag } from '@/ui/MockTag';
+import { RatingPill } from '@/ui/RatingPill';
 
 export const COMPACT_CARD_WIDTH = 280;
 
@@ -40,7 +41,7 @@ export function BranchCard({ branch, isFavorite, onToggleFavorite, variant = 'fu
   const min = apiMin > 0 ? apiMin : SHOW_MOCKS ? mockMinBasket(branch.id, branch.currency) : 0;
   const promos = SHOW_MOCKS && open ? branchPromos(branch.id) : [];
   const info = [
-    min > 0 ? t('home.minBasket', { amount: formatMoneyWhole(min, branch.currency) }) : '',
+    min > 0 ? t('home.minBasket', { amount: formatMoneyWhole(min, branch.currency, branch.currencySymbol) }) : '',
     formatDistance(branch.distanceM, i18n.language === 'tr' ? 'tr' : 'en'),
     cuisineLabel ?? '',
   ].filter(Boolean);
@@ -72,7 +73,7 @@ export function BranchCard({ branch, isFavorite, onToggleFavorite, variant = 'fu
               <View key={key} style={styles.promo}>
                 <BadgePercent size={14} color={colors.primaryForeground} />
                 <Text style={styles.promoText} numberOfLines={1}>
-                  {t(`promos.${key}`, { amount: formatMoneyWhole(promoAmount(key, branch.currency), branch.currency) })}
+                  {t(`promos.${key}`, { amount: formatMoneyWhole(promoAmount(key, branch.currency), branch.currency, branch.currencySymbol) })}
                 </Text>
               </View>
             ))}
@@ -86,8 +87,7 @@ export function BranchCard({ branch, isFavorite, onToggleFavorite, variant = 'fu
               </View>
             ) : null}
             <View style={styles.rating}>
-              <Star size={12} color={colors.primaryForeground} fill={colors.primaryForeground} />
-              <Text style={styles.ratingText}>{`${mockRating(branch.id).toFixed(1)} (${mockRatingCount(branch.id)}+)`}</Text>
+              <RatingPill rating={mockRating(branch.id)} count={mockRatingCount(branch.id)} />
             </View>
             <View style={styles.mockTag}>
               <MockTag />
@@ -184,19 +184,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primarySoft,
   },
   plusText: { fontSize: font.caption, lineHeight: 13, fontWeight: weight.bold, color: colors.primarySoftForeground },
-  rating: {
-    position: 'absolute',
-    left: space.sm,
-    bottom: space.sm,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: space.sm,
-    paddingVertical: 4,
-    borderRadius: radius.sm,
-    backgroundColor: colors.success,
-  },
-  ratingText: { fontSize: font.small, fontWeight: weight.bold, color: colors.primaryForeground },
+  rating: { position: 'absolute', left: space.sm, bottom: space.sm },
   mockTag: { position: 'absolute', right: space.sm, bottom: 52 },
   heart: {
     position: 'absolute',

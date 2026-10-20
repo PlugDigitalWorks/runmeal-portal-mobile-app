@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { Bike, Heart, Star } from 'lucide-react-native';
+import { Bike, Heart } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { bannerOf, formatDistance } from '@/lib/branch-model';
@@ -7,6 +7,7 @@ import { formatMoneyWhole } from '@/lib/money';
 import { mockDelivery, mockMinBasket, mockRating, mockRatingCount } from '@/mocks/home-mocks';
 import { colors, font, radius, space, weight } from '@/theme';
 import type { Branch } from '@/types/branch';
+import { RatingPill } from '@/ui/RatingPill';
 
 type Props = { branch: Branch; isFavorite: boolean; onToggleFavorite: () => void; cuisineLabel?: string; onOpen: () => void };
 
@@ -21,14 +22,13 @@ export function DealCard({ branch, isFavorite, onToggleFavorite, cuisineLabel, o
   const apiMin = branch.minBasketPrice != null ? Number(branch.minBasketPrice) : 0;
   const min = apiMin > 0 ? apiMin : mockMinBasket(branch.id, branch.currency);
   const eta = mockDelivery(branch.distanceM);
-  const info = [t('home.minBasket', { amount: formatMoneyWhole(min, branch.currency) }), formatDistance(branch.distanceM, i18n.language === 'tr' ? 'tr' : 'en'), cuisineLabel ?? ''].filter(Boolean);
+  const info = [t('home.minBasket', { amount: formatMoneyWhole(min, branch.currency, branch.currencySymbol) }), formatDistance(branch.distanceM, i18n.language === 'tr' ? 'tr' : 'en'), cuisineLabel ?? ''].filter(Boolean);
 
   return (
     <Pressable style={styles.card} onPress={onOpen} accessibilityRole="button" accessibilityLabel={branch.name}>
       {banner ? <Image source={{ uri: banner }} contentFit="cover" cachePolicy="memory-disk" transition={150} style={StyleSheet.absoluteFill} /> : null}
       <View style={styles.rating}>
-        <Star size={11} color={colors.primaryForeground} fill={colors.primaryForeground} />
-        <Text style={styles.ratingText}>{`${mockRating(branch.id).toFixed(1)} (${mockRatingCount(branch.id)}+)`}</Text>
+        <RatingPill rating={mockRating(branch.id)} count={mockRatingCount(branch.id)} />
       </View>
       <Pressable
         onPress={onToggleFavorite}
@@ -57,19 +57,7 @@ export function DealCard({ branch, isFavorite, onToggleFavorite, cuisineLabel, o
 
 const styles = StyleSheet.create({
   card: { flex: 1, aspectRatio: 1, borderRadius: radius.lg, overflow: 'hidden', backgroundColor: colors.bannerPlaceholder, justifyContent: 'flex-end' },
-  rating: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    paddingHorizontal: space.sm,
-    paddingVertical: 3,
-    borderBottomRightRadius: radius.md,
-    backgroundColor: colors.success,
-  },
-  ratingText: { fontSize: font.caption, fontWeight: weight.bold, color: colors.primaryForeground },
+  rating: { position: 'absolute', top: space.sm, left: space.sm },
   heart: { position: 'absolute', top: space.sm, right: space.sm, width: 30, height: 30, borderRadius: radius.full, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
   panel: { padding: space.sm, gap: 2, backgroundColor: 'rgba(16,25,46,0.6)' },
   name: { fontSize: 15, fontWeight: weight.bold, color: colors.primaryForeground },
