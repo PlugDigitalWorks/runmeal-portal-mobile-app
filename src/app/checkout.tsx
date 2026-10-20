@@ -42,7 +42,8 @@ import { EmptyState } from '@/ui/EmptyState';
 import { ErrorState } from '@/ui/ErrorState';
 import { TextField } from '@/ui/TextField';
 
-const SLOT_ERRORS = ['BRANCH_FULFILLMENT_SLOT_INVALID', 'BRANCH_FULFILLMENT_SLOT_UNAVAILABLE'];
+/** What the API answers when the picked slot no longer fits (branchesService.validateOrderType); only read for scheduled orders. */
+const SLOT_ERRORS = ['PAYMENT_ORDER_TYPE_INVALID'];
 
 type SlotPick = { type: string; day: string; value: string | null };
 

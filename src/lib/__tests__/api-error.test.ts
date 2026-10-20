@@ -15,7 +15,7 @@ it('falls back for network and unknown errors', () => {
 });
 
 it('reads the machine-readable code of an API error', () => {
-  expect(apiErrorCode(withBody({ code: 'BRANCH_FULFILLMENT_SLOT_INVALID', message: 'x' }))).toBe('BRANCH_FULFILLMENT_SLOT_INVALID');
+  expect(apiErrorCode(withBody({ code: 'PAYMENT_ORDER_TYPE_INVALID', message: 'x' }))).toBe('PAYMENT_ORDER_TYPE_INVALID');
   expect(apiErrorCode(withBody({ message: 'x' }))).toBeUndefined();
   expect(apiErrorCode(new Error('boom'))).toBeUndefined();
 });

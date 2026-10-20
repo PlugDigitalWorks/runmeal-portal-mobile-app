@@ -206,7 +206,7 @@ describe('placing the order', () => {
     it('reloads the slots and forgets the pick when the API refuses the slot', async () => {
       setup({ branch: { order_type_settings: enabled('scheduledPickup') } });
       const load = jest.spyOn(branches, 'getFulfillmentSlots').mockResolvedValue(slots);
-      refuse('BRANCH_FULFILLMENT_SLOT_UNAVAILABLE');
+      refuse('PAYMENT_ORDER_TYPE_INVALID');
       const { client } = await renderWithProviders(<CheckoutScreen />);
       await fireEvent.press(await screen.findByText('12:00'));
       await fireEvent.press(screen.getByText(/Siparişi onayla/));
