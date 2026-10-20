@@ -7,7 +7,8 @@
     "close": "Close",
     "continue": "Continue",
     "loading": "Loading…",
-    "seeAll": "See all"
+    "seeAll": "See all",
+    "mock": "Mock"
   },
   "auth": {
     "title": "Welcome",
@@ -41,11 +42,15 @@
     "resendIn": "Resend code ({{seconds}}s)"
   },
   "tabs": {
-    "home": "Home"
+    "home": "Explore",
+    "favorites": "Favourites",
+    "cart": "Cart",
+    "orders": "Orders",
+    "campaigns": "Offers"
   },
   "home": {
     "deliverTo": "Deliver to",
-    "searchPlaceholder": "What are you craving?",
+    "searchPlaceholder": "Search restaurants, dishes or cuisines",
     "nearby": "Near you",
     "branchCount_one": "{{count}} restaurant",
     "branchCount_other": "{{count}} restaurants",
@@ -55,7 +60,17 @@
     "changeAddress": "Change address",
     "addFavorite": "Add to favourites",
     "removeFavorite": "Remove from favourites",
-    "profile": "My account"
+    "featured": "Featured",
+    "cuisines": "Cuisines",
+    "allRestaurants": "All restaurants",
+    "minBasket": "Min {{amount}}",
+    "minutes": "{{from}}–{{to}} min",
+    "campaigns": "Offers ({{count}})",
+    "forYou": "Picked for you",
+    "topRated": "Top rated",
+    "chains": "Chain restaurants",
+    "chainBranches_one": "{{count}} branch",
+    "chainBranches_other": "{{count}} branches"
   },
   "categories": {
     "all": "All",
@@ -117,10 +132,22 @@
   },
   "checkout": {},
   "payment": {},
-  "orders": {},
+  "orders": {
+    "title": "Orders",
+    "placeholderTitle": "Your orders will show up here",
+    "placeholderBody": "You will be able to follow your orders and their status here."
+  },
   "orderStatus": {},
-  "search": {},
-  "account": {},
+  "search": {
+    "title": "Search",
+    "placeholderTitle": "Search is coming soon",
+    "placeholderBody": "Searching restaurants, dishes and cuisines will live on this screen."
+  },
+  "account": {
+    "title": "My account",
+    "signOut": "Sign out",
+    "placeholderBody": "Your account settings will be here soon."
+  },
   "addresses": {
     "title": "My addresses",
     "newTitle": "New address",
@@ -152,12 +179,74 @@
     "loadFailed": "Couldn't load the address.",
     "failed": "Couldn't save the address. Try again."
   },
-  "favorites": {},
+  "favorites": {
+    "title": "Favourites",
+    "emptyTitle": "No favourites yet",
+    "emptyBody": "Tap the heart on a restaurant you like and it will be collected here."
+  },
   "rewards": {},
   "legal": {},
   "errors": {
     "network": "Couldn't connect",
     "generic": "Something went wrong",
     "sessionExpired": "Your session expired. Sign in again."
+  },
+  "sort": {
+    "title": "Sort",
+    "recommended": "Recommended",
+    "nearest": "Nearest",
+    "topRated": "Top rated",
+    "fastest": "Fastest delivery"
+  },
+  "filters": {
+    "title": "Filter",
+    "openNow": "Open now only",
+    "delivery": "Delivery",
+    "pickup": "Pickup",
+    "topRated": "4.0+ rating",
+    "clear": "Clear",
+    "done": "Done",
+    "noMatchTitle": "No restaurants match the filters"
+  },
+  "restaurants": {
+    "title": "Restaurants"
+  },
+  "campaigns": {
+    "title": "Offers",
+    "emptyTitle": "No offers right now",
+    "mockNote": "This offer is a sample (Mock).",
+    "notFound": "This offer was not found",
+    "items": {
+      "basket20": {
+        "title": "20% off your basket",
+        "subtitle": "At selected restaurants",
+        "badge": "20%",
+        "description": "20% of your basket total comes off at selected restaurants."
+      },
+      "firstOrder": {
+        "title": "100 ₺ off your first order",
+        "subtitle": "For new members",
+        "badge": "100 ₺",
+        "description": "Get 100 ₺ off your first order."
+      },
+      "pizza2for1": {
+        "title": "Buy 1 get 1 pizza",
+        "subtitle": "Weekend deal",
+        "badge": "2 for 1",
+        "description": "Buy two pizzas at selected pizza places and pay for one."
+      },
+      "coffeeHalf": {
+        "title": "Second coffee half price",
+        "subtitle": "Every morning 08:00–11:00",
+        "badge": "50%",
+        "description": "Your second coffee in the morning is half price."
+      },
+      "freeDelivery": {
+        "title": "Free delivery week",
+        "subtitle": "All week long",
+        "badge": "Free",
+        "description": "No delivery fee at selected restaurants this week."
+      }
+    }
   }
 }

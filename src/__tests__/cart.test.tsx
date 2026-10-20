@@ -2,6 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Alert, Pressable, Text } from 'react-native';
 import { useState } from 'react';
 import CartScreen from '@/app/cart';
+import { CartScreen as CartBody } from '@/components/CartScreen';
 import { CartBar } from '@/components/CartBar';
 import { qk } from '@/queries/keys';
 import { useAddToCart } from '@/queries/useCart';
@@ -11,8 +12,9 @@ import { renderWithProviders } from './helpers/render-with-providers';
 
 const mockPush = jest.fn();
 const mockDismissTo = jest.fn();
+const mockNavigate = jest.fn();
 jest.mock('expo-router', () => ({
-  router: { push: (p: unknown) => mockPush(p), dismissTo: (p: unknown) => mockDismissTo(p) },
+  router: { push: (p: unknown) => mockPush(p), dismissTo: (p: unknown) => mockDismissTo(p), navigate: (p: unknown) => mockNavigate(p) },
   Stack: { Screen: () => null },
 }));
 jest.mock('@/context/AuthContext', () => ({ useAuth: () => ({ status: 'signedIn' }) }));
@@ -162,6 +164,26 @@ describe('cart screen', () => {
     await renderWithProviders(<CartScreen />);
     await fireEvent.press(await screen.findByText('Ödemeye geç'));
     expect(mockPush).toHaveBeenCalledWith('/checkout');
+  });
+});
+
+describe('cart tab', () => {
+  it('draws its own title and shows the lines and the way to checkout', async () => {
+    jest.spyOn(carts, 'getCurrentCart').mockResolvedValue(cart());
+    await renderWithProviders(<CartBody variant="tab" />);
+    expect(await screen.findByText('Klasik Burger')).toBeTruthy();
+    expect(screen.getByText('Sepetim')).toBeTruthy();
+    expect(await screen.findByText('Premium Burger Co')).toBeTruthy();
+    await fireEvent.press(screen.getByText('Ödemeye geç'));
+    expect(mockPush).toHaveBeenCalledWith('/checkout');
+  });
+
+  it('sends an empty cart back to the explore tab', async () => {
+    jest.spyOn(carts, 'getCurrentCart').mockResolvedValue(null);
+    await renderWithProviders(<CartBody variant="tab" />);
+    await fireEvent.press(await screen.findByText('Restoranlara göz at'));
+    expect(mockNavigate).toHaveBeenCalledWith('/(tabs)');
+    expect(mockDismissTo).not.toHaveBeenCalled();
   });
 });
 

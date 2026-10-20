@@ -7,7 +7,8 @@
     "close": "Kapat",
     "continue": "Devam et",
     "loading": "Yükleniyor…",
-    "seeAll": "Tümünü gör"
+    "seeAll": "Tümünü gör",
+    "mock": "Mock"
   },
   "auth": {
     "title": "Hoş geldin",
@@ -41,11 +42,15 @@
     "resendIn": "Kodu tekrar gönder ({{seconds}} sn)"
   },
   "tabs": {
-    "home": "Ana sayfa"
+    "home": "Keşfet",
+    "favorites": "Favorilerim",
+    "cart": "Sepetim",
+    "orders": "Siparişlerim",
+    "campaigns": "Kampanyalar"
   },
   "home": {
     "deliverTo": "Teslimat adresi",
-    "searchPlaceholder": "Ne yemek istersin?",
+    "searchPlaceholder": "Restoran, ürün veya mutfak ara",
     "nearby": "Yakınındakiler",
     "branchCount_one": "{{count}} restoran",
     "branchCount_other": "{{count}} restoran",
@@ -55,7 +60,17 @@
     "changeAddress": "Adresi değiştir",
     "addFavorite": "Favorilere ekle",
     "removeFavorite": "Favorilerden çıkar",
-    "profile": "Hesabım"
+    "featured": "Öne çıkanlar",
+    "cuisines": "Mutfaklar",
+    "allRestaurants": "Tüm restoranlar",
+    "minBasket": "Min {{amount}}",
+    "minutes": "{{from}}–{{to}} dk",
+    "campaigns": "Kampanyalar ({{count}})",
+    "forYou": "Sana özel restoranlar",
+    "topRated": "Yüksek puanlılar",
+    "chains": "Zincir restoranlar",
+    "chainBranches_one": "{{count}} şube",
+    "chainBranches_other": "{{count}} şube"
   },
   "categories": {
     "all": "Tümü",
@@ -117,10 +132,22 @@
   },
   "checkout": {},
   "payment": {},
-  "orders": {},
+  "orders": {
+    "title": "Siparişlerim",
+    "placeholderTitle": "Siparişlerin burada görünecek",
+    "placeholderBody": "Verdiğin siparişleri ve durumlarını burada takip edebileceksin."
+  },
   "orderStatus": {},
-  "search": {},
-  "account": {},
+  "search": {
+    "title": "Ara",
+    "placeholderTitle": "Arama yakında",
+    "placeholderBody": "Restoran, ürün ve mutfak araması bu ekrana gelecek."
+  },
+  "account": {
+    "title": "Hesabım",
+    "signOut": "Çıkış yap",
+    "placeholderBody": "Hesap ayarların yakında burada olacak."
+  },
   "addresses": {
     "title": "Adreslerim",
     "newTitle": "Yeni adres",
@@ -152,12 +179,74 @@
     "loadFailed": "Adres yüklenemedi.",
     "failed": "Adres kaydedilemedi. Tekrar dene."
   },
-  "favorites": {},
+  "favorites": {
+    "title": "Favorilerim",
+    "emptyTitle": "Henüz favorin yok",
+    "emptyBody": "Beğendiğin restoranların kalbine dokun, burada toplansın."
+  },
   "rewards": {},
   "legal": {},
   "errors": {
     "network": "Bağlantı kurulamadı",
     "generic": "Bir şeyler ters gitti",
     "sessionExpired": "Oturumun sona erdi, tekrar giriş yap"
+  },
+  "sort": {
+    "title": "Sırala",
+    "recommended": "Önerilen",
+    "nearest": "En yakın",
+    "topRated": "En yüksek puan",
+    "fastest": "En hızlı teslimat"
+  },
+  "filters": {
+    "title": "Filtrele",
+    "openNow": "Sadece açık olanlar",
+    "delivery": "Teslimat yapanlar",
+    "pickup": "Gel-al",
+    "topRated": "4.0+ puan",
+    "clear": "Temizle",
+    "done": "Tamam",
+    "noMatchTitle": "Filtrelere uyan restoran yok"
+  },
+  "restaurants": {
+    "title": "Restoranlar"
+  },
+  "campaigns": {
+    "title": "Kampanyalar",
+    "emptyTitle": "Şu an kampanya yok",
+    "mockNote": "Bu kampanya örnek gösterimdir (Mock).",
+    "notFound": "Bu kampanya bulunamadı",
+    "items": {
+      "basket20": {
+        "title": "Sepette %20 indirim",
+        "subtitle": "Seçili restoranlarda",
+        "badge": "%20",
+        "description": "Seçili restoranlarda sepet tutarının %20'si indirim olarak düşer."
+      },
+      "firstOrder": {
+        "title": "İlk siparişe 100 ₺ indirim",
+        "subtitle": "Yeni üyelere özel",
+        "badge": "100 ₺",
+        "description": "İlk siparişinde 100 ₺ indirimden yararlan."
+      },
+      "pizza2for1": {
+        "title": "2 al 1 öde pizza",
+        "subtitle": "Hafta sonu fırsatı",
+        "badge": "2 al 1 öde",
+        "description": "Seçili pizza restoranlarında iki pizza al, birinin parasını öde."
+      },
+      "coffeeHalf": {
+        "title": "Kahvede ikincisi yarı fiyat",
+        "subtitle": "Her sabah 08:00–11:00",
+        "badge": "%50",
+        "description": "Sabah saatlerinde aldığın ikinci kahve yarı fiyatına."
+      },
+      "freeDelivery": {
+        "title": "Ücretsiz teslimat haftası",
+        "subtitle": "Tüm hafta boyunca",
+        "badge": "Ücretsiz",
+        "description": "Bu hafta seçili restoranlarda teslimat ücreti alınmaz."
+      }
+    }
   }
 }

@@ -1,25 +1,49 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Heart } from 'lucide-react-native';
+import { Bike, Heart, Star } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { SHOW_MOCKS } from '@/config';
 import { bannerOf, formatDistance, isOpenNow, nextOpening } from '@/lib/branch-model';
+import { formatMoney } from '@/lib/money';
+import { mockDelivery, mockRating, mockRatingCount } from '@/mocks/home-mocks';
 import { colors, font, radius, shadow, space, weight } from '@/theme';
 import type { Branch } from '@/types/branch';
+import { MockTag } from '@/ui/MockTag';
 
-type Props = { branch: Branch; isFavorite: boolean; onToggleFavorite: () => void };
+export const COMPACT_CARD_WIDTH = 280;
 
-/** One restaurant in the home feed: banner with a half-overlapping logo, favourite heart, name and distance. */
-export function BranchCard({ branch, isFavorite, onToggleFavorite }: Props) {
+type Props = {
+  branch: Branch;
+  isFavorite: boolean;
+  onToggleFavorite: () => void;
+  /** `compact` is the fixed-width card of the horizontal rows; `full` fills the list width. */
+  variant?: 'full' | 'compact';
+  /** Name of the first cuisine the branch matches (an estimate, see categories.ts). */
+  cuisineLabel?: string;
+};
+
+/**
+ * One restaurant: banner with a favourite heart (and the closed badge), name, and a grey line of
+ * minimum basket, distance and cuisine. Rating and delivery time are mock values, always tagged.
+ */
+export function BranchCard({ branch, isFavorite, onToggleFavorite, variant = 'full', cuisineLabel }: Props) {
   const { t, i18n } = useTranslation();
   const open = isOpenNow(branch.business_hour);
   const opensAt = open ? null : nextOpening(branch.business_hour);
   const banner = bannerOf(branch);
+  const min = branch.minBasketPrice != null ? Number(branch.minBasketPrice) : 0;
+  const info = [
+    min > 0 ? t('home.minBasket', { amount: formatMoney(min, branch.currency) }) : '',
+    formatDistance(branch.distanceM, i18n.language === 'tr' ? 'tr' : 'en'),
+    cuisineLabel ?? '',
+  ].filter(Boolean);
+  const eta = mockDelivery(branch.distanceM);
 
   return (
     <Pressable
       onPress={() => router.push({ pathname: '/restaurant/[branchId]', params: { branchId: branch.id } })}
-      style={[styles.card, !open && styles.closed]}
+      style={[styles.card, variant === 'compact' && styles.compact, !open && styles.closed]}
       accessibilityRole="button"
     >
       <View style={styles.banner}>
@@ -36,6 +60,13 @@ export function BranchCard({ branch, isFavorite, onToggleFavorite }: Props) {
             </Text>
           </View>
         ) : null}
+        {SHOW_MOCKS ? (
+          <View style={styles.rating}>
+            <Star size={12} color={colors.foreground} fill={colors.foreground} />
+            <Text style={styles.ratingText}>{`${mockRating(branch.id).toFixed(1)} (${mockRatingCount(branch.id)}+)`}</Text>
+            <MockTag />
+          </View>
+        ) : null}
         <Pressable
           onPress={onToggleFavorite}
           hitSlop={8}
@@ -43,25 +74,24 @@ export function BranchCard({ branch, isFavorite, onToggleFavorite }: Props) {
           accessibilityRole="button"
           accessibilityLabel={t(isFavorite ? 'home.removeFavorite' : 'home.addFavorite')}
         >
-          <Heart size={18} color={colors.primary} fill={isFavorite ? colors.primary : 'transparent'} />
+          <Heart size={18} color={colors.foreground} fill={isFavorite ? colors.primary : 'transparent'} />
         </Pressable>
       </View>
-      {banner && branch.logoUrl ? (
-        <View style={styles.logo}>
-          <Image source={{ uri: branch.logoUrl }} contentFit="contain" style={styles.logoImage} />
-        </View>
-      ) : null}
       <View style={styles.body}>
-        <View style={styles.titleRow}>
-          <Text testID="branch-card-name" style={styles.name} numberOfLines={1}>
-            {branch.name}
+        <Text testID="branch-card-name" style={styles.name} numberOfLines={1}>
+          {branch.name}
+        </Text>
+        {info.length ? (
+          <Text style={styles.info} numberOfLines={1}>
+            {info.join(' · ')}
           </Text>
-          <Text style={styles.distance}>{formatDistance(branch.distanceM, i18n.language === 'tr' ? 'tr' : 'en')}</Text>
-        </View>
-        {branch.addressText ? (
-          <Text style={styles.address} numberOfLines={1}>
-            {branch.addressText}
-          </Text>
+        ) : null}
+        {SHOW_MOCKS ? (
+          <View style={styles.etaRow}>
+            <Bike size={14} color={colors.mutedForeground} />
+            <Text style={styles.info}>{t('home.minutes', { from: eta.from, to: eta.to })}</Text>
+            <MockTag />
+          </View>
         ) : null}
       </View>
     </Pressable>
@@ -76,10 +106,10 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     ...shadow.card,
   },
+  compact: { width: COMPACT_CARD_WIDTH },
   closed: { opacity: 0.55 },
-  // Clipped on its own so the logo can hang over the banner's edge while the card keeps its shadow.
   banner: {
-    height: 140,
+    height: 150,
     borderTopLeftRadius: radius.lg - 1,
     borderTopRightRadius: radius.lg - 1,
     overflow: 'hidden',
@@ -98,33 +128,33 @@ const styles = StyleSheet.create({
     backgroundColor: colors.foreground,
   },
   badgeText: { fontSize: font.small, fontWeight: weight.semibold, color: colors.primaryForeground },
+  rating: {
+    position: 'absolute',
+    left: space.md,
+    bottom: space.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingLeft: space.sm,
+    paddingRight: 4,
+    paddingVertical: 3,
+    borderRadius: radius.full,
+    backgroundColor: colors.card,
+  },
+  ratingText: { fontSize: font.small, fontWeight: weight.semibold, color: colors.foreground },
   heart: {
     position: 'absolute',
-    top: space.md,
     right: space.md,
-    width: 34,
-    height: 34,
+    bottom: space.md,
+    width: 36,
+    height: 36,
     borderRadius: radius.full,
     backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  logo: {
-    position: 'absolute',
-    top: 140 - 20,
-    left: space.md,
-    width: 40,
-    height: 40,
-    borderRadius: radius.full,
-    borderWidth: 2,
-    borderColor: colors.card,
-    backgroundColor: colors.card,
-    overflow: 'hidden',
-  },
-  logoImage: { width: '100%', height: '100%' },
-  body: { padding: space.md, paddingTop: space.lg + space.sm, gap: 2 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  name: { flex: 1, fontSize: font.base, fontWeight: weight.semibold, color: colors.foreground },
-  distance: { fontSize: font.small, fontWeight: weight.semibold, color: colors.primarySoftForeground },
-  address: { fontSize: font.small, color: colors.mutedForeground },
+  body: { padding: space.md, gap: 3 },
+  name: { fontSize: font.base, fontWeight: weight.bold, color: colors.foreground },
+  info: { fontSize: 13, color: colors.mutedForeground },
+  etaRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

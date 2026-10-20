@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/context/AuthContext';
+import { HomeViewProvider } from '@/context/HomeViewContext';
 import { LocationProvider } from '@/context/LocationContext';
 import { loadLanguage } from '@/lib/language';
 import { bindAppFocus, queryClient } from '@/lib/query-client';
@@ -29,21 +30,27 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <LocationProvider>
-              <StatusBar style="dark" />
-              <Stack screenOptions={{ headerShadowVisible: false, headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.foreground, contentStyle: { backgroundColor: colors.background }, headerBackButtonDisplayMode: 'minimal' }}>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="onboarding/address" options={{ headerShown: false, gestureEnabled: false }} />
-                <Stack.Screen name="addresses/index" options={{ title: t('addresses.title') }} />
-                <Stack.Screen name="addresses/form" options={({ route }) => ({ title: (route.params as { id?: string } | undefined)?.id ? t('addresses.editTitle') : t('addresses.newTitle') })} />
-                <Stack.Screen name="cart" options={{ title: t('cart.title') }} />
-                <Stack.Screen name="restaurant/[branchId]" options={{ headerTransparent: true, headerTitle: '', headerBackButtonDisplayMode: 'minimal' }} />
-                <Stack.Screen
-                  name="product/[id]"
-                  options={{ presentation: 'formSheet', sheetAllowedDetents: [0.92], sheetGrabberVisible: true, headerShown: false, contentStyle: { backgroundColor: colors.card } }}
-                />
-              </Stack>
+              <HomeViewProvider>
+                <StatusBar style="dark" />
+                <Stack screenOptions={{ headerShadowVisible: false, headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.foreground, contentStyle: { backgroundColor: colors.background }, headerBackButtonDisplayMode: 'minimal' }}>
+                  <Stack.Screen name="index" options={{ headerShown: false }} />
+                  <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                  <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                  <Stack.Screen name="onboarding/address" options={{ headerShown: false, gestureEnabled: false }} />
+                  <Stack.Screen name="addresses/index" options={{ title: t('addresses.title') }} />
+                  <Stack.Screen name="addresses/form" options={({ route }) => ({ title: (route.params as { id?: string } | undefined)?.id ? t('addresses.editTitle') : t('addresses.newTitle') })} />
+                  <Stack.Screen name="cart" options={{ title: t('cart.title') }} />
+                  <Stack.Screen name="restaurants" options={{ title: t('restaurants.title') }} />
+                  <Stack.Screen name="search" options={{ title: t('search.title') }} />
+                  <Stack.Screen name="account" options={{ title: t('account.title') }} />
+                  <Stack.Screen name="campaigns/[id]" options={{ title: t('campaigns.title') }} />
+                  <Stack.Screen name="restaurant/[branchId]" options={{ headerTransparent: true, headerTitle: '', headerBackButtonDisplayMode: 'minimal' }} />
+                  <Stack.Screen
+                    name="product/[id]"
+                    options={{ presentation: 'formSheet', sheetAllowedDetents: [0.92], sheetGrabberVisible: true, headerShown: false, contentStyle: { backgroundColor: colors.card } }}
+                  />
+                </Stack>
+              </HomeViewProvider>
             </LocationProvider>
           </AuthProvider>
         </QueryClientProvider>

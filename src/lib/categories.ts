@@ -37,3 +37,8 @@ export function branchMatchesCategory(branch: Branch, category: CategoryId, fold
 export function availableCategories(branches: Branch[], menuTextById: Record<string, string>): CategoryId[] {
   return CATEGORY_IDS.filter((c) => branches.some((b) => branchMatchesCategory(b, c, menuTextById[b.id])));
 }
+
+/** The first cuisine (in chip order) a branch matches: the one cuisine label a card shows. */
+export function matchedCategory(branch: Branch, foldedMenuText = ''): CategoryId | null {
+  return CATEGORY_IDS.find((c) => branchMatchesCategory(branch, c, foldedMenuText)) ?? null;
+}

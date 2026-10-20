@@ -24,6 +24,7 @@ The environment is picked from the host of `API_URL`: a host containing `staging
 | `GOOGLE_IOS_CLIENT_ID` | `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | empty | empty |
 | `SIGN_IN_GOOGLE` | `EXPO_PUBLIC_SIGN_IN_GOOGLE` | on (`0` turns it off) | on (`0` turns it off) |
 | `SIGN_IN_APPLE` | `EXPO_PUBLIC_SIGN_IN_APPLE` | on (`0` turns it off) | on (`0` turns it off) |
+| `SHOW_MOCKS` | `EXPO_PUBLIC_SHOW_MOCKS` | on (`0` hides every "(Mock)" section and field) | set `0` for store builds |
 
 `API_URL` defaults to `https://staging-api.runmeal.com`, not `api-staging.runmeal.com/api`: that host is the Cloudflare brand edge and rejects sign-in with `BRAND_DOMAIN_NOT_FOUND`.
 

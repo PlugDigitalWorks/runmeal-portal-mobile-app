@@ -8,6 +8,7 @@ export const colors = {
   background: '#FFFAF5',
   card: '#FFFFFF',
   border: '#F2E6D7',
+  searchFill: '#F4EEE7',
   bannerPlaceholder: '#FFE3BF',
   foreground: '#10192E',
   mutedForeground: '#6B6257',

@@ -22,11 +22,11 @@ export function Skeleton({ width = '100%', height, radius = radii.sm }: Props) {
   );
 }
 
-/** Mirrors the home branch card (banner + two text lines) so the list does not jump when data arrives. */
+/** Mirrors the home branch card (banner + text lines) so the list does not jump when data arrives. */
 export function BranchCardSkeleton() {
   return (
     <View style={styles.card}>
-      <Skeleton height={140} radius={0} />
+      <Skeleton height={150} radius={0} />
       <View style={styles.body}>
         <Skeleton width="60%" height={16} />
         <Skeleton width="40%" height={12} />
@@ -35,7 +35,30 @@ export function BranchCardSkeleton() {
   );
 }
 
+/** Two half-visible compact cards, the loading look of a horizontal restaurant row. */
+export function BranchCarouselSkeleton() {
+  return (
+    <View style={styles.row}>
+      <View style={[styles.card, { width: 280 }]}>
+        <Skeleton height={150} radius={0} />
+        <View style={styles.body}>
+          <Skeleton width="60%" height={16} />
+          <Skeleton width="40%" height={12} />
+        </View>
+      </View>
+      <View style={[styles.card, { width: 280 }]}>
+        <Skeleton height={150} radius={0} />
+        <View style={styles.body}>
+          <Skeleton width="60%" height={16} />
+          <Skeleton width="40%" height={12} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  row: { flexDirection: 'row', gap: space.md, paddingHorizontal: space.lg, overflow: 'hidden' },
   card: {
     backgroundColor: colors.card,
     borderRadius: radii.lg,

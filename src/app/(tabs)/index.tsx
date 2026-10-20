@@ -1,84 +1,119 @@
-import { useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { MapPinOff } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
+import { Heart, MapPinOff } from 'lucide-react-native';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { AddressSheet } from '@/components/AddressSheet';
 import { BranchCard } from '@/components/BranchCard';
-import { CategoryChips } from '@/components/CategoryChips';
+import { BranchCarousel } from '@/components/BranchCarousel';
+import { CampaignCarousel } from '@/components/CampaignCarousel';
+import { ChainCarousel } from '@/components/ChainCarousel';
+import { CuisineTiles } from '@/components/CuisineTiles';
+import { FeaturedCarousel } from '@/components/FeaturedCarousel';
 import { HomeHeader } from '@/components/HomeHeader';
-import { useLocation } from '@/context/LocationContext';
-import { availableCategories, branchMatchesCategory, menuText, type CategoryId } from '@/lib/categories';
+import { SearchBar } from '@/components/SearchBar';
+import { SectionHeader } from '@/components/SectionHeader';
+import { SortFilterBar } from '@/components/SortFilterBar';
+import { SHOW_MOCKS } from '@/config';
+import { NO_FILTERS } from '@/lib/home-filters';
+import { useHomeView } from '@/context/HomeViewContext';
+import { useHomeFeed } from '@/hooks/useHomeFeed';
+import { bannerOf, isOpenNow } from '@/lib/branch-model';
+import { CAMPAIGNS, chainsOf, pickedForYou, topRatedBranches } from '@/mocks/home-mocks';
 import { useFavorites } from '@/queries/useFavorites';
-import { qk } from '@/queries/keys';
-import { useNearbyBranches } from '@/queries/useNearbyBranches';
-import { colors, font, space, weight } from '@/theme';
-import type { Menu } from '@/types/product';
+import { colors, space } from '@/theme';
+import type { Branch } from '@/types/branch';
 import { EmptyState } from '@/ui/EmptyState';
 import { ErrorState } from '@/ui/ErrorState';
-import { BranchCardSkeleton } from '@/ui/Skeleton';
+import { BranchCardSkeleton, BranchCarouselSkeleton } from '@/ui/Skeleton';
 
-/** Discovery feed: restaurants that deliver to the active address, filterable by cuisine chip. */
+const NEARBY_LIMIT = 10;
+
+/**
+ * Keşfet, laid out like Uber Eats: address, search, sort/filter, then horizontal rows and the full list.
+ * Rows above the cuisine tiles (featured, campaigns, for you) show every nearby branch; the ones below
+ * follow the sort, filters and cuisine. Sections without real data behind them carry a "(Mock)" label.
+ */
 export default function Home() {
   const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const { isLoading: locating } = useLocation();
-  const { data, isLoading, isError, refetch } = useNearbyBranches();
+  const { branches, visible, categories, active, cuisineOf, refresh, refreshing, refetch, loading, failed } = useHomeFeed();
+  const { setCategory, setFilters } = useHomeView();
   const { isFavorite, toggle } = useFavorites();
-  const [category, setCategory] = useState<CategoryId | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
-  const branches = useMemo(() => data ?? [], [data]);
-  // Menus are only known for restaurants the person already opened; their text sharpens the match.
-  const menuTexts = useMemo(() => {
-    const texts: Record<string, string> = {};
-    for (const b of branches) {
-      const menu = queryClient.getQueryData<Menu>(qk.menu(b.id));
-      if (menu) texts[b.id] = menuText(menu);
-    }
-    return texts;
-  }, [branches, queryClient]);
-  const categories = useMemo(() => availableCategories(branches, menuTexts), [branches, menuTexts]);
-  // A change of address can drop the chosen cuisine from the list; fall back to "All" rather than show nothing.
-  const active = category && categories.includes(category) ? category : null;
-  const visible = active ? branches.filter((b) => branchMatchesCategory(b, active, menuTexts[b.id])) : branches;
-
-  const refresh = async () => {
-    setRefreshing(true);
-    try {
-      await refetch();
-    } finally {
-      setRefreshing(false);
-    }
+  const cuisineLabelOf = (b: Branch) => {
+    const id = cuisineOf(b);
+    return id ? t(`categories.${id}`) : undefined;
   };
-
-  const loading = locating || isLoading;
-  // A failed refresh keeps the list already on screen; the error view is only for when there is nothing to show.
-  const failed = isError && !data;
+  const carouselProps = { isFavorite, onToggleFavorite: toggle, cuisineLabelOf };
+  const ready = !loading && !failed;
+  const featured = branches.filter((b) => bannerOf(b) && isOpenNow(b.business_hour)).slice(0, 5);
+  const chains = chainsOf(visible);
 
   return (
     <View style={styles.root}>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
       <FlatList
-        data={loading || failed ? [] : visible}
+        data={ready ? visible : []}
         keyExtractor={(b) => b.id}
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} colors={[colors.primary]} />}
         ListHeaderComponent={
           <View>
             <HomeHeader onOpenAddress={() => setSheetOpen(true)} />
-            <CategoryChips categories={categories} selected={active} onSelect={setCategory} />
-            <View style={styles.titleRow}>
-              <Text style={styles.title}>{t('home.nearby')}</Text>
-              {!loading && !failed ? <Text style={styles.count}>{t('home.branchCount', { count: visible.length })}</Text> : null}
-            </View>
+            <SearchBar />
+            <SortFilterBar />
+            {ready && featured.length > 0 ? <FeaturedCarousel branches={featured} /> : null}
+            {ready && SHOW_MOCKS ? (
+              <>
+                <SectionHeader title={t('home.campaigns', { count: CAMPAIGNS.length })} mock onSeeAll={() => router.push('/campaigns')} />
+                <CampaignCarousel />
+                {branches.length > 0 ? (
+                  <>
+                    <SectionHeader title={t('home.forYou')} mock icon={<Heart size={24} color={colors.destructive} fill={colors.destructive} />} />
+                    <BranchCarousel branches={pickedForYou(branches)} {...carouselProps} />
+                  </>
+                ) : null}
+              </>
+            ) : null}
+            {ready && categories.length > 0 ? (
+              <>
+                <SectionHeader title={t('home.cuisines')} mock={SHOW_MOCKS} />
+                <CuisineTiles categories={categories} selected={active} onSelect={setCategory} />
+              </>
+            ) : null}
+            {ready && visible.length > 0 ? (
+              <>
+                <SectionHeader title={t('home.nearby')} onSeeAll={() => router.push('/restaurants')} />
+                <BranchCarousel branches={visible.slice(0, NEARBY_LIMIT)} {...carouselProps} />
+                {SHOW_MOCKS ? (
+                  <>
+                    <SectionHeader title={t('home.topRated')} mock />
+                    <BranchCarousel branches={topRatedBranches(visible)} {...carouselProps} />
+                    {chains.length > 0 ? (
+                      <>
+                        <SectionHeader title={t('home.chains')} mock />
+                        <ChainCarousel chains={chains} />
+                      </>
+                    ) : null}
+                  </>
+                ) : null}
+                <SectionHeader title={t('home.allRestaurants')} trailing={t('home.branchCount', { count: visible.length })} />
+              </>
+            ) : null}
+            {loading ? (
+              <>
+                <SectionHeader title={t('home.nearby')} />
+                <BranchCarouselSkeleton />
+                <SectionHeader title={t('home.allRestaurants')} />
+              </>
+            ) : null}
           </View>
         }
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            <BranchCard branch={item} isFavorite={isFavorite(item.id)} onToggleFavorite={() => toggle(item)} />
+          <View style={styles.item} testID="all-restaurants-item">
+            <BranchCard branch={item} isFavorite={isFavorite(item.id)} onToggleFavorite={() => toggle(item)} cuisineLabel={cuisineLabelOf(item)} />
           </View>
         )}
         ListEmptyComponent={
@@ -86,10 +121,20 @@ export default function Home() {
             <View style={styles.skeletons}>
               <BranchCardSkeleton />
               <BranchCardSkeleton />
-              <BranchCardSkeleton />
             </View>
           ) : failed ? (
             <ErrorState onRetry={refetch} />
+          ) : branches.length > 0 ? (
+            // Something is nearby, the sort/filter/cuisine choice just hides all of it.
+            <EmptyState
+              icon={<MapPinOff size={32} color={colors.primarySoftForeground} />}
+              title={t('filters.noMatchTitle')}
+              actionLabel={t('filters.clear')}
+              onAction={() => {
+                setFilters(NO_FILTERS);
+                setCategory(null);
+              }}
+            />
           ) : (
             <EmptyState
               icon={<MapPinOff size={32} color={colors.primarySoftForeground} />}
@@ -108,9 +153,6 @@ export default function Home() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
   content: { paddingBottom: space.xxl },
-  titleRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', paddingHorizontal: space.lg, paddingBottom: space.md },
-  title: { fontSize: font.title, fontWeight: weight.bold, color: colors.foreground },
-  count: { fontSize: font.small, color: colors.mutedForeground },
   item: { paddingHorizontal: space.lg, paddingBottom: space.lg },
   skeletons: { paddingHorizontal: space.lg, gap: space.lg },
 });

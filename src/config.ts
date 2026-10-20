@@ -41,3 +41,8 @@ export const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
 export const SIGN_IN_GOOGLE = process.env.EXPO_PUBLIC_SIGN_IN_GOOGLE !== '0';
 /** Default on; EXPO_PUBLIC_SIGN_IN_APPLE=0 hides the Apple button. runmeal-api must accept com.runmeal.portal as an Apple audience. */
 export const SIGN_IN_APPLE = process.env.EXPO_PUBLIC_SIGN_IN_APPLE !== '0';
+/**
+ * Default on: the home feed shows clearly labelled "(Mock)" sections and fields the API cannot
+ * back yet (docs/BACKEND_REQUESTS.md). A store build sets EXPO_PUBLIC_SHOW_MOCKS=0 to hide all of them.
+ */
+export const SHOW_MOCKS = process.env.EXPO_PUBLIC_SHOW_MOCKS !== '0';
