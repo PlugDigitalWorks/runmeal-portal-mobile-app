@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Recaptcha } from '@/components/Recaptcha';
 import { SocialSignIn } from '@/components/SocialSignIn';
-import { PORTAL_WEB_ORIGIN, SIGN_IN_APPLE, SIGN_IN_GOOGLE } from '@/config';
+import { SIGN_IN_APPLE, SIGN_IN_GOOGLE } from '@/config';
 import { useAuth } from '@/context/AuthContext';
+import { useCaptcha } from '@/hooks/useCaptcha';
 import { apiErrorMessage } from '@/lib/api-error';
 import { loginWithPassword, requestOtpLogin } from '@/services/auth.service';
 import { colors, font, space, weight } from '@/theme';
@@ -14,11 +14,10 @@ import { Screen } from '@/ui/Screen';
 import { TextField } from '@/ui/TextField';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const CAPTCHA_HOST = new URL(PORTAL_WEB_ORIGIN).host;
 
 /**
  * Emailed one-time code by default, password as an option. The API wants a
- * reCAPTCHA token on /auth/login, solved in a WebView on the portal's own host.
+ * reCAPTCHA token on /auth/login, asked for in a sheet once the form is valid.
  */
 export default function Login() {
   const { t } = useTranslation();
@@ -26,15 +25,10 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [withPassword, setWithPassword] = useState(false);
-  const [captcha, setCaptcha] = useState<string | null>(null);
-  // A token works once; bumping the key mounts a fresh widget for the next attempt.
-  const [captchaRun, setCaptchaRun] = useState(0);
+  const { requestToken, sheet } = useCaptcha();
   const [busy, setBusy] = useState(false);
   const [fieldError, setFieldError] = useState<{ email?: string; password?: string }>({});
   const [error, setError] = useState<string | null>(null);
-
-  const onToken = useCallback((token: string) => setCaptcha(token), []);
-  const onExpired = useCallback(() => setCaptcha(null), []);
 
   const submit = async () => {
     const trimmed = email.trim().toLowerCase();
@@ -44,7 +38,10 @@ export default function Login() {
     };
     setFieldError(next);
     setError(null);
-    if (next.email || next.password || !captcha) return;
+    if (next.email || next.password) return;
+
+    const captcha = await requestToken();
+    if (!captcha) return;
 
     setBusy(true);
     try {
@@ -58,8 +55,6 @@ export default function Login() {
     } catch (e) {
       setError(apiErrorMessage(e, t('errors.generic')));
     } finally {
-      setCaptcha(null);
-      setCaptchaRun((n) => n + 1);
       setBusy(false);
     }
   };
@@ -103,11 +98,8 @@ export default function Login() {
           />
         ) : null}
 
-        {captcha ? null : <Text style={styles.hint}>{t('auth.verifyHuman')}</Text>}
-        {captcha ? null : <Recaptcha key={captchaRun} host={CAPTCHA_HOST} onToken={onToken} onExpired={onExpired} />}
-
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        <Button title={withPassword ? t('auth.signIn') : t('auth.sendCode')} loading={busy} disabled={!captcha} onPress={submit} />
+        <Button title={withPassword ? t('auth.signIn') : t('auth.sendCode')} loading={busy} onPress={submit} />
 
         <Pressable onPress={() => setWithPassword((v) => !v)} hitSlop={8} style={styles.linkWrap}>
           <Text style={styles.link}>{withPassword ? t('auth.useCode') : t('auth.usePassword')}</Text>
@@ -128,6 +120,7 @@ export default function Login() {
           <Text style={styles.footer}>{t('auth.noAccount')}</Text>
         </Pressable>
       </ScrollView>
+      {sheet}
     </Screen>
   );
 }
@@ -139,7 +132,6 @@ const styles = StyleSheet.create({
   brand: { fontSize: font.title, fontWeight: weight.bold, color: colors.primaryPressed },
   title: { fontSize: font.display, fontWeight: weight.bold, color: colors.foreground, marginTop: space.md },
   subtitle: { fontSize: font.base, color: colors.mutedForeground, textAlign: 'center' },
-  hint: { fontSize: font.body, color: colors.mutedForeground },
   error: { fontSize: font.body, color: colors.destructive },
   linkWrap: { alignSelf: 'center' },
   link: { fontSize: font.body, fontWeight: weight.semibold, color: colors.primarySoftForeground },

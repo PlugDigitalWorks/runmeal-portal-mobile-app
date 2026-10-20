@@ -1,10 +1,9 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Recaptcha } from '@/components/Recaptcha';
-import { PORTAL_WEB_ORIGIN } from '@/config';
 import { useAuth } from '@/context/AuthContext';
+import { useCaptcha } from '@/hooks/useCaptcha';
 import { apiErrorMessage } from '@/lib/api-error';
 import { requestOtpLogin, verifyOtp } from '@/services/auth.service';
 import { colors, font, space, weight } from '@/theme';
@@ -12,12 +11,11 @@ import { Button } from '@/ui/Button';
 import { TextField } from '@/ui/TextField';
 
 const RESEND_SECONDS = 30;
-const CAPTCHA_HOST = new URL(PORTAL_WEB_ORIGIN).host;
 
 /**
  * The 6-digit code from the email. It submits itself on the sixth digit. A new
  * code goes through /auth/login (the account exists in both modes) and so needs
- * a fresh reCAPTCHA token, which is only asked for when the person taps resend.
+ * a fresh reCAPTCHA token, which is only asked for (in a sheet) when the person taps resend.
  */
 export default function Verify() {
   const { t } = useTranslation();
@@ -27,7 +25,7 @@ export default function Verify() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
-  const [captchaOpen, setCaptchaOpen] = useState(false);
+  const { requestToken, sheet } = useCaptcha();
 
   useEffect(() => {
     if (seconds <= 0) return;
@@ -56,23 +54,21 @@ export default function Verify() {
     if (digits.length === 6 && !busy) void verify(digits);
   };
 
-  const resend = useCallback(
-    async (token: string) => {
-      setCaptchaOpen(false);
-      setBusy(true);
-      setError(null);
-      try {
-        await requestOtpLogin(email, token);
-        setCode('');
-        setSeconds(RESEND_SECONDS);
-      } catch (e) {
-        setError(apiErrorMessage(e, t('errors.generic')));
-      } finally {
-        setBusy(false);
-      }
-    },
-    [email, t],
-  );
+  const resend = async () => {
+    const token = await requestToken();
+    if (!token) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await requestOtpLogin(email, token);
+      setCode('');
+      setSeconds(RESEND_SECONDS);
+    } catch (e) {
+      setError(apiErrorMessage(e, t('errors.generic')));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
@@ -91,16 +87,13 @@ export default function Verify() {
         autoFocus
         style={styles.codeInput}
       />
-      {captchaOpen ? (
-        <Recaptcha host={CAPTCHA_HOST} onToken={resend} onExpired={() => setCaptchaOpen(false)} />
-      ) : (
-        <Button
-          variant="secondary"
-          title={seconds > 0 ? t('auth.resendIn', { seconds }) : t('auth.resend')}
-          disabled={seconds > 0 || busy}
-          onPress={() => setCaptchaOpen(true)}
-        />
-      )}
+      <Button
+        variant="secondary"
+        title={seconds > 0 ? t('auth.resendIn', { seconds }) : t('auth.resend')}
+        disabled={seconds > 0 || busy}
+        onPress={resend}
+      />
+      {sheet}
     </ScrollView>
   );
 }

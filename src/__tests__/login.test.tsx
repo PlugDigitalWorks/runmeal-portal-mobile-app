@@ -4,9 +4,20 @@ import '@/i18n';
 import Login from '@/app/(auth)/login';
 import * as auth from '@/services/auth.service';
 
+// The widget solves itself on mount unless a test switches that off; mounts are counted.
+let mockSolve = true;
+let mockMounts = 0;
 jest.mock('@/components/Recaptcha', () => {
   const { useEffect } = jest.requireActual('react');
-  return { Recaptcha: ({ onToken }: { onToken: (t: string) => void }) => { useEffect(() => onToken('cap'), [onToken]); return null; } };
+  return {
+    Recaptcha: ({ onToken }: { onToken: (t: string) => void }) => {
+      useEffect(() => {
+        mockMounts += 1;
+        if (mockSolve) onToken('cap');
+      }, [onToken]);
+      return null;
+    },
+  };
 });
 jest.mock('expo-router', () => ({ router: { push: jest.fn(), replace: jest.fn() }, Link: ({ children }: { children: unknown }) => children }));
 // Social flags default to on; a test turns them off through these.
@@ -29,6 +40,33 @@ it('sends an OTP and opens the code screen', async () => {
 
 beforeEach(() => {
   mockSocialOn = true;
+  mockSolve = true;
+  mockMounts = 0;
+  jest.restoreAllMocks();
+  jest.mocked(router.push).mockClear();
+});
+
+it('does not ask for a captcha or call the API when the email is invalid', async () => {
+  const spy = jest.spyOn(auth, 'requestOtpLogin').mockResolvedValue();
+  await render(<Login />);
+  await fireEvent.changeText(screen.getByPlaceholderText('ornek@eposta.com'), 'nope');
+  await fireEvent.press(screen.getByText('Kod gönder'));
+  expect(screen.getByText('Geçerli bir e-posta adresi gir.')).toBeTruthy();
+  expect(mockMounts).toBe(0);
+  expect(spy).not.toHaveBeenCalled();
+});
+
+it('sends nothing when the captcha sheet is closed unsolved', async () => {
+  mockSolve = false;
+  const spy = jest.spyOn(auth, 'requestOtpLogin').mockResolvedValue();
+  await render(<Login />);
+  await fireEvent.changeText(screen.getByPlaceholderText('ornek@eposta.com'), 'e@x.com');
+  // The handler waits on the sheet, so awaiting the press would wait for the test itself.
+  void fireEvent.press(screen.getByText('Kod gönder'));
+  await waitFor(() => expect(mockMounts).toBe(1));
+  await fireEvent.press(screen.getByText('Kapat'));
+  expect(spy).not.toHaveBeenCalled();
+  expect(router.push).not.toHaveBeenCalled();
 });
 
 it('shows Google below the email form by default', async () => {

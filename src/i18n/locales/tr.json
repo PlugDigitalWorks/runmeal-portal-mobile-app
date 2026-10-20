@@ -22,7 +22,7 @@
     "password": "Şifre",
     "invalidEmail": "Geçerli bir e-posta adresi gir.",
     "passwordRequired": "Şifreni gir.",
-    "verifyHuman": "Robot olmadığını doğrula",
+    "captchaTitle": "Robot olmadığını doğrula",
     "or": "veya",
     "continueWithGoogle": "Google ile devam et",
     "googleNotConfiguredTitle": "Google girişi hazır değil",

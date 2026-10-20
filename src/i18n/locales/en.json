@@ -22,7 +22,7 @@
     "password": "Password",
     "invalidEmail": "Enter a valid email address.",
     "passwordRequired": "Enter your password.",
-    "verifyHuman": "Confirm you're not a robot",
+    "captchaTitle": "Confirm you're not a robot",
     "or": "or",
     "continueWithGoogle": "Continue with Google",
     "googleNotConfiguredTitle": "Google sign-in isn't ready",
