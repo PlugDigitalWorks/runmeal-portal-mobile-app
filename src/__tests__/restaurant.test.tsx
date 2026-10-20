@@ -12,6 +12,9 @@ jest.mock('expo-router', () => ({
   Stack: { Screen: () => null },
 }));
 
+// The cart bar has its own tests (and needs the auth provider); keep it out of the menu page.
+jest.mock('@/components/CartBar', () => ({ CartBar: () => null }));
+
 const detail = (business_hour?: unknown) =>
   ({ id: 'br1', brandId: 'brand1', name: 'Premium Burger Co', slug: 'pbc', addressText: 'Moda Cd. 10', logoUrl: null, bannerUrls: null, currency: 'TRY', currencySymbol: '₺', isActive: true, isOpen: true, ...(business_hour ? { business_hour } : {}) }) as never;
 

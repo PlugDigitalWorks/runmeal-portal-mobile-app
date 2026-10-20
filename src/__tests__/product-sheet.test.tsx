@@ -29,7 +29,7 @@ const sizes = {
 beforeEach(() => {
   jest.clearAllMocks();
   Object.assign(mockParams, { id: 'p1', branchId: 'br1', brandId: 'brand1' });
-  mockAdd.mockResolvedValue(undefined);
+  mockAdd.mockResolvedValue('added');
   jest.spyOn(menus, 'getProduct').mockResolvedValue({ id: 'p1', categoryId: 'c', name: 'Klasik Burger', description: 'Dana köfte', price: 150, discountedPrice: null, isActive: true, optionGroups: [sizes] } as never);
 });
 
@@ -52,6 +52,15 @@ it('adds the chosen option with branch and brand, then closes the sheet', async 
     brandId: 'brand1',
   });
   await waitFor(() => expect(mockBack).toHaveBeenCalled());
+});
+
+it('keeps the sheet open when the person declines to switch restaurants', async () => {
+  mockAdd.mockResolvedValue('cancelled');
+  await renderWithProviders(<ProductSheet />);
+  await fireEvent.press(await screen.findByText('Large'));
+  await fireEvent.press(screen.getByText(/Sepete ekle/));
+  await waitFor(() => expect(mockAdd).toHaveBeenCalledTimes(1));
+  expect(mockBack).not.toHaveBeenCalled();
 });
 
 it('shows the running total with options and quantity', async () => {

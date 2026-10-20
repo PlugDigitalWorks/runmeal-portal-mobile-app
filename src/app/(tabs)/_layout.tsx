@@ -1,6 +1,8 @@
 import { Redirect, Tabs } from 'expo-router';
+import { BottomTabBar } from 'expo-router/tabs';
 import { Home } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { CartBar } from '@/components/CartBar';
 import { useAuth } from '@/context/AuthContext';
 import { colors } from '@/theme';
 
@@ -11,6 +13,13 @@ export default function TabsLayout() {
   if (status === 'signedOut') return <Redirect href="/(auth)/login" />;
   return (
     <Tabs
+      // The cart bar rides above the tab bar on every tab.
+      tabBar={(props) => (
+        <>
+          <CartBar />
+          <BottomTabBar {...props} />
+        </>
+      )}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View, type NativeScrollEvent, type NativeSyntheticEvent, type ScrollViewInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CartBar } from '@/components/CartBar';
 import { ProductRow } from '@/components/ProductRow';
 import { RestaurantHeader } from '@/components/RestaurantHeader';
 import { isOpenNow, nextOpening } from '@/lib/branch-model';
@@ -155,8 +156,7 @@ export default function Restaurant() {
               <MenuTabs categories={categories} selected={selected} onSelect={goTo} />
             </View>
           ) : null}
-          {/* Task 9 mounts the CartBar here. */}
-          <View />
+          <CartBar safeBottom />
         </>
       )}
     </View>

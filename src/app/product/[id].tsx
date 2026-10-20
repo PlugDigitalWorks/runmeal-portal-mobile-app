@@ -71,8 +71,9 @@ export default function ProductSheet() {
     setAdding(true);
     setMessage(null);
     try {
-      await mutateAsync({ dto: buildAddItem(product, groups, selections, quantity, note), branchId, brandId });
-      router.back();
+      const result = await mutateAsync({ dto: buildAddItem(product, groups, selections, quantity, note), branchId, brandId });
+      // 'cancelled' means the person declined to switch restaurants: keep the sheet so they can pick again.
+      if (result === 'added') router.back();
     } catch (error) {
       setMessage(apiErrorMessage(error, t('product.addFailed')));
     } finally {

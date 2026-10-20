@@ -37,6 +37,7 @@ export default function RootLayout() {
                 <Stack.Screen name="onboarding/address" options={{ headerShown: false, gestureEnabled: false }} />
                 <Stack.Screen name="addresses/index" options={{ title: t('addresses.title') }} />
                 <Stack.Screen name="addresses/form" options={({ route }) => ({ title: (route.params as { id?: string } | undefined)?.id ? t('addresses.editTitle') : t('addresses.newTitle') })} />
+                <Stack.Screen name="cart" options={{ title: t('cart.title') }} />
                 <Stack.Screen name="restaurant/[branchId]" options={{ headerTransparent: true, headerTitle: '', headerBackButtonDisplayMode: 'minimal' }} />
                 <Stack.Screen
                   name="product/[id]"
