@@ -65,6 +65,10 @@
     "setupFiles": [
       "./jest.setup.js"
     ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/src/__tests__/helpers/"
+    ],
     "moduleNameMapper": {
       "^lucide-react-native$": "<rootDir>/node_modules/lucide-react-native/dist/cjs/lucide-react-native.js",
       "^@/(.*)$": "<rootDir>/src/$1"

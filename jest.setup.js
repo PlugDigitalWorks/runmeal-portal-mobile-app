@@ -27,7 +27,10 @@ jest.mock('expo-localization', () => ({ getLocales: () => [{ languageCode: 'tr',
 jest.mock('expo-location', () => ({
   requestForegroundPermissionsAsync: jest.fn(async () => ({ status: 'granted' })),
   getForegroundPermissionsAsync: jest.fn(async () => ({ status: 'granted', canAskAgain: true })),
+  hasServicesEnabledAsync: jest.fn(async () => true),
+  getLastKnownPositionAsync: jest.fn(async () => null),
   getCurrentPositionAsync: jest.fn(async () => ({ coords: { latitude: 40.9909, longitude: 29.0303 } })),
+  geocodeAsync: jest.fn(async () => [{ latitude: 40.9909, longitude: 29.0303 }]),
   reverseGeocodeAsync: jest.fn(async () => [{ city: 'İstanbul', district: 'Kadıköy', street: 'Moda Cd.', streetNumber: '10', postalCode: '34710', isoCountryCode: 'TR' }]),
   Accuracy: { Balanced: 3 },
 }));

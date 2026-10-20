@@ -11,8 +11,11 @@ export interface Address {
   street: string;
   buildingNumber?: string | null;
   apartmentNumber?: string | null;
-  latitude: number;
-  longitude: number;
+  /** The API may send plain latitude/longitude, only the PostGIS point, or neither. */
+  latitude?: number | null;
+  longitude?: number | null;
+  /** GeoJSON point, `[longitude, latitude]`. */
+  locationGeog?: { type: 'Point'; coordinates: [number, number] } | null;
   isActive: boolean;
 }
 
