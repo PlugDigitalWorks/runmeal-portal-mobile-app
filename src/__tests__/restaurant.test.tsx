@@ -176,16 +176,26 @@ describe('delivery / pick-up and payment methods', () => {
     expect(screen.queryByTestId('fulfillment-card')).toBeNull();
   });
 
-  it('shows every payment method unless the branch switches one off', async () => {
-    await renderPage();
+  // GET /branches/:id keeps the payment settings under `parameters`, like the real API.
+  const accepting = (payment_settings: object) => detail({ parameters: { payment_settings } });
+
+  it('shows the payment methods the branch switched on', async () => {
+    await renderPage(accepting({ onlineMethods: { card: on }, offlineMethods: { cash: on, cardOnDelivery: on } }));
     await screen.findByText('Premium Burger Co');
     for (const label of ['Kart ile online', 'Kapıda kart', 'Nakit']) expect(screen.getByText(label)).toBeTruthy();
   });
 
-  it('drops a switched-off payment method', async () => {
-    await renderPage(detail({ payment_settings: { offlineMethods: { cash: { isActive: false } } } }));
-    await screen.findByText('Kapıda kart');
-    expect(screen.queryByText('Nakit')).toBeNull();
+  it('drops a payment method that is off or not defined', async () => {
+    await renderPage(accepting({ onlineMethods: { card: { isActive: false } }, offlineMethods: { cash: on } }));
+    await screen.findByText('Nakit');
+    expect(screen.queryByText('Kart ile online')).toBeNull();
+    expect(screen.queryByText('Kapıda kart')).toBeNull();
+  });
+
+  it('shows no payment pills for a branch that enables none', async () => {
+    await renderPage();
+    await screen.findByText('Premium Burger Co');
+    for (const label of ['Kart ile online', 'Kapıda kart', 'Nakit']) expect(screen.queryByText(label)).toBeNull();
   });
 });
 

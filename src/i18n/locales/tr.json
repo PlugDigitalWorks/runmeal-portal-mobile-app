@@ -226,20 +226,28 @@
       "CASH": "Nakit",
       "CARD_ON_DELIVERY": "Kapıda kart"
     },
-    "noMethods": "Bu restoran şu an ödeme yöntemi sunmuyor",
+    "noMethods": "Bu restoran şu an online sipariş kabul etmiyor",
     "useCredit": "Kredimi kullan ({{amount}})",
     "credit": "Kredi",
     "note": "Not",
     "notePlaceholder": "Restorana notun (isteğe bağlı)",
     "summary": "Özet",
     "confirm": "Siparişi onayla",
+    "reason": {
+      "BRANCH_INACTIVE": "Bu restoran şu an hizmet vermiyor",
+      "MANUALLY_CLOSED": "Restoran şu an siparişe kapalı",
+      "OUTSIDE_BUSINESS_HOURS": "Restoran çalışma saatleri dışında"
+    },
     "unavailable": "Restoran şu an sipariş almıyor",
     "failed": "Sipariş verilemedi. Tekrar dene."
   },
   "payment": {
     "title": "Güvenli ödeme",
     "failed": "Ödeme tamamlanamadı",
-    "failedBody": "Kartından para çekilmedi. Tekrar deneyebilirsin.",
+    "failedBody": "Ödeme tamamlanamadı. Kartından çekim yapıldıysa iade edilir.",
+    "confirmingTitle": "Ödemen onaylanıyor",
+    "toOrders": "Siparişlerim'e git",
+    "confirmingBody": "Siparişlerim sayfasında durumunu takip edebilirsin.",
     "retry": "Tekrar dene",
     "backToCart": "Sepete dön",
     "close": "Ödemeyi kapat",

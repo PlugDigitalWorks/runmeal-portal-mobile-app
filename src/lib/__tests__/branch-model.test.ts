@@ -42,13 +42,16 @@ it('formats distance', () => {
 });
 
 describe('paymentMethodsFor', () => {
-  it('offers all three methods when the branch defines nothing (or staging\'s empty arrays)', () => {
-    expect(paymentMethodsFor({})).toEqual(['ONLINE_CARD', 'CARD_ON_DELIVERY', 'CASH']);
-    expect(paymentMethodsFor({ payment_settings: { onlineMethods: [], offlineMethods: [] } })).toEqual(['ONLINE_CARD', 'CARD_ON_DELIVERY', 'CASH']);
+  it('offers nothing when the branch defines nothing (or staging\'s empty arrays): the API would refuse the method', () => {
+    expect(paymentMethodsFor({})).toEqual([]);
+    expect(paymentMethodsFor({ payment_settings: { onlineMethods: [], offlineMethods: [] } })).toEqual([]);
+    expect(paymentMethodsFor({ payment_settings: { onlineMethods: { card: {} }, offlineMethods: { cash: {} } } as never })).toEqual([]);
   });
-  it('drops a method the branch switched off', () => {
+  it('offers only the methods explicitly switched on', () => {
     const payment_settings = { onlineMethods: { card: { isActive: false } }, offlineMethods: { cash: { isActive: true }, cardOnDelivery: { isActive: false } } };
     expect(paymentMethodsFor({ payment_settings })).toEqual(['CASH']);
+    const all = { onlineMethods: { card: { isActive: true } }, offlineMethods: { cash: { isActive: true }, cardOnDelivery: { isActive: true } } };
+    expect(paymentMethodsFor({ payment_settings: all })).toEqual(['ONLINE_CARD', 'CARD_ON_DELIVERY', 'CASH']);
   });
 });
 
@@ -62,6 +65,12 @@ describe('fulfillmentOf / settingsOf', () => {
   it('reads the detail response\'s nested order-type settings', () => {
     const detail = { parameters: { order_type_settings: { pickup: { isActive: true } } } } as never;
     expect(fulfillmentOf(settingsOf(detail))).toEqual(['pickup']);
+  });
+  it('reads the detail response\'s nested payment settings, the top level winning when both exist', () => {
+    const nested = { onlineMethods: { card: { isActive: true } } };
+    expect(paymentMethodsFor(settingsOf({ parameters: { payment_settings: nested } } as never))).toEqual(['ONLINE_CARD']);
+    const top = { offlineMethods: { cash: { isActive: true } } };
+    expect(paymentMethodsFor(settingsOf({ payment_settings: top, parameters: { payment_settings: nested } } as never))).toEqual(['CASH']);
   });
 });
 

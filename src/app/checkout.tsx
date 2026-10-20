@@ -13,7 +13,7 @@ import { SlotPicker } from '@/components/checkout/SlotPicker';
 import { useAuth } from '@/context/AuthContext';
 import { useLocation } from '@/context/LocationContext';
 import { addressFirstLine, addressSecondLine } from '@/lib/address';
-import { apiErrorMessage } from '@/lib/api-error';
+import { apiErrorCode, apiErrorMessage } from '@/lib/api-error';
 import { settingsOf } from '@/lib/branch-model';
 import { cartLinesFromBackend, summarize } from '@/lib/cart-model';
 import {
@@ -34,13 +34,15 @@ import { useCart } from '@/queries/useCart';
 import { getBranchAvailability, getFulfillmentSlots, getNearbyBranches } from '@/services/branch.service';
 import { cartIdOf } from '@/services/cart.service';
 import { getCreditBalance } from '@/services/loyalty.service';
-import { initializePayment, waitForPayment } from '@/services/payment.service';
+import { getPayment, initializePayment } from '@/services/payment.service';
 import { colors, font, radius, space, weight } from '@/theme';
 import type { PaymentMethod, ScheduledOrderType } from '@/types/order';
 import { Button } from '@/ui/Button';
 import { EmptyState } from '@/ui/EmptyState';
 import { ErrorState } from '@/ui/ErrorState';
 import { TextField } from '@/ui/TextField';
+
+const SLOT_ERRORS = ['BRANCH_FULFILLMENT_SLOT_INVALID', 'BRANCH_FULFILLMENT_SLOT_UNAVAILABLE'];
 
 type SlotPick = { type: string; day: string; value: string | null };
 
@@ -107,6 +109,8 @@ export default function CheckoutScreen() {
   const summary = summarize(lines, cart ?? null);
   const currency = branch?.currency ?? 'TRY';
   const symbol = branch?.currencySymbol;
+  /** The availability `reason` is a code (BRANCH_INACTIVE, MANUALLY_CLOSED, OUTSIDE_BUSINESS_HOURS); unknown ones get the generic line. */
+  const reasonText = (reason: string | null | undefined) => (reason && i18n.exists(`checkout.reason.${reason}`) ? t(`checkout.reason.${reason}`) : t('checkout.unavailable'));
   const money = (value: number) => formatMoney(value, currency, { symbol });
   const balance = credit.data ?? 0;
   const creditUsed = useCredit && balance > 0 ? Math.round(Math.min(balance, summary.total) * 100) / 100 : 0;
@@ -169,7 +173,7 @@ export default function CheckoutScreen() {
       // The branch may have closed since the screen opened; the API's answer is the final one.
       const now = await queryClient.fetchQuery({ queryKey: qk.availability(branchId), queryFn: () => getBranchAvailability(branchId), staleTime: 0 });
       if (!now.canAcceptOrders) {
-        setFormError(now.reason ?? t('checkout.unavailable'));
+        setFormError(reasonText(now.reason));
         return;
       }
       const payment = await initializePayment({
@@ -187,15 +191,17 @@ export default function CheckoutScreen() {
         router.push('/payment');
         return;
       }
-      // Cash, card on delivery or a fully credit-paid order: it exists already; the payment record knows the order id if the answer did not.
-      const orderId = payment.orderId ?? (await waitForPayment(payment.paymentId)).orderId;
+      // Cash and card on delivery: the order exists already. The answer normally carries its id; if not, one read of the payment has it.
+      let orderId = payment.orderId ?? null;
+      if (!orderId) orderId = await getPayment(payment.paymentId).then((record) => record.orderId, () => null);
       void queryClient.invalidateQueries({ queryKey: qk.cart });
       void queryClient.invalidateQueries({ queryKey: qk.orders });
+      // No id (or no way to read it) does not mean the order failed; the list shows it.
       if (orderId) router.replace(orderHref({ id: orderId, branchId, brandId }));
       else router.replace('/(tabs)/orders');
     } catch (error) {
-      // A slot that went stale between loading and ordering: show a fresh list instead of retrying it.
-      if (scheduled) {
+      // Only a slot the API now refuses needs a fresh list; any other failure keeps the person's pick.
+      if (scheduled && SLOT_ERRORS.includes(apiErrorCode(error) ?? '')) {
         setPick(null);
         void slotsQuery.refetch();
       }
@@ -269,7 +275,11 @@ export default function CheckoutScreen() {
         ) : null}
 
         <Section title={t('checkout.payment')}>
-          {methods.length === 0 ? <Text style={styles.muted}>{t('checkout.noMethods')}</Text> : null}
+          {methods.length === 0 ? (
+            <View style={styles.notice}>
+              <Text style={styles.noticeText}>{t('checkout.noMethods')}</Text>
+            </View>
+          ) : null}
           {methods.map((m) => (
             <OptionRow key={m} label={t(`checkout.method.${m}`)} selected={m === currentMethod} onPress={() => setMethod(m)} />
           ))}
@@ -328,7 +338,7 @@ export default function CheckoutScreen() {
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, space.md) }]}>
         {closed ? (
-          <Text style={styles.closed}>{availability.data?.reason ?? t('checkout.unavailable')}</Text>
+          <Text style={styles.closed}>{reasonText(availability.data?.reason)}</Text>
         ) : (
           <>
             {formError ? <Text style={styles.error}>{formError}</Text> : null}

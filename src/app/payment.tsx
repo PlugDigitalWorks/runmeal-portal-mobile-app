@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { Lock, X } from 'lucide-react-native';
+import { Clock, Lock, X } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, Alert, BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
@@ -10,11 +10,13 @@ import { PORTAL_WEB_ORIGIN } from '@/config';
 import { orderHref, parsePaymentCallback, type PaymentCallback } from '@/lib/checkout';
 import { clearPendingPayment, getPendingPayment } from '@/lib/pending-payment';
 import { qk } from '@/queries/keys';
-import { getPayment, isPaid, waitForPayment } from '@/services/payment.service';
+import { getPayment, isFailedPayment, isPaid, waitForPayment } from '@/services/payment.service';
 import type { PaymentRecord } from '@/types/order';
 import { colors, font, space, weight } from '@/theme';
 import { Button } from '@/ui/Button';
 import { EmptyState } from '@/ui/EmptyState';
+
+const CONFIRMING_MS = 2500;
 
 /**
  * The provider's hosted page (or iyzico's form) inside the app. The provider returns to
@@ -28,6 +30,8 @@ export default function PaymentScreen() {
   const [pending] = useState(getPendingPayment);
   const [failed, setFailed] = useState(!pending);
   const [checking, setChecking] = useState(false);
+  // The provider said yes but the payment record has not caught up: not a failure, the order list will show the outcome.
+  const [confirming, setConfirming] = useState(false);
   const handled = useRef(false);
 
   /** The order is placed (or the person walks away): the cart is whatever the server says now. */
@@ -50,6 +54,17 @@ export default function PaymentScreen() {
     setFailed(true);
   };
 
+  const toOrders = () => {
+    settle();
+    router.replace('/(tabs)/orders');
+  };
+
+  const confirmLater = () => {
+    settle();
+    setChecking(false);
+    setConfirming(true);
+  };
+
   const finish = async (result: PaymentCallback): Promise<void> => {
     if (handled.current || !pending) return;
     handled.current = true;
@@ -59,12 +74,12 @@ export default function PaymentScreen() {
     try {
       record = await waitForPayment(result.paymentId ?? pending.paymentId);
     } catch {
-      // The read failed, not the payment: the callback's own order id still leads somewhere real.
+      // The read failed, not the payment.
     }
     if (record && isPaid(record)) return toOrder(result.orderId ?? record.orderId);
-    // A late webhook leaves the record pending although the provider said success; the order exists, its screen tracks it.
-    if (result.orderId) return toOrder(result.orderId);
-    fail();
+    if (record && isFailedPayment(record)) return fail();
+    // A late webhook (or a read that failed) leaves the answer open although the provider said success.
+    confirmLater();
   };
 
   const intercept = (request: { url: string }): boolean => {
@@ -81,6 +96,8 @@ export default function PaymentScreen() {
     // One look at the record: the person may have paid just before closing.
     const record = pending ? await getPayment(pending.paymentId).catch(() => null) : null;
     if (record && isPaid(record)) return toOrder(record.orderId);
+    // A read that failed proves nothing either way: the order list is the honest place.
+    if (!record && pending) return toOrders();
     settle();
     router.replace('/cart');
   };
@@ -93,35 +110,52 @@ export default function PaymentScreen() {
     ]);
   };
 
-  // The Android back button asks the same question as the X.
-  const confirmRef = useRef(confirmLeave);
+  // The Android back button asks the same question as the X; the failure screen has nothing to ask, so it just goes back.
+  const onBack = (): boolean => {
+    if (failed) return false;
+    if (confirming) toOrders();
+    else confirmLeave();
+    return true;
+  };
+  const backRef = useRef(onBack);
   useEffect(() => {
-    confirmRef.current = confirmLeave;
+    backRef.current = onBack;
   });
   useEffect(() => {
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      confirmRef.current();
-      return true;
-    });
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => backRef.current());
     return () => sub.remove();
   }, []);
+
+  // Leave the neutral screen by itself; the button below does it at once.
+  useEffect(() => {
+    if (!confirming) return;
+    const timer = setTimeout(() => router.replace('/(tabs)/orders'), CONFIRMING_MS);
+    return () => clearTimeout(timer);
+  }, [confirming]);
+
+  // The payment sits on top of checkout: back is "try again" with a fresh POST /payments/initialize.
+  const retry = () => (router.canGoBack() ? router.back() : router.replace('/checkout'));
 
   const source = pending?.paymentUrl ? { uri: pending.paymentUrl } : { html: pending?.checkoutFormContent ?? '', baseUrl: PORTAL_WEB_ORIGIN };
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Pressable onPress={confirmLeave} hitSlop={10} accessibilityRole="button" accessibilityLabel={t('payment.close')} disabled={failed}>
-          <X size={24} color={failed ? colors.border : colors.foreground} />
+        <Pressable onPress={confirmLeave} hitSlop={10} accessibilityRole="button" accessibilityLabel={t('payment.close')} disabled={failed || confirming}>
+          <X size={24} color={failed || confirming ? colors.border : colors.foreground} />
         </Pressable>
         <Lock size={16} color={colors.success} />
         <Text style={styles.title}>{t('payment.title')}</Text>
       </View>
-      {failed ? (
+      {confirming ? (
+        <View style={styles.center}>
+          <EmptyState icon={<Clock size={32} color={colors.primarySoftForeground} />} title={t('payment.confirmingTitle')} body={t('payment.confirmingBody')} actionLabel={t('payment.toOrders')} onAction={toOrders} />
+        </View>
+      ) : failed ? (
         <View style={styles.center}>
           <EmptyState icon={<X size={32} color={colors.destructive} />} title={t('payment.failed')} body={t('payment.failedBody')} />
           <View style={styles.actions}>
-            <Button title={t('payment.retry')} onPress={() => router.replace('/checkout')} />
+            <Button title={t('payment.retry')} onPress={retry} />
             <Button title={t('payment.backToCart')} variant="secondary" onPress={() => router.replace('/cart')} />
           </View>
         </View>

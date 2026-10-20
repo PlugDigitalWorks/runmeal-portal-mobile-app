@@ -21,9 +21,9 @@ it('offers payment methods per branch settings, card only for scheduled pickup',
   expect(paymentMethodsForOrder(open, 'SCHEDULED_PICKUP')).toEqual(['ONLINE_CARD']);
   const cardOnly = settings(undefined, { onlineMethods: { card: { isActive: true } }, offlineMethods: { cash: { isActive: false }, cardOnDelivery: { isActive: false } } });
   expect(paymentMethodsForOrder(cardOnly, 'PICKUP')).toEqual(['ONLINE_CARD']);
-  // Nothing defined, or staging's `[]` placeholders: every method counts as open.
-  expect(paymentMethodsForOrder({}, 'DELIVERY')).toEqual(['ONLINE_CARD', 'CARD_ON_DELIVERY', 'CASH']);
-  expect(paymentMethodsForOrder(settings(undefined, { onlineMethods: [], offlineMethods: [] }), 'DELIVERY')).toEqual(['ONLINE_CARD', 'CARD_ON_DELIVERY', 'CASH']);
+  // Nothing defined, or staging's `[]` placeholders: the API refuses every method, so none is offered.
+  expect(paymentMethodsForOrder({}, 'DELIVERY')).toEqual([]);
+  expect(paymentMethodsForOrder(settings(undefined, { onlineMethods: [], offlineMethods: [] }), 'DELIVERY')).toEqual([]);
 });
 
 it('classifies order types', () => {

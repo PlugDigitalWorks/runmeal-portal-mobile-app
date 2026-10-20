@@ -58,18 +58,18 @@ export type PaymentMethod = 'ONLINE_CARD' | 'CARD_ON_DELIVERY' | 'CASH';
 type Settings = Pick<Branch, 'order_type_settings' | 'payment_settings'>;
 
 /**
- * The payment methods a branch accepts. A method the branch has no setting for counts as open (the checkout
- * rule: the API's availability check has the final word); staging sends `[]` where the settings object would be,
- * which reads as "not defined" too.
+ * The payment methods a branch accepts. Same rule as the API (POST /payments/initialize throws
+ * PAYMENT_METHOD_NOT_ENABLED otherwise): a method counts only when its setting is explicitly `isActive: true`.
+ * Missing settings, and staging's `[]` where the object would be, offer nothing.
  */
 export function paymentMethodsFor(settings: Pick<Branch, 'payment_settings'>): PaymentMethod[] {
   const payment = settings.payment_settings;
   const online = payment?.onlineMethods as { card?: { isActive?: boolean } } | undefined;
   const offline = payment?.offlineMethods as { cash?: { isActive?: boolean }; cardOnDelivery?: { isActive?: boolean } } | undefined;
   const methods: PaymentMethod[] = [];
-  if (online?.card?.isActive ?? true) methods.push('ONLINE_CARD');
-  if (offline?.cardOnDelivery?.isActive ?? true) methods.push('CARD_ON_DELIVERY');
-  if (offline?.cash?.isActive ?? true) methods.push('CASH');
+  if (online?.card?.isActive === true) methods.push('ONLINE_CARD');
+  if (offline?.cardOnDelivery?.isActive === true) methods.push('CARD_ON_DELIVERY');
+  if (offline?.cash?.isActive === true) methods.push('CASH');
   return methods;
 }
 
@@ -84,11 +84,14 @@ export function fulfillmentOf(settings: Pick<Branch, 'order_type_settings'>): Fu
   return options;
 }
 
-/** The detail call nests the order-type settings under `parameters`; the nearby row has them at the top. */
-export const settingsOf = (branch: Branch | BranchDetail): Settings => ({
-  order_type_settings: branch.order_type_settings ?? (branch as BranchDetail).parameters?.order_type_settings,
-  payment_settings: branch.payment_settings,
-});
+/** The detail call nests the order-type and payment settings under `parameters`; the nearby row has them at the top. */
+export const settingsOf = (branch: Branch | BranchDetail): Settings => {
+  const parameters = (branch as BranchDetail).parameters;
+  return {
+    order_type_settings: branch.order_type_settings ?? parameters?.order_type_settings,
+    payment_settings: branch.payment_settings ?? parameters?.payment_settings,
+  };
+};
 
 /** Monday first, the order a weekly timetable is read in. */
 export const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;

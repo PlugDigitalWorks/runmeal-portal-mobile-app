@@ -6,7 +6,8 @@ import type { ApiResponse } from '@/types/api';
 import type { InitializePaymentInput, PaymentInitializationResponse, PaymentRecord } from '@/types/order';
 
 const PAID = ['SUCCESS', 'SUCCEEDED', 'PAID', 'COMPLETED'];
-const SETTLED = [...PAID, 'FAILED', 'FAILURE', 'CANCELLED', 'CANCELED', 'REFUNDED'];
+const FAILED = ['FAILED', 'FAILURE', 'CANCELLED', 'CANCELED', 'REFUNDED'];
+const SETTLED = [...PAID, ...FAILED];
 
 /**
  * Starts a payment for the cart. The API builds the provider's return URL from the request Origin,
@@ -44,3 +45,6 @@ export async function waitForPayment(paymentId: string, { tries = 5, delayMs = 1
 }
 
 export const isPaid = (payment: PaymentRecord): boolean => PAID.includes(String(payment.status).toUpperCase());
+
+/** The provider has given its final answer and it is a no; anything else may still turn into a yes. */
+export const isFailedPayment = (payment: PaymentRecord): boolean => FAILED.includes(String(payment.status).toUpperCase());

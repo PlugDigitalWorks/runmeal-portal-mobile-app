@@ -1,7 +1,7 @@
 import type { InternalAxiosRequestConfig } from 'axios';
 import { api } from '@/lib/api';
 import { getCreditBalance } from '@/services/loyalty.service';
-import { initializePayment, isPaid, waitForPayment } from '@/services/payment.service';
+import { initializePayment, isFailedPayment, isPaid, waitForPayment } from '@/services/payment.service';
 
 const reply = (data: unknown, config: InternalAxiosRequestConfig) => ({ data: { status: true, message: 'Success', data }, status: 200, statusText: 'OK', headers: {}, config });
 
@@ -55,6 +55,15 @@ it('gives up after the last try and returns the unsettled record', async () => {
   const record = await done;
   expect(reads).toBe(3);
   expect(isPaid(record)).toBe(false);
+  expect(isFailedPayment(record)).toBe(false);
+});
+
+it('tells a final no from a payment that is still open', () => {
+  const at = (status: string) => ({ id: 'p1', status, orderId: null, branchId: null, brandId: null });
+  expect(isFailedPayment(at('failed'))).toBe(true);
+  expect(isFailedPayment(at('CANCELLED'))).toBe(true);
+  expect(isFailedPayment(at('PENDING'))).toBe(false);
+  expect(isFailedPayment(at('SUCCESS'))).toBe(false);
 });
 
 it('reads the credit balance, zero when the call has none', async () => {

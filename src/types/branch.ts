@@ -47,5 +47,5 @@ export interface BranchDetail extends Omit<Branch, 'distanceM'> {
   /** Shown in the info sheet when the detail row carries it; not every branch does. */
   phone?: string | null;
   province?: string | null;
-  parameters?: { business_hours?: BusinessHours; order_type_settings?: Branch['order_type_settings'] } | null;
+  parameters?: { business_hours?: BusinessHours; order_type_settings?: Branch['order_type_settings']; payment_settings?: Branch['payment_settings'] } | null;
 }

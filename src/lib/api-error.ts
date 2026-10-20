@@ -9,3 +9,10 @@ export function apiErrorMessage(error: unknown, fallback: string): string {
   }
   return fallback;
 }
+
+/** The API's machine-readable `code` (e.g. BRANCH_FULFILLMENT_SLOT_INVALID), when the error carries one. */
+export function apiErrorCode(error: unknown): string | undefined {
+  if (!isAxiosError(error)) return undefined;
+  const code = (error.response?.data as { code?: unknown } | undefined)?.code;
+  return typeof code === 'string' && code ? code : undefined;
+}

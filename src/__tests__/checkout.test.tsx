@@ -1,4 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { Alert } from 'react-native';
+import { AxiosError } from 'axios';
 import CheckoutScreen from '@/app/checkout';
 import { getPendingPayment } from '@/lib/pending-payment';
 import * as addressService from '@/services/address.service';
@@ -26,7 +28,8 @@ jest.mock('@/context/LocationContext', () => ({
 const item = { id: 'i1', productId: 'p1', productName: 'Klasik Burger', price: 150, qty: 1, imgUrl: null, lineTotal: 150 };
 const cart = { id: 'c1', branchId: 'b1', brandId: 'r1', isActive: true, items: [item], totalCartPrice: 150, finalPrice: 150 } as never;
 const enabled = (...keys: string[]) => Object.fromEntries(['pickup', 'delivery', 'scheduledPickup', 'scheduledDelivery'].map((k) => [k, { isActive: keys.includes(k) }]));
-const detail = (extra: object = {}) =>
+/** GET /branches/:id keeps both settings under `parameters`; `settings` here is what a test wants in there. */
+const detail = (settings: { order_type_settings?: object; payment_settings?: object } = {}, extra: object = {}) =>
   ({
     id: 'b1',
     brandId: 'r1',
@@ -37,12 +40,15 @@ const detail = (extra: object = {}) =>
     bannerUrls: null,
     currency: 'TRY',
     currencySymbol: '₺',
-    order_type_settings: enabled('pickup'),
-    payment_settings: { onlineMethods: { card: { isActive: true } }, offlineMethods: { cash: { isActive: true }, cardOnDelivery: { isActive: false } } },
+    parameters: {
+      order_type_settings: enabled('pickup'),
+      payment_settings: { onlineMethods: { card: { isActive: true } }, offlineMethods: { cash: { isActive: true }, cardOnDelivery: { isActive: false } } },
+      ...settings,
+    },
     ...extra,
   }) as never;
 
-const setup = (opts: { branch?: object; nearby?: { id: string }[]; availability?: object; credit?: number } = {}) => {
+const setup = (opts: { branch?: { order_type_settings?: object; payment_settings?: object }; nearby?: { id: string }[]; availability?: object; credit?: number } = {}) => {
   jest.spyOn(carts, 'getCurrentCart').mockResolvedValue(cart);
   jest.spyOn(branches, 'getBranch').mockResolvedValue(detail(opts.branch));
   jest.spyOn(branches, 'getNearbyBranches').mockResolvedValue((opts.nearby ?? [{ id: 'b1' }]) as never);
@@ -84,10 +90,10 @@ describe('delivery coverage and order types', () => {
     expect(screen.queryByText(/Siparişi onayla/)).toBeNull();
   });
 
-  it('shows the closed reason instead of the confirm button', async () => {
-    setup({ availability: { canAcceptOrders: false, reason: 'Mutfak kapalı' } });
+  it('shows the closed reason (the API sends a code) instead of the confirm button', async () => {
+    setup({ availability: { canAcceptOrders: false, reason: 'OUTSIDE_BUSINESS_HOURS' } });
     await renderWithProviders(<CheckoutScreen />);
-    expect(await screen.findByText('Mutfak kapalı')).toBeTruthy();
+    expect(await screen.findByText('Restoran çalışma saatleri dışında')).toBeTruthy();
     expect(screen.queryByText(/Siparişi onayla/)).toBeNull();
   });
 });
@@ -120,12 +126,32 @@ describe('placing the order', () => {
   it('reads the order id from the payment record when the answer has none', async () => {
     setup();
     jest.spyOn(payments, 'initializePayment').mockResolvedValue({ paymentId: 'p1' });
-    jest.spyOn(payments, 'waitForPayment').mockResolvedValue({ id: 'p1', status: 'SUCCESS', orderId: 'o9', branchId: 'b1', brandId: 'r1' });
+    jest.spyOn(payments, 'getPayment').mockResolvedValue({ id: 'p1', status: 'SUCCESS', orderId: 'o9', branchId: 'b1', brandId: 'r1' });
     const { client } = await renderWithProviders(<CheckoutScreen />);
     await fireEvent.press(await screen.findByText('Nakit'));
     await fireEvent.press(await screen.findByText(/Siparişi onayla/));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({ params: expect.objectContaining({ id: 'o9' }) })));
     await settled(client);
+  });
+
+  it('does not claim the order failed when its id cannot be read: it goes to the order list', async () => {
+    setup();
+    jest.spyOn(payments, 'initializePayment').mockResolvedValue({ paymentId: 'p1' });
+    jest.spyOn(payments, 'getPayment').mockRejectedValue(new Error('offline'));
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    const { client } = await renderWithProviders(<CheckoutScreen />);
+    await fireEvent.press(await screen.findByText('Nakit'));
+    await fireEvent.press(await screen.findByText(/Siparişi onayla/));
+    await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/(tabs)/orders'));
+    expect(alert).not.toHaveBeenCalled();
+    await settled(client);
+  });
+
+  it('says so when the branch accepts no payment method, instead of an empty list', async () => {
+    setup({ branch: { payment_settings: { onlineMethods: [], offlineMethods: [] } } });
+    await renderWithProviders(<CheckoutScreen />);
+    expect(await screen.findByText('Bu restoran şu an online sipariş kabul etmiyor')).toBeTruthy();
+    expect(screen.queryByRole('radio')).toBeNull();
   });
 
   it('spends the credit up to the total on a delivery order and sends the note', async () => {
@@ -169,14 +195,49 @@ describe('placing the order', () => {
     await settled(client);
   });
 
+  describe('a refused scheduled order', () => {
+    const slots = { orderType: 'SCHEDULED_PICKUP', available: true, dates: [{ date: '2026-10-22', slots: [{ label: '12:00', value: 'slot-1' }] }] } as never;
+    const refuse = (code: string) => {
+      const error = new AxiosError('refused', 'ERR_BAD_REQUEST', undefined, undefined, { status: 400, data: { code, message: 'refused' } } as never);
+      jest.spyOn(payments, 'initializePayment').mockRejectedValue(error);
+      jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    };
+
+    it('reloads the slots and forgets the pick when the API refuses the slot', async () => {
+      setup({ branch: { order_type_settings: enabled('scheduledPickup') } });
+      const load = jest.spyOn(branches, 'getFulfillmentSlots').mockResolvedValue(slots);
+      refuse('BRANCH_FULFILLMENT_SLOT_UNAVAILABLE');
+      const { client } = await renderWithProviders(<CheckoutScreen />);
+      await fireEvent.press(await screen.findByText('12:00'));
+      await fireEvent.press(screen.getByText(/Siparişi onayla/));
+      await waitFor(() => expect(load).toHaveBeenCalledTimes(2));
+      await settled(client);
+      await fireEvent.press(screen.getByText(/Siparişi onayla/));
+      expect(await screen.findByText('Bir saat seç.')).toBeTruthy();
+    });
+
+    it('keeps the pick for any other failure', async () => {
+      setup({ branch: { order_type_settings: enabled('scheduledPickup') } });
+      const load = jest.spyOn(branches, 'getFulfillmentSlots').mockResolvedValue(slots);
+      refuse('SOMETHING_ELSE');
+      const { client } = await renderWithProviders(<CheckoutScreen />);
+      await fireEvent.press(await screen.findByText('12:00'));
+      await fireEvent.press(screen.getByText(/Siparişi onayla/));
+      await waitFor(() => expect(Alert.alert).toHaveBeenCalledWith('refused'));
+      await settled(client);
+      expect(load).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText('Bir saat seç.')).toBeNull();
+    });
+  });
+
   it('does not order when the branch closed in the meantime', async () => {
     setup();
     const initialize = jest.spyOn(payments, 'initializePayment');
     const { client } = await renderWithProviders(<CheckoutScreen />);
     const button = await screen.findByText(/Siparişi onayla/);
-    jest.spyOn(branches, 'getBranchAvailability').mockResolvedValue({ canAcceptOrders: false, reason: 'Kurye yok' });
+    jest.spyOn(branches, 'getBranchAvailability').mockResolvedValue({ canAcceptOrders: false, reason: 'MANUALLY_CLOSED' });
     await fireEvent.press(button);
-    expect(await screen.findByText('Kurye yok')).toBeTruthy();
+    expect(await screen.findByText('Restoran şu an siparişe kapalı')).toBeTruthy();
     expect(initialize).not.toHaveBeenCalled();
     await settled(client);
   });

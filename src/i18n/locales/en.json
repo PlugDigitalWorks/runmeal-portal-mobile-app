@@ -226,20 +226,28 @@
       "CASH": "Cash",
       "CARD_ON_DELIVERY": "Card on delivery"
     },
-    "noMethods": "This restaurant offers no payment method right now",
+    "noMethods": "This restaurant isn't accepting online orders right now",
     "useCredit": "Use my credit ({{amount}})",
     "credit": "Credit",
     "note": "Note",
     "notePlaceholder": "A note for the restaurant (optional)",
     "summary": "Summary",
     "confirm": "Place order",
+    "reason": {
+      "BRANCH_INACTIVE": "This restaurant isn't available right now",
+      "MANUALLY_CLOSED": "The restaurant has paused orders for now",
+      "OUTSIDE_BUSINESS_HOURS": "The restaurant is outside its opening hours"
+    },
     "unavailable": "The restaurant isn't taking orders right now",
     "failed": "Couldn't place the order. Try again."
   },
   "payment": {
     "title": "Secure payment",
     "failed": "Payment didn't go through",
-    "failedBody": "Nothing was charged to your card. You can try again.",
+    "failedBody": "The payment didn't go through. If your card was charged, it will be refunded.",
+    "confirmingTitle": "Confirming your payment",
+    "toOrders": "Go to my orders",
+    "confirmingBody": "You can follow it under My orders.",
     "retry": "Try again",
     "backToCart": "Back to cart",
     "close": "Close payment",
