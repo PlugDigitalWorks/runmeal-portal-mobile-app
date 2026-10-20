@@ -8,9 +8,10 @@ import { AddressSheet } from '@/components/AddressSheet';
 import { BranchCard } from '@/components/BranchCard';
 import { BranchCarousel } from '@/components/BranchCarousel';
 import { CampaignCarousel } from '@/components/CampaignCarousel';
-import { ChainCarousel } from '@/components/ChainCarousel';
+import { ChainStories } from '@/components/ChainStories';
+import { CountdownStrip, COUNTDOWN_HEIGHT } from '@/components/CountdownStrip';
 import { CuisineTiles } from '@/components/CuisineTiles';
-import { FeaturedCarousel } from '@/components/FeaturedCarousel';
+import { HeroBanner } from '@/components/HeroBanner';
 import { HomeHeader } from '@/components/HomeHeader';
 import { SearchBar } from '@/components/SearchBar';
 import { SectionHeader } from '@/components/SectionHeader';
@@ -19,7 +20,6 @@ import { SHOW_MOCKS } from '@/config';
 import { NO_FILTERS } from '@/lib/home-filters';
 import { useHomeView } from '@/context/HomeViewContext';
 import { useHomeFeed } from '@/hooks/useHomeFeed';
-import { bannerOf, isOpenNow } from '@/lib/branch-model';
 import { CAMPAIGNS, chainsOf, pickedForYou, topRatedBranches } from '@/mocks/home-mocks';
 import { useFavorites } from '@/queries/useFavorites';
 import { colors, space } from '@/theme';
@@ -48,8 +48,8 @@ export default function Home() {
   };
   const carouselProps = { isFavorite, onToggleFavorite: toggle, cuisineLabelOf };
   const ready = !loading && !failed;
-  const featured = branches.filter((b) => bannerOf(b) && isOpenNow(b.business_hour)).slice(0, 5);
-  const chains = chainsOf(visible);
+  // Above the cuisine tiles, so every nearby chain, not the filtered list.
+  const chains = chainsOf(branches);
 
   return (
     <View style={styles.root}>
@@ -64,7 +64,8 @@ export default function Home() {
             <HomeHeader onOpenAddress={() => setSheetOpen(true)} />
             <SearchBar />
             <SortFilterBar />
-            {ready && featured.length > 0 ? <FeaturedCarousel branches={featured} /> : null}
+            {ready && SHOW_MOCKS && chains.length > 0 ? <ChainStories chains={chains} /> : null}
+            {SHOW_MOCKS ? <HeroBanner /> : null}
             {ready && SHOW_MOCKS ? (
               <>
                 <SectionHeader title={t('home.campaigns', { count: CAMPAIGNS.length })} mock onSeeAll={() => router.push('/campaigns')} />
@@ -91,12 +92,6 @@ export default function Home() {
                   <>
                     <SectionHeader title={t('home.topRated')} mock />
                     <BranchCarousel branches={topRatedBranches(visible)} {...carouselProps} />
-                    {chains.length > 0 ? (
-                      <>
-                        <SectionHeader title={t('home.chains')} mock />
-                        <ChainCarousel chains={chains} />
-                      </>
-                    ) : null}
                   </>
                 ) : null}
                 <SectionHeader title={t('home.allRestaurants')} trailing={t('home.branchCount', { count: visible.length })} />
@@ -145,6 +140,7 @@ export default function Home() {
           )
         }
       />
+      <CountdownStrip />
       <AddressSheet visible={sheetOpen} onClose={() => setSheetOpen(false)} />
     </View>
   );
@@ -152,7 +148,8 @@ export default function Home() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.background },
-  content: { paddingBottom: space.xxl },
+  // Room for the countdown strip pinned above the tab bar.
+  content: { paddingBottom: space.xxl + COUNTDOWN_HEIGHT },
   item: { paddingHorizontal: space.lg, paddingBottom: space.lg },
   skeletons: { paddingHorizontal: space.lg, gap: space.lg },
 });

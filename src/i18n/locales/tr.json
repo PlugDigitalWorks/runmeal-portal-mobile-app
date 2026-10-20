@@ -60,7 +60,6 @@
     "changeAddress": "Adresi değiştir",
     "addFavorite": "Favorilere ekle",
     "removeFavorite": "Favorilerden çıkar",
-    "featured": "Öne çıkanlar",
     "cuisines": "Mutfaklar",
     "allRestaurants": "Tüm restoranlar",
     "minBasket": "Min {{amount}}",
@@ -69,8 +68,11 @@
     "forYou": "Sana özel restoranlar",
     "topRated": "Yüksek puanlılar",
     "chains": "Zincir restoranlar",
-    "chainBranches_one": "{{count}} şube",
-    "chainBranches_other": "{{count}} şube"
+    "plusDiscount": "Runmeal+ indirimi",
+    "sponsored": "Sponsorlu",
+    "distinguished": "Seçkin restoran",
+    "hero1": "SEPETTE EFSANE İNDİRİMLER",
+    "hero2": "300 ₺'YE VARAN İNDİRİM"
   },
   "categories": {
     "all": "Tümü",
@@ -219,34 +221,57 @@
     "items": {
       "basket20": {
         "title": "Sepette %20 indirim",
+        "headline": "SEPETTE %20 İNDİRİM",
         "subtitle": "Seçili restoranlarda",
-        "badge": "%20",
         "description": "Seçili restoranlarda sepet tutarının %20'si indirim olarak düşer."
       },
       "firstOrder": {
-        "title": "İlk siparişe 100 ₺ indirim",
+        "title": "İlk siparişe 100 ₺",
+        "headline": "100 ₺",
         "subtitle": "Yeni üyelere özel",
-        "badge": "100 ₺",
-        "description": "İlk siparişinde 100 ₺ indirimden yararlan."
+        "description": "İlk siparişinde 100 ₺ indirimden yararlan.",
+        "caption": "İLK SİPARİŞE",
+        "dates": "1–31 Ekim"
       },
       "pizza2for1": {
         "title": "2 al 1 öde pizza",
+        "headline": "2 AL 1 ÖDE PİZZA",
         "subtitle": "Hafta sonu fırsatı",
-        "badge": "2 al 1 öde",
         "description": "Seçili pizza restoranlarında iki pizza al, birinin parasını öde."
       },
       "coffeeHalf": {
-        "title": "Kahvede ikincisi yarı fiyat",
+        "title": "Kahvede ikincisi %50",
+        "headline": "%50",
         "subtitle": "Her sabah 08:00–11:00",
-        "badge": "%50",
-        "description": "Sabah saatlerinde aldığın ikinci kahve yarı fiyatına."
+        "description": "Sabah saatlerinde aldığın ikinci kahve yarı fiyatına.",
+        "caption": "KAHVEDE İKİNCİSİ",
+        "dates": "Her sabah"
       },
       "freeDelivery": {
         "title": "Ücretsiz teslimat haftası",
+        "headline": "ÜCRETSİZ TESLİMAT HAFTASI",
         "subtitle": "Tüm hafta boyunca",
-        "badge": "Ücretsiz",
         "description": "Bu hafta seçili restoranlarda teslimat ücreti alınmaz."
       }
     }
+  },
+  "promos": {
+    "firstFive": "İlk 5 siparişe özel 200 ₺ indirim",
+    "twoPizzas": "2 büyük pizza 499 ₺",
+    "over450": "450 ₺ üzeri %15 indirim",
+    "bigBoy": "Büyük boy fırsatı",
+    "basket300": "Sepette 300 ₺ indirim"
+  },
+  "countdown": {
+    "minutesShort": "dk",
+    "secondsShort": "sn",
+    "label": "{{min}} dk : {{sec}} sn",
+    "text": "içinde sipariş ver, indirimlerden birini kap!",
+    "open": "Fırsatları gör"
+  },
+  "deals": {
+    "title": "Fırsatlar (Mock)",
+    "emptyTitle": "Şu an kampanyalı restoran yok",
+    "notFound": "Fırsatlar şu an kullanılamıyor"
   }
 }

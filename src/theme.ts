@@ -5,6 +5,8 @@ export const colors = {
   primaryForeground: '#FFFFFF',
   primarySoft: '#FFF1DF',
   primarySoftForeground: '#E28900',
+  /** Promo strips on restaurant cards: Runmeal's deeper orange, readable under white text. */
+  promo: '#E28900',
   background: '#FFFAF5',
   card: '#FFFFFF',
   border: '#F2E6D7',

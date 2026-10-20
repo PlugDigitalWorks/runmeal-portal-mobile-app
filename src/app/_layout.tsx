@@ -42,6 +42,7 @@ export default function RootLayout() {
                   <Stack.Screen name="cart" options={{ title: t('cart.title') }} />
                   <Stack.Screen name="restaurants" options={{ title: t('restaurants.title') }} />
                   <Stack.Screen name="search" options={{ title: t('search.title') }} />
+                  <Stack.Screen name="deals" options={{ title: t('deals.title') }} />
                   <Stack.Screen name="account" options={{ title: t('account.title') }} />
                   <Stack.Screen name="campaigns/[id]" options={{ title: t('campaigns.title') }} />
                   <Stack.Screen name="restaurant/[branchId]" options={{ headerTransparent: true, headerTitle: '', headerBackButtonDisplayMode: 'minimal' }} />

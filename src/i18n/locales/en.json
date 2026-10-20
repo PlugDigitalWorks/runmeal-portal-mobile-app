@@ -60,7 +60,6 @@
     "changeAddress": "Change address",
     "addFavorite": "Add to favourites",
     "removeFavorite": "Remove from favourites",
-    "featured": "Featured",
     "cuisines": "Cuisines",
     "allRestaurants": "All restaurants",
     "minBasket": "Min {{amount}}",
@@ -69,8 +68,11 @@
     "forYou": "Picked for you",
     "topRated": "Top rated",
     "chains": "Chain restaurants",
-    "chainBranches_one": "{{count}} branch",
-    "chainBranches_other": "{{count}} branches"
+    "plusDiscount": "Runmeal+ deal",
+    "sponsored": "Sponsored",
+    "distinguished": "Top restaurant",
+    "hero1": "LEGENDARY BASKET DEALS",
+    "hero2": "UP TO 300 ₺ OFF"
   },
   "categories": {
     "all": "All",
@@ -219,34 +221,57 @@
     "items": {
       "basket20": {
         "title": "20% off your basket",
+        "headline": "20% OFF YOUR BASKET",
         "subtitle": "At selected restaurants",
-        "badge": "20%",
-        "description": "20% of your basket total comes off at selected restaurants."
+        "description": "At selected restaurants 20% of your basket is taken off."
       },
       "firstOrder": {
         "title": "100 ₺ off your first order",
+        "headline": "100 ₺",
         "subtitle": "For new members",
-        "badge": "100 ₺",
-        "description": "Get 100 ₺ off your first order."
+        "description": "Get 100 ₺ off your first order.",
+        "caption": "ON YOUR FIRST ORDER",
+        "dates": "Oct 1–31"
       },
       "pizza2for1": {
         "title": "Buy 1 get 1 pizza",
+        "headline": "2 FOR 1 PIZZA",
         "subtitle": "Weekend deal",
-        "badge": "2 for 1",
-        "description": "Buy two pizzas at selected pizza places and pay for one."
+        "description": "At selected pizza restaurants buy two pizzas and pay for one."
       },
       "coffeeHalf": {
-        "title": "Second coffee half price",
+        "title": "Second coffee 50% off",
+        "headline": "50%",
         "subtitle": "Every morning 08:00–11:00",
-        "badge": "50%",
-        "description": "Your second coffee in the morning is half price."
+        "description": "Your second coffee in the morning is half price.",
+        "caption": "OFF YOUR 2ND COFFEE",
+        "dates": "Mornings"
       },
       "freeDelivery": {
         "title": "Free delivery week",
+        "headline": "FREE DELIVERY WEEK",
         "subtitle": "All week long",
-        "badge": "Free",
-        "description": "No delivery fee at selected restaurants this week."
+        "description": "This week selected restaurants charge no delivery fee."
       }
     }
+  },
+  "promos": {
+    "firstFive": "200 ₺ off your first 5 orders",
+    "twoPizzas": "2 large pizzas 499 ₺",
+    "over450": "15% off over 450 ₺",
+    "bigBoy": "Large size deal",
+    "basket300": "300 ₺ off your basket"
+  },
+  "countdown": {
+    "minutesShort": "min",
+    "secondsShort": "sec",
+    "label": "{{min}} min : {{sec}} sec",
+    "text": "to order and grab one of the deals!",
+    "open": "See the deals"
+  },
+  "deals": {
+    "title": "Deals (Mock)",
+    "emptyTitle": "No restaurants with deals right now",
+    "notFound": "Deals are not available right now"
   }
 }

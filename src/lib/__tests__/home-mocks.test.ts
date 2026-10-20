@@ -1,4 +1,22 @@
-import { campaignById, CAMPAIGNS, chainsOf, mockDelivery, mockRating, mockRatingCount, pickedForYou, topRatedBranches } from '@/mocks/home-mocks';
+import {
+  branchPromos,
+  campaignById,
+  dealBranches,
+  CAMPAIGNS,
+  chainsOf,
+  cuisinePhoto,
+  hasPlusBadge,
+  isSponsored,
+  mockDelivery,
+  mockMinBasket,
+  mockRating,
+  mockRatingCount,
+  photoUrl,
+  PROMO_KEYS,
+  pickedForYou,
+  topRatedBranches,
+} from '@/mocks/home-mocks';
+import { CATEGORY_IDS } from '@/lib/categories';
 import type { Branch } from '@/types/branch';
 
 const branch = (id: string, name: string, extra: Partial<Branch> = {}): Branch => ({
@@ -96,4 +114,100 @@ it('has five campaigns that can be found by id', () => {
   expect(CAMPAIGNS).toHaveLength(5);
   expect(campaignById('pizza2for1')?.id).toBe('pizza2for1');
   expect(campaignById('nope')).toBeUndefined();
+});
+
+describe('promo strips', () => {
+  const sample = Array.from({ length: 400 }, (_, i) => `branch-${i}`);
+
+  it('gives the same strips for the same id, zero to three distinct known ones', () => {
+    for (const id of sample) {
+      const promos = branchPromos(id);
+      expect(branchPromos(id)).toEqual(promos);
+      expect(promos.length).toBeLessThanOrEqual(3);
+      expect(new Set(promos).size).toBe(promos.length);
+      for (const key of promos) expect(PROMO_KEYS).toContain(key);
+    }
+  });
+
+  it('leaves roughly a third of the branches without a strip', () => {
+    const none = sample.filter((id) => branchPromos(id).length === 0).length / sample.length;
+    expect(none).toBeGreaterThan(0.25);
+    expect(none).toBeLessThan(0.45);
+  });
+
+  it('offers the Runmeal+ badge only on branches that have a strip, on about half of them', () => {
+    const withPromo = sample.filter((id) => branchPromos(id).length > 0);
+    expect(sample.filter((id) => hasPlusBadge(id) && branchPromos(id).length === 0)).toEqual([]);
+    const plus = withPromo.filter(hasPlusBadge).length / withPromo.length;
+    expect(plus).toBeGreaterThan(0.35);
+    expect(plus).toBeLessThan(0.65);
+  });
+});
+
+describe('sponsored and minimum basket', () => {
+  const sample = Array.from({ length: 400 }, (_, i) => `branch-${i}`);
+
+  it('sponsors about a quarter of the branches, always the same ones', () => {
+    const share = sample.filter(isSponsored).length / sample.length;
+    expect(share).toBeGreaterThan(0.18);
+    expect(share).toBeLessThan(0.32);
+    expect(sample.filter(isSponsored)).toEqual(sample.filter(isSponsored));
+  });
+
+  it('invents a minimum basket from 150 to 500 in fifties', () => {
+    for (const id of sample) {
+      const min = mockMinBasket(id);
+      expect(min).toBeGreaterThanOrEqual(150);
+      expect(min).toBeLessThanOrEqual(500);
+      expect(min % 50).toBe(0);
+    }
+  });
+});
+
+describe('photos', () => {
+  it('builds the placeholder service url from the size and seed', () => {
+    expect(photoUrl(12, 640, 480)).toBe('https://static.photos/food/640x480/12');
+  });
+
+  it('has a distinct photo for every cuisine tile', () => {
+    const urls = CATEGORY_IDS.map(cuisinePhoto);
+    for (const url of urls) expect(url).toMatch(/^https:\/\/static\.photos\/food\/240x240\/\d+$/);
+    expect(new Set(urls).size).toBe(CATEGORY_IDS.length);
+  });
+
+  it('gives every campaign the photos its layout needs', () => {
+    for (const c of CAMPAIGNS) expect(c.photos).toHaveLength(c.layout === 'collage' ? 4 : 1);
+  });
+});
+
+describe('dealBranches', () => {
+  const sample = Array.from({ length: 40 }, (_, i) => branch(`deal-${i}`, `Place ${i}`, { distanceM: 3000 - i * 50 }));
+
+  it('keeps only branches with promo strips, most strips first, then nearest', () => {
+    const deals = dealBranches(sample);
+    expect(deals.length).toBeGreaterThan(0);
+    expect(deals.length).toBeLessThan(sample.length);
+    for (const b of deals) expect(branchPromos(b.id).length).toBeGreaterThan(0);
+    for (let i = 1; i < deals.length; i++) {
+      const [a, b] = [deals[i - 1], deals[i]];
+      const diff = branchPromos(b.id).length - branchPromos(a.id).length;
+      expect(diff <= 0).toBe(true);
+      if (diff === 0) expect(a.distanceM!).toBeLessThanOrEqual(b.distanceM!);
+    }
+  });
+
+  it('puts an unknown distance last among equals', () => {
+    const id = sample.find((b) => branchPromos(b.id).length > 0)!.id;
+    const twin = sample.filter((b) => b.id !== id && branchPromos(b.id).length === branchPromos(id).length)[0];
+    const out = dealBranches([{ ...twin, distanceM: null }, branch(id, 'x', { distanceM: 9000 })]);
+    expect(out[0].id).toBe(id);
+  });
+});
+
+it('lets a chain use a branch banner as its story picture', () => {
+  const chains = chainsOf([
+    branch('a', 'Alpha One', { brandSlug: 'alpha', bannerUrls: ['https://img/banner.jpg'] }),
+    branch('b', 'Alpha Two', { brandSlug: 'alpha' }),
+  ]);
+  expect(chains[0]).toMatchObject({ logoUrl: null, bannerUrl: 'https://img/banner.jpg' });
 });

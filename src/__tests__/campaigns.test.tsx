@@ -28,8 +28,9 @@ describe('campaigns tab', () => {
   it('lists the five labelled mock campaigns and opens one', async () => {
     await renderWithProviders(<CampaignsScreen />);
     expect(screen.getByText('Kampanyalar (5) (Mock)')).toBeTruthy();
-    expect(screen.getByText('Kahvede ikincisi yarı fiyat')).toBeTruthy();
-    await fireEvent.press(screen.getByText('2 al 1 öde pizza'));
+    expect(screen.getByLabelText('Kahvede ikincisi %50')).toBeTruthy();
+    expect(screen.getByText('2 AL 1 ÖDE PİZZA')).toBeTruthy();
+    await fireEvent.press(screen.getByLabelText('2 al 1 öde pizza'));
     expect(mockPush).toHaveBeenCalledWith({ pathname: '/campaigns/[id]', params: { id: 'pizza2for1' } });
   });
 
@@ -45,6 +46,7 @@ describe('campaign detail', () => {
   it('shows the description, the sample note and leads back to the restaurants', async () => {
     await renderWithProviders(<CampaignDetail />);
     expect(screen.getByText('2 al 1 öde pizza')).toBeTruthy();
+    expect(screen.getByText('2 AL 1 ÖDE PİZZA')).toBeTruthy();
     expect(screen.getByText('Bu kampanya örnek gösterimdir (Mock).')).toBeTruthy();
     await fireEvent.press(screen.getByText('Restoranlara göz at'));
     expect(mockNavigate).toHaveBeenCalledWith('/(tabs)');

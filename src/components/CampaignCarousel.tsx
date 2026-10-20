@@ -3,7 +3,7 @@ import { CampaignCard } from '@/components/CampaignCard';
 import { CAMPAIGNS } from '@/mocks/home-mocks';
 import { space } from '@/theme';
 
-export const CAMPAIGN_CARD_WIDTH = 260;
+export const CAMPAIGN_CARD_WIDTH = 280;
 
 /** Horizontal row of the (mock) campaign cards. */
 export function CampaignCarousel() {
