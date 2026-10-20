@@ -11,7 +11,7 @@ it.each([
   ['tr', 'terms'],
   ['en', 'privacy'],
   ['en', 'terms'],
-] as const)('names PLUG DIGITAL LTD and never "Works" (%s %s)', (lang, page: LegalPage) => {
+] as const)('names PLUG DIGITAL LTD and without any company suffix other than LTD (%s %s)', (lang, page: LegalPage) => {
   const text = JSON.stringify(legalDocument(page, lang));
   expect(text).toContain('PLUG DIGITAL LTD (');
   expect(text).toContain('info@plugdigital.co.uk');

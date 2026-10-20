@@ -9,7 +9,7 @@ import { LanguageSheet } from '@/components/account/LanguageSheet';
 import { IS_STAGING, SHOW_MOCKS } from '@/config';
 import { useAuth } from '@/context/AuthContext';
 import { changeLanguage, type AppLanguage } from '@/lib/language';
-import { formatMoney } from '@/lib/money';
+import { formatCredit } from '@/lib/credit';
 import { useCreditBalance } from '@/queries/useCreditBalance';
 import { colors, font, radius, space, weight } from '@/theme';
 import { MockTag } from '@/ui/MockTag';
@@ -63,7 +63,7 @@ export default function Account() {
           {credit !== undefined ? (
             <View style={styles.pill}>
               <Wallet size={14} color={colors.primarySoftForeground} />
-              <Text style={styles.pillText}>{t('account.credit', { amount: formatMoney(credit, 'TRY', { symbol: '₺' }) })}</Text>
+              <Text style={styles.pillText}>{t('account.credit', { amount: formatCredit(credit) })}</Text>
             </View>
           ) : null}
           {SHOW_MOCKS ? (

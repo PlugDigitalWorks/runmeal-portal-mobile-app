@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { loadNotifPrefs, saveNotifPrefs } from '@/lib/notif-prefs';
@@ -9,11 +9,13 @@ import { colors, font, space, weight } from '@/theme';
 export default function NotificationsScreen() {
   const { t } = useTranslation();
   const [prefs, setPrefs] = useState<NotifPrefs>(DEFAULT_NOTIF_PREFS);
+  // A switch flipped before the saved values arrive wins over the late read.
+  const touched = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
     void loadNotifPrefs().then((saved) => {
-      if (!cancelled) setPrefs(saved);
+      if (!cancelled && !touched.current) setPrefs(saved);
     });
     return () => {
       cancelled = true;
@@ -21,6 +23,7 @@ export default function NotificationsScreen() {
   }, []);
 
   const toggle = (key: NotifKey, value: boolean) => {
+    touched.current = true;
     const next = { ...prefs, [key]: value };
     setPrefs(next);
     void saveNotifPrefs(next);

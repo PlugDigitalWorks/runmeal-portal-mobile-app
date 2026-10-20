@@ -62,7 +62,7 @@ export async function logoutAll(): Promise<void> {
   await api.post('/auth/logout-all');
 }
 
-/** runmeal-api SetPasswordDto: just `password` (at least 6 characters; the app asks for 8). Works for first-time and later changes. */
+/** runmeal-api SetPasswordDto: just `password` (at least 6 characters; the app asks for 8). Serves both the first password and later changes. */
 export async function setPassword(password: string): Promise<void> {
   await api.patch('/auth/set-password', { password });
 }

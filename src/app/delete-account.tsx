@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import { router } from 'expo-router';
 import { TriangleAlert } from 'lucide-react-native';
 import { useRef, useState } from 'react';
@@ -29,7 +30,9 @@ export default function DeleteAccountScreen() {
     try {
       await deleteAccount();
     } catch (e) {
-      setError(apiErrorMessage(e, t('deleteAccount.failed')));
+      // runmeal-api has no DELETE /profile yet (docs/BACKEND_REQUESTS.md): say so plainly instead of a raw routing error.
+      const missing = isAxiosError(e) && (e.response?.status === 404 || e.response?.status === 405);
+      setError(missing ? t('deleteAccount.unavailable') : apiErrorMessage(e, t('deleteAccount.failed')));
       inFlight.current = false;
       setBusy(false);
       return;

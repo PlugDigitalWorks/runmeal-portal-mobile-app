@@ -9,3 +9,4 @@ Uygulamanın ana sayfası (Keşfet) bu alanlar için şimdilik "(Mock)" etiketli
 - **Marka adı ve zincir bilgisi:** `GET /branches/nearby` satırında `brandName` alanı. Şimdi marka adı şube adlarının ortak başlangıcından tahmin ediliyor.
 - **Mutfak etiketi:** şube başına mutfak kategorileri. Şimdi mutfak, ad ve menü metnindeki anahtar kelimelerden tahmin ediliyor.
 - **Favoriler:** şimdilik yalnızca cihazda saklanıyor (`rm_favorites`).
+- **Hesap silme:** `DELETE /profile`. App Store 5.1.1(v) uygulama içinden hesap silmeyi zorunlu kılar; route şu an yok, `/delete-account` ekranı 404/405'te "şu an kullanılamıyor" mesajı gösterir. Hesap güncelleme (`PUT /profile`), kayıtlı kartlar, kupon listesi, e-posta değişikliği ve bildirim tercihleri de Hesabım'da "(Mock)" etiketiyle duruyor.

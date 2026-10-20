@@ -333,7 +333,7 @@
       "addSoon": "Saving cards will arrive with the payment provider integration (Mock)"
     },
     "coupons": {
-      "title": "Discount coupons (Mock)",
+      "title": "Discount coupons",
       "credit": "Your Runmeal credit: {{amount}}",
       "creditBody": "Take it off your order at the payment step.",
       "listTitle": "Your coupons",
@@ -493,6 +493,7 @@
     "mockNote": "This offer is a sample (Mock).",
     "notFound": "This offer was not found",
     "items": {
+    "unavailable": "Account deletion isn't available right now. Please contact support.",
       "basket20": {
         "title": "20% off your basket",
         "headline": "20% OFF YOUR BASKET",

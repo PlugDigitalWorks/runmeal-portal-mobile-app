@@ -333,7 +333,7 @@
       "addSoon": "Kart kaydetme ödeme sağlayıcısı entegrasyonuyla gelecek (Mock)"
     },
     "coupons": {
-      "title": "İndirim kuponlarım (Mock)",
+      "title": "İndirim kuponlarım",
       "credit": "Runmeal kredin: {{amount}}",
       "creditBody": "Ödeme adımında siparişinden düşebilirsin.",
       "listTitle": "Kuponların",
@@ -493,6 +493,7 @@
     "mockNote": "Bu kampanya örnek gösterimdir (Mock).",
     "notFound": "Bu kampanya bulunamadı",
     "items": {
+    "unavailable": "Hesap silme şu an kullanılamıyor, lütfen destekle iletişime geç.",
       "basket20": {
         "title": "Sepette %20 indirim",
         "headline": "SEPETTE %20 İNDİRİM",

@@ -53,7 +53,7 @@ export default function RootLayout() {
                   <Stack.Screen name="account" options={{ title: t('account.title') }} />
                   <Stack.Screen name="account/profile" options={{ title: t('account.profile.title'), headerRight: SHOW_MOCKS ? () => <MockTag /> : undefined }} />
                   <Stack.Screen name="account/cards" options={{ title: t('account.cards.title') }} />
-                  <Stack.Screen name="account/coupons" options={{ title: t('account.coupons.title') }} />
+                  <Stack.Screen name="account/coupons" options={{ title: SHOW_MOCKS ? `${t('account.coupons.title')} (${t('common.mock')})` : t('account.coupons.title') }} />
                   <Stack.Screen name="account/email" options={{ title: t('account.email.title') }} />
                   <Stack.Screen name="account/notifications" options={{ title: t('account.notifications.title') }} />
                   <Stack.Screen name="account/feedback" options={{ title: t('account.feedback.title') }} />

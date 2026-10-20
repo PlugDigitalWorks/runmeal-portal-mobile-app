@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SHOW_MOCKS } from '@/config';
 import { qk } from '@/queries/keys';
 import { getProfile } from '@/services/profile.service';
 import { colors, font, space, weight } from '@/theme';
@@ -11,8 +12,8 @@ import { Skeleton } from '@/ui/Skeleton';
 import { TextField } from '@/ui/TextField';
 
 /**
- * The profile from GET /profile as read-only rows. The API has no PUT /profile yet, so "Edit" opens
- * the form but saving only says it is coming (the header carries the Mock tag); wire it up when the route exists.
+ * The profile from GET /profile as read-only rows. The API has no PUT /profile yet, so "Edit" (shown only while
+ * SHOW_MOCKS is on) opens the form but saving only says it is coming; wire it up when the route exists.
  */
 export default function ProfileScreen() {
   const { t } = useTranslation();
@@ -46,7 +47,7 @@ export default function ProfileScreen() {
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        {editing ? (
+        {SHOW_MOCKS && editing ? (
           <View style={styles.form}>
             <TextField label={t('account.profile.firstName')} value={firstName} onChangeText={setFirstName} autoCapitalize="words" />
             <TextField label={t('account.profile.lastName')} value={lastName} onChangeText={setLastName} autoCapitalize="words" />
@@ -63,7 +64,7 @@ export default function ProfileScreen() {
                 </View>
               ))}
             </View>
-            <Button variant="secondary" title={t('account.profile.edit')} onPress={startEditing} />
+            {SHOW_MOCKS ? <Button variant="secondary" title={t('account.profile.edit')} onPress={startEditing} /> : null}
           </>
         )}
       </ScrollView>

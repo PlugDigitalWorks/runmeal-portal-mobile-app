@@ -33,6 +33,17 @@ it('deletes only after a second yes, then signs out', async () => {
   expect(alert).toHaveBeenLastCalledWith('Hesap silindi', 'Hesabın silindi.');
 });
 
+it('explains plainly that deletion is unavailable when the API has no such route', async () => {
+  (deleteAccount as jest.Mock).mockRejectedValue(Object.assign(new Error('Not Found'), { isAxiosError: true, response: { status: 404, data: { message: 'Cannot DELETE /profile' } } }));
+  const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  await renderWithProviders(<DeleteAccountScreen />);
+  await fireEvent.press(screen.getByTestId('delete-account'));
+  pressDestructive(alert);
+  expect(await screen.findByText('Hesap silme şu an kullanılamıyor, lütfen destekle iletişime geç.')).toBeTruthy();
+  expect(screen.queryByText(/Cannot DELETE/)).toBeNull();
+  expect(mockSignOut).not.toHaveBeenCalled();
+});
+
 it('keeps the customer signed in when the delete fails', async () => {
   (deleteAccount as jest.Mock).mockRejectedValue(new Error('offline'));
   const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});

@@ -3,7 +3,7 @@ import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 import { CouponStrip } from '@/components/restaurant/CouponStrip';
 import { SHOW_MOCKS } from '@/config';
-import { formatMoney } from '@/lib/money';
+import { formatCredit } from '@/lib/credit';
 import { MOCK_COUPONS } from '@/mocks/account-mocks';
 import { useCreditBalance } from '@/queries/useCreditBalance';
 import { colors, font, radius, space, weight } from '@/theme';
@@ -18,10 +18,12 @@ export default function CouponsScreen() {
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <View style={styles.credit}>
-        <Text style={styles.creditTitle}>{t('account.coupons.credit', { amount: formatMoney(credit ?? 0, 'TRY', { symbol: '₺' }) })}</Text>
-        <Text style={styles.creditBody}>{t('account.coupons.creditBody')}</Text>
-      </View>
+      {credit !== undefined ? (
+        <View style={styles.credit}>
+          <Text style={styles.creditTitle}>{t('account.coupons.credit', { amount: formatCredit(credit) })}</Text>
+          <Text style={styles.creditBody}>{t('account.coupons.creditBody')}</Text>
+        </View>
+      ) : null}
       {SHOW_MOCKS ? (
         <>
           <Text style={styles.heading}>{t('account.coupons.listTitle')}</Text>

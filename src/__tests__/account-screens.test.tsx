@@ -41,6 +41,14 @@ it('shows the real profile read-only; saving an edit only says it is coming', as
   expect(alert).toHaveBeenCalledWith('Profil güncelleme yakında (Mock)');
 });
 
+it('is a clean read-only profile when mocks are off', async () => {
+  mockShowMocks = false;
+  (getProfile as jest.Mock).mockResolvedValue({ id: 'u', email: 'ada@example.com', firstName: 'Ada', lastName: 'Yılmaz', role: 'customer' });
+  await renderWithProviders(<ProfileScreen />);
+  expect(await screen.findByText('Yılmaz')).toBeTruthy();
+  expect(screen.queryByText('Düzenle')).toBeNull();
+});
+
 it('leaves the phone row out when the profile has none', async () => {
   (getProfile as jest.Mock).mockResolvedValue({ id: 'u', email: 'ada@example.com', firstName: 'Ada', lastName: 'Yılmaz', role: 'customer' });
   await renderWithProviders(<ProfileScreen />);
@@ -53,7 +61,7 @@ it('lists two sample cards, with no card-number field, and the add button only w
   expect(screen.getByText('Visa •••• 4242')).toBeTruthy();
   expect(screen.getByText('Mastercard •••• 5454')).toBeTruthy();
   expect(screen.getByText('Varsayılan')).toBeTruthy();
-  expect(screen.queryByPlaceholderText(/kart/i)).toBeNull();
+  expect(JSON.stringify(screen.toJSON())).not.toContain('"TextInput"');
   await fireEvent.press(screen.getByText('Kart ekle'));
   expect(alert).toHaveBeenCalledWith('Kart kaydetme ödeme sağlayıcısı entegrasyonuyla gelecek (Mock)');
 });
@@ -68,6 +76,23 @@ it('shows the real credit above the sample coupons', async () => {
   expect(alert).toHaveBeenCalledWith('Kupon ekleme yakında (Mock)');
 });
 
+it('shows no credit card until the balance is known, and none when it fails', async () => {
+  let resolve: (value: number) => void = () => undefined;
+  (getCreditBalance as jest.Mock).mockReturnValueOnce(new Promise<number>((r) => (resolve = r)));
+  await renderWithProviders(<CouponsScreen />);
+  expect(screen.queryByText(/Runmeal kredin/)).toBeNull();
+  expect(screen.queryByText('Runmeal kredin: ₺0,00')).toBeNull();
+  resolve(5);
+  expect(await screen.findByText('Runmeal kredin: ₺5,00')).toBeTruthy();
+});
+
+it('shows no credit card when the balance cannot be read', async () => {
+  (getCreditBalance as jest.Mock).mockRejectedValue(new Error('offline'));
+  await renderWithProviders(<CouponsScreen />);
+  await waitFor(() => expect(getCreditBalance).toHaveBeenCalled());
+  expect(screen.queryByText(/Runmeal kredin/)).toBeNull();
+});
+
 it('hides the sample coupons when mocks are off but keeps the credit', async () => {
   mockShowMocks = false;
   (getCreditBalance as jest.Mock).mockResolvedValue(0);
@@ -80,6 +105,8 @@ it('hides the sample coupons when mocks are off but keeps the credit', async () 
 it('only warns when asked to send the email change code', async () => {
   await renderWithProviders(<EmailScreen />);
   expect(screen.getByDisplayValue('ada@example.com')).toBeTruthy();
+  // Positive control for the cards test: text inputs do show up as textboxes.
+  expect(JSON.stringify(screen.toJSON())).toContain('"TextInput"');
   await fireEvent.press(screen.getByText('Doğrulama kodu gönder'));
   expect(alert).toHaveBeenCalledWith('Yakında (Mock)');
 });
