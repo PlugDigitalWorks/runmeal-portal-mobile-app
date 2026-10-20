@@ -20,3 +20,11 @@ it('matches by menu text', () => {
 it('lists only categories some branch matches, in fixed order', () => {
   expect(availableCategories([branch('Artisan Pizza'), branch('Premium Burger')], {})).toEqual(['pizza', 'burger']);
 });
+
+it('matches keywords at the start of a word only', () => {
+  expect(branchMatchesCategory(branch('Seafood Platter'), 'coffee')).toBe(false);
+  expect(branchMatchesCategory(branch('Lattes & More'), 'coffee')).toBe(true);
+  expect(branchMatchesCategory(branch('Kebapçı Halil'), 'kebab')).toBe(true);
+  expect(branchMatchesCategory(branch('Usta'), 'dessert', 'vanilla ice cream')).toBe(true);
+  expect(branchMatchesCategory(branch('Usta'), 'dessert', 'rice cream soup')).toBe(false);
+});

@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import Home from '@/app/(tabs)/index';
 import * as branches from '@/services/branch.service';
 import { renderWithProviders } from './helpers/render-with-providers';
@@ -34,4 +34,22 @@ it('shows retry on error', async () => {
   jest.spyOn(branches, 'getNearbyBranches').mockRejectedValue(new Error('offline'));
   await renderWithProviders(<Home />);
   await waitFor(() => expect(screen.getByText('Tekrar dene')).toBeTruthy());
+});
+
+it('uses the Turkish singular when one branch remains', async () => {
+  jest.spyOn(branches, 'getNearbyBranches').mockResolvedValue([row('p', 'Artisan Pizza House', 900), row('b', 'Premium Burger Co', 300)]);
+  await renderWithProviders(<Home />);
+  await waitFor(() => expect(screen.getByText('2 restoran')).toBeTruthy());
+  await fireEvent.press(screen.getByText('Pizza'));
+  expect(screen.getByText('1 restoran')).toBeTruthy();
+});
+
+it('keeps the list when a refresh fails', async () => {
+  const spy = jest.spyOn(branches, 'getNearbyBranches').mockResolvedValue([row('b', 'Premium Burger Co', 300)]);
+  const { client } = await renderWithProviders(<Home />);
+  await waitFor(() => expect(screen.getByText('Premium Burger Co')).toBeTruthy());
+  spy.mockRejectedValue(new Error('offline'));
+  await act(() => client.refetchQueries({ queryKey: ['nearby'] }));
+  expect(screen.getByText('Premium Burger Co')).toBeTruthy();
+  expect(screen.queryByText('Tekrar dene')).toBeNull();
 });

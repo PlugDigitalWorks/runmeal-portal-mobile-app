@@ -23,9 +23,15 @@ export function menuText(menu: Menu): string {
   );
 }
 
+/**
+ * Keywords match at the start of a word, never inside one: "Lattes" is coffee,
+ * "Seafood Platter" is not ("platter" merely contains "latte"). A leading space
+ * on both sides gives multi-word keywords like "ice cream" the same rule.
+ */
 export function branchMatchesCategory(branch: Branch, category: CategoryId, foldedMenuText = ''): boolean {
-  const haystack = `${foldText(branch.name)} ${foldText(branch.brandSlug ?? '')} ${foldedMenuText}`;
-  return KEYWORDS[category].some((word) => haystack.includes(word));
+  const words = `${foldText(branch.name)} ${foldText(branch.brandSlug ?? '')} ${foldedMenuText}`.split(/[^a-z0-9]+/).filter(Boolean);
+  const haystack = ` ${words.join(' ')}`;
+  return KEYWORDS[category].some((word) => haystack.includes(` ${word}`));
 }
 
 export function availableCategories(branches: Branch[], menuTextById: Record<string, string>): CategoryId[] {

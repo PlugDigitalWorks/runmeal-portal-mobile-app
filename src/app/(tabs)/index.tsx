@@ -55,12 +55,14 @@ export default function Home() {
   };
 
   const loading = locating || isLoading;
+  // A failed refresh keeps the list already on screen; the error view is only for when there is nothing to show.
+  const failed = isError && !data;
 
   return (
     <View style={styles.root}>
       <StatusBar style="light" />
       <FlatList
-        data={loading || isError ? [] : visible}
+        data={loading || failed ? [] : visible}
         keyExtractor={(b) => b.id}
         contentContainerStyle={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} colors={[colors.primary]} />}
@@ -70,7 +72,7 @@ export default function Home() {
             <CategoryChips categories={categories} selected={active} onSelect={setCategory} />
             <View style={styles.titleRow}>
               <Text style={styles.title}>{t('home.nearby')}</Text>
-              {!loading && !isError ? <Text style={styles.count}>{t('home.branchCount', { count: visible.length })}</Text> : null}
+              {!loading && !failed ? <Text style={styles.count}>{t('home.branchCount', { count: visible.length })}</Text> : null}
             </View>
           </View>
         }
@@ -86,7 +88,7 @@ export default function Home() {
               <BranchCardSkeleton />
               <BranchCardSkeleton />
             </View>
-          ) : isError ? (
+          ) : failed ? (
             <ErrorState onRetry={refetch} />
           ) : (
             <EmptyState

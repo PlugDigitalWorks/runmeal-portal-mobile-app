@@ -50,7 +50,7 @@
     "branchCount_one": "{{count}} restaurant",
     "branchCount_other": "{{count}} restaurants",
     "closed": "Closed",
-    "opensAt": "· opens {{time}}",
+    "opensAt": "· Opens {{time}}",
     "emptyTitle": "No restaurants deliver here yet",
     "changeAddress": "Change address",
     "addFavorite": "Add to favourites",
