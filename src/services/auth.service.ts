@@ -57,6 +57,16 @@ export async function logout(): Promise<void> {
   await api.post('/auth/logout');
 }
 
+/** Ends this session and every other one of the account (POST /auth/logout-all). */
+export async function logoutAll(): Promise<void> {
+  await api.post('/auth/logout-all');
+}
+
+/** runmeal-api SetPasswordDto: just `password` (at least 6 characters; the app asks for 8). Works for first-time and later changes. */
+export async function setPassword(password: string): Promise<void> {
+  await api.patch('/auth/set-password', { password });
+}
+
 /** Deletes the signed-in account, revokes its Apple grant and ends every session. */
 export async function deleteAccount(): Promise<void> {
   await api.delete('/profile');

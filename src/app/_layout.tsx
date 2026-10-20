@@ -7,12 +7,14 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SHOW_MOCKS } from '@/config';
 import { AuthProvider } from '@/context/AuthContext';
 import { HomeViewProvider } from '@/context/HomeViewContext';
 import { LocationProvider } from '@/context/LocationContext';
 import { loadLanguage } from '@/lib/language';
 import { bindAppFocus, queryClient } from '@/lib/query-client';
 import { colors } from '@/theme';
+import { MockTag } from '@/ui/MockTag';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,6 +51,17 @@ export default function RootLayout() {
                     options={{ presentation: 'modal', headerShown: false, contentStyle: { backgroundColor: colors.background } }}
                   />
                   <Stack.Screen name="account" options={{ title: t('account.title') }} />
+                  <Stack.Screen name="account/profile" options={{ title: t('account.profile.title'), headerRight: SHOW_MOCKS ? () => <MockTag /> : undefined }} />
+                  <Stack.Screen name="account/cards" options={{ title: t('account.cards.title') }} />
+                  <Stack.Screen name="account/coupons" options={{ title: t('account.coupons.title') }} />
+                  <Stack.Screen name="account/email" options={{ title: t('account.email.title') }} />
+                  <Stack.Screen name="account/notifications" options={{ title: t('account.notifications.title') }} />
+                  <Stack.Screen name="account/feedback" options={{ title: t('account.feedback.title') }} />
+                  <Stack.Screen name="account/security" options={{ title: t('account.security.title') }} />
+                  <Stack.Screen name="account/more" options={{ title: t('account.more.title') }} />
+                  <Stack.Screen name="rewards" options={{ title: t('rewards.title') }} />
+                  <Stack.Screen name="legal/[page]" options={({ route }) => ({ title: (route.params as { page?: string } | undefined)?.page === 'terms' ? t('account.more.terms') : t('account.more.privacy') })} />
+                  <Stack.Screen name="delete-account" options={{ title: t('deleteAccount.title') }} />
                   <Stack.Screen name="campaigns/[id]" options={{ title: t('campaigns.title') }} />
                   <Stack.Screen name="restaurant/[branchId]" options={{ headerTransparent: true, headerTitle: '', headerBackButtonDisplayMode: 'minimal' }} />
                   <Stack.Screen

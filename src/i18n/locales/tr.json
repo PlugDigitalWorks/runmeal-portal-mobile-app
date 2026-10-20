@@ -273,7 +273,108 @@
   "account": {
     "title": "Hesabım",
     "signOut": "Çıkış yap",
-    "placeholderBody": "Hesap ayarların yakında burada olacak."
+    "signOutConfirmTitle": "Çıkış yapmak istiyor musun?",
+    "credit": "Runmeal kredisi {{amount}}",
+    "plus": "Runmeal+ üyesi",
+    "newBadge": "YENİ",
+    "staging": "Staging",
+    "rows": {
+      "profile": "Kullanıcı bilgilerim",
+      "addresses": "Adreslerim",
+      "cards": "Kayıtlı kartlarım",
+      "coupons": "İndirim kuponlarım",
+      "rewards": "Ödüllerim",
+      "favorites": "Favorilerim",
+      "orders": "Siparişlerim",
+      "email": "E-posta değişikliği",
+      "notifications": "Bildirim tercihlerim",
+      "language": "Dil",
+      "feedback": "Runmeal seni dinliyor",
+      "security": "Güvenlik",
+      "more": "Daha fazla"
+    },
+    "language": {
+      "title": "Dil seç",
+      "tr": "Türkçe",
+      "en": "English"
+    },
+    "profile": {
+      "title": "Kullanıcı bilgilerim",
+      "firstName": "Ad",
+      "lastName": "Soyad",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "edit": "Düzenle",
+      "save": "Kaydet",
+      "editSoon": "Profil güncelleme yakında (Mock)",
+      "loadFailed": "Profil yüklenemedi."
+    },
+    "cards": {
+      "title": "Kayıtlı kartlarım (Mock)",
+      "default": "Varsayılan",
+      "add": "Kart ekle",
+      "addSoon": "Kart kaydetme ödeme sağlayıcısı entegrasyonuyla gelecek (Mock)"
+    },
+    "coupons": {
+      "title": "İndirim kuponlarım (Mock)",
+      "credit": "Runmeal kredin: {{amount}}",
+      "creditBody": "Ödeme adımında siparişinden düşebilirsin.",
+      "listTitle": "Kuponların",
+      "addLabel": "Kupon kodu ekle",
+      "codePlaceholder": "Kupon kodu",
+      "add": "Ekle",
+      "addSoon": "Kupon ekleme yakında (Mock)"
+    },
+    "email": {
+      "title": "E-posta değişikliği (Mock)",
+      "current": "Mevcut e-posta",
+      "new": "Yeni e-posta",
+      "send": "Doğrulama kodu gönder",
+      "soon": "Yakında (Mock)"
+    },
+    "notifications": {
+      "title": "Bildirim tercihlerim (Mock)",
+      "campaigns": "Kampanyalar ve fırsatlar",
+      "orderStatus": "Sipariş durumu",
+      "newsletter": "E-posta bülteni",
+      "sms": "SMS",
+      "note": "Tercihlerin bu cihazda saklanır; bildirimler henüz bağlı değil."
+    },
+    "feedback": {
+      "title": "Runmeal seni dinliyor (Mock)",
+      "question": "Runmeal'ı nasıl buluyorsun?",
+      "rate": "{{count}} puan",
+      "comment": "Yorumun",
+      "commentPlaceholder": "Neyi beğendin, neyi geliştirelim?",
+      "send": "Gönder",
+      "thanks": "Teşekkürler (Mock)"
+    },
+    "security": {
+      "title": "Güvenlik",
+      "passwordTitle": "Şifre belirle / değiştir",
+      "passwordHint": "Şifreyle de giriş yapabilirsin. En az 8 karakter.",
+      "newPassword": "Yeni şifre",
+      "repeatPassword": "Yeni şifre (tekrar)",
+      "save": "Şifreyi kaydet",
+      "tooShort": "Şifre en az 8 karakter olmalı.",
+      "mismatch": "Şifreler aynı değil.",
+      "saved": "Şifren kaydedildi.",
+      "failed": "Şifre kaydedilemedi. Tekrar dene.",
+      "logoutAll": "Tüm cihazlardan çıkış yap",
+      "logoutAllTitle": "Tüm cihazlardan çıkış yapılsın mı?",
+      "logoutAllBody": "Hesabın açık olduğu bütün cihazlarda oturum kapanır.",
+      "logoutAllFailed": "Çıkış yapılamadı. Tekrar dene.",
+      "delete": "Hesabımı sil"
+    },
+    "more": {
+      "title": "Daha fazla",
+      "privacy": "Gizlilik politikası",
+      "terms": "Kullanım koşulları",
+      "help": "Yardım merkezi",
+      "helpSoon": "Yardım merkezi yakında (Mock)",
+      "aboutTitle": "Hakkında",
+      "appName": "Runmeal"
+    }
   },
   "addresses": {
     "title": "Adreslerim",
@@ -311,8 +412,39 @@
     "emptyTitle": "Henüz favorin yok",
     "emptyBody": "Beğendiğin restoranların kalbine dokun, burada toplansın."
   },
-  "rewards": {},
-  "legal": {},
+  "rewards": {
+    "title": "Ödüllerim",
+    "stamps": "{{earned}}/{{target}} damga",
+    "ready": "Ödülün hazır",
+    "remaining": "Ödüle {{count}} damga kaldı",
+    "paused": "Kampanya şu an durdu",
+    "emptyTitle": "Henüz damga kartın yok",
+    "emptyBody": "Sipariş verdiğin restoranların damga kampanyaları burada görünür.",
+    "loadFailed": "Ödüller yüklenemedi."
+  },
+  "legal": {
+    "updated": "Son güncelleme {{date}}"
+  },
+  "deleteAccount": {
+    "title": "Hesabı sil",
+    "warning": "Bu işlem geri alınamaz.",
+    "account": "{{email}} hesabıyla giriş yaptın.",
+    "whatHappens": "Neler olur",
+    "points": {
+      "profile": "Adın, e-postan, telefonun ve kayıtlı adreslerin silinir.",
+      "loyalty": "Damgaların ve ödüllerin kaybolur.",
+      "signIn": "Her yerden çıkış yapılır; Apple veya Google ile giriş bağlantısı kaldırılır.",
+      "orders": "Geçmiş sipariş kayıtları, yasal fiş saklama gereği kişisel bilgilerin olmadan tutulur."
+    },
+    "button": "Hesabımı sil",
+    "deleting": "Siliniyor…",
+    "confirmTitle": "Hesabın silinsin mi?",
+    "confirmBody": "Hesabın ve damgaların kalıcı olarak silinir.",
+    "confirm": "Sil",
+    "failed": "Hesabın silinemedi. Tekrar dene.",
+    "doneTitle": "Hesap silindi",
+    "doneBody": "Hesabın silindi."
+  },
   "errors": {
     "network": "Bağlantı kurulamadı",
     "generic": "Bir şeyler ters gitti",

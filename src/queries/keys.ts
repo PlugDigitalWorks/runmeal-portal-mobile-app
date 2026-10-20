@@ -3,6 +3,7 @@ const NEARBY = 'nearby';
 /** Every query key in one place so invalidation can never drift from the hooks. */
 export const qk = {
   addresses: ['addresses'] as const,
+  profile: ['profile'] as const,
   /** Prefix of every nearby-branches query: use it to read or invalidate all of them. */
   nearbyAll: [NEARBY] as const,
   nearby: (lat: number, lng: number) => [NEARBY, lat.toFixed(4), lng.toFixed(4)] as const,

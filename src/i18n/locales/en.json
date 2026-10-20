@@ -273,7 +273,108 @@
   "account": {
     "title": "My account",
     "signOut": "Sign out",
-    "placeholderBody": "Your account settings will be here soon."
+    "signOutConfirmTitle": "Sign out?",
+    "credit": "Runmeal credit {{amount}}",
+    "plus": "Runmeal+ member",
+    "newBadge": "NEW",
+    "staging": "Staging",
+    "rows": {
+      "profile": "My details",
+      "addresses": "My addresses",
+      "cards": "Saved cards",
+      "coupons": "Discount coupons",
+      "rewards": "My rewards",
+      "favorites": "Favourites",
+      "orders": "My orders",
+      "email": "Change email",
+      "notifications": "Notification preferences",
+      "language": "Language",
+      "feedback": "Runmeal is listening",
+      "security": "Security",
+      "more": "More"
+    },
+    "language": {
+      "title": "Choose language",
+      "tr": "Türkçe",
+      "en": "English"
+    },
+    "profile": {
+      "title": "My details",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone",
+      "edit": "Edit",
+      "save": "Save",
+      "editSoon": "Profile editing is coming soon (Mock)",
+      "loadFailed": "Couldn't load your profile."
+    },
+    "cards": {
+      "title": "Saved cards (Mock)",
+      "default": "Default",
+      "add": "Add card",
+      "addSoon": "Saving cards will arrive with the payment provider integration (Mock)"
+    },
+    "coupons": {
+      "title": "Discount coupons (Mock)",
+      "credit": "Your Runmeal credit: {{amount}}",
+      "creditBody": "Take it off your order at the payment step.",
+      "listTitle": "Your coupons",
+      "addLabel": "Add coupon code",
+      "codePlaceholder": "Coupon code",
+      "add": "Add",
+      "addSoon": "Adding coupons is coming soon (Mock)"
+    },
+    "email": {
+      "title": "Change email (Mock)",
+      "current": "Current email",
+      "new": "New email",
+      "send": "Send verification code",
+      "soon": "Coming soon (Mock)"
+    },
+    "notifications": {
+      "title": "Notification preferences (Mock)",
+      "campaigns": "Offers and promotions",
+      "orderStatus": "Order status",
+      "newsletter": "Email newsletter",
+      "sms": "SMS",
+      "note": "Your choices are kept on this device; notifications aren't connected yet."
+    },
+    "feedback": {
+      "title": "Runmeal is listening (Mock)",
+      "question": "How do you like Runmeal?",
+      "rate": "{{count}} out of 5",
+      "comment": "Your comment",
+      "commentPlaceholder": "What did you like, what should we improve?",
+      "send": "Send",
+      "thanks": "Thank you (Mock)"
+    },
+    "security": {
+      "title": "Security",
+      "passwordTitle": "Set or change password",
+      "passwordHint": "You can sign in with a password too. At least 8 characters.",
+      "newPassword": "New password",
+      "repeatPassword": "New password (again)",
+      "save": "Save password",
+      "tooShort": "The password needs at least 8 characters.",
+      "mismatch": "The passwords don't match.",
+      "saved": "Your password is saved.",
+      "failed": "Couldn't save the password. Try again.",
+      "logoutAll": "Sign out of all devices",
+      "logoutAllTitle": "Sign out of all devices?",
+      "logoutAllBody": "You'll be signed out everywhere this account is open.",
+      "logoutAllFailed": "Couldn't sign out. Try again.",
+      "delete": "Delete my account"
+    },
+    "more": {
+      "title": "More",
+      "privacy": "Privacy policy",
+      "terms": "Terms of use",
+      "help": "Help centre",
+      "helpSoon": "The help centre is coming soon (Mock)",
+      "aboutTitle": "About",
+      "appName": "Runmeal"
+    }
   },
   "addresses": {
     "title": "My addresses",
@@ -311,8 +412,39 @@
     "emptyTitle": "No favourites yet",
     "emptyBody": "Tap the heart on a restaurant you like and it will be collected here."
   },
-  "rewards": {},
-  "legal": {},
+  "rewards": {
+    "title": "My rewards",
+    "stamps": "{{earned}}/{{target}} stamps",
+    "ready": "Your reward is ready",
+    "remaining": "{{count}} stamps to your reward",
+    "paused": "This campaign is paused",
+    "emptyTitle": "No loyalty cards yet",
+    "emptyBody": "Stamp campaigns from the restaurants you order from show up here.",
+    "loadFailed": "Couldn't load your rewards."
+  },
+  "legal": {
+    "updated": "Last updated {{date}}"
+  },
+  "deleteAccount": {
+    "title": "Delete account",
+    "warning": "This can't be undone.",
+    "account": "Signed in as {{email}}.",
+    "whatHappens": "What happens",
+    "points": {
+      "profile": "Your name, email, phone and saved addresses are deleted.",
+      "loyalty": "Your loyalty stamps and rewards are lost.",
+      "signIn": "You're signed out everywhere, and Sign in with Apple or Google is disconnected.",
+      "orders": "Past order records are kept without your details, as the law requires for receipts."
+    },
+    "button": "Delete my account",
+    "deleting": "Deleting…",
+    "confirmTitle": "Delete your account?",
+    "confirmBody": "Your account and loyalty stamps will be gone for good.",
+    "confirm": "Delete",
+    "failed": "Couldn't delete your account. Try again.",
+    "doneTitle": "Account deleted",
+    "doneBody": "Your account has been deleted."
+  },
   "errors": {
     "network": "Couldn't connect",
     "generic": "Something went wrong",
