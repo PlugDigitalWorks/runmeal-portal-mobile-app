@@ -69,7 +69,7 @@ export interface Order {
   brandId: string;
   branchId: string;
   cartId: string;
-  totalPrice: string;
+  totalPrice: number | string;
   status: string;
   orderType?: string;
   paymentMethod?: string;
@@ -78,6 +78,8 @@ export interface Order {
   currencySymbol?: string;
   scheduledFor?: string | null;
   discountAmount?: number | string | null;
+  /** Tax added on top of the lines; 0 when the brand charges none. */
+  taxAmount?: number | string | null;
   /** Runmeal credit spent on the order. */
   creditUsedAmount?: number | string | null;
   note?: string | null;

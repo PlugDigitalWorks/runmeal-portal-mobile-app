@@ -8,6 +8,7 @@ jest.mock('@/config', () => ({ ...jest.requireActual('@/config'), SHOW_MOCKS: fa
 jest.mock('expo-router', () => ({
   router: { dismissTo: jest.fn(), back: jest.fn() },
   useLocalSearchParams: () => ({ id: 'o1', branchId: 'b1', brandId: 'r1' }),
+  useIsFocused: () => true,
   Stack: { Screen: () => null },
 }));
 

@@ -3,7 +3,7 @@ import { CheckCircle2, ChevronLeft, Truck, XCircle } from 'lucide-react-native';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { OrderStatusSteps } from '@/components/OrderStatusSteps';
 import { SHOW_MOCKS } from '@/config';
 import { isDelivery } from '@/lib/checkout';
@@ -37,8 +37,17 @@ export default function OrderScreen() {
     if (status) void queryClient.invalidateQueries({ queryKey: qk.orders });
   }, [status, queryClient]);
 
-  // After checkout the stack holds cart → checkout → this; "back" then means home, not the checkout form.
+  // Checkout (or the payment screen) was replaced by this one, so system back would land on the cart.
+  // After an order "back" means the tabs: the header button, the iOS swipe (off) and Android's back key agree.
   const justPlaced = placed === '1';
+  useEffect(() => {
+    if (!justPlaced) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      router.dismissTo('/(tabs)');
+      return true;
+    });
+    return () => sub.remove();
+  }, [justPlaced]);
   const headerLeft = justPlaced
     ? () => (
         <Pressable onPress={() => router.dismissTo('/(tabs)')} hitSlop={10} accessibilityRole="button" accessibilityLabel={t('orders.back')}>
@@ -117,15 +126,17 @@ export default function OrderScreen() {
 
 const money = (order: OrderDetails, value: number | string | null | undefined) => formatMoney(value, order.currency ?? 'TRY', { symbol: order.currencySymbol });
 
-/** Rows above the total only when there is something to say; the API's `totalPrice` is already what was paid. */
+/** Rows above the total only when there is something to say; they add up to `totalPrice` (lines + tax - discount - credit), which is what was paid. */
 function Totals({ order }: { order: OrderDetails }) {
   const { t } = useTranslation();
   const discount = Number(order.discountAmount ?? 0);
   const credit = Number(order.creditUsedAmount ?? 0);
+  const tax = Number(order.taxAmount ?? 0);
   const subtotal = order.items.reduce((sum, item) => sum + Number(item.lineTotal ?? itemTotal(item)), 0);
   return (
     <View style={styles.totals}>
-      {order.items.length > 0 && (discount > 0 || credit > 0) ? <Row label={t('orders.subtotal')} value={money(order, subtotal)} /> : null}
+      {order.items.length > 0 && (discount > 0 || credit > 0 || tax > 0) ? <Row label={t('orders.subtotal')} value={money(order, subtotal)} /> : null}
+      {tax > 0 ? <Row label={t('orders.tax')} value={money(order, tax)} /> : null}
       {discount > 0 ? <Row label={t('orders.discount')} value={`-${money(order, discount)}`} tone={colors.success} /> : null}
       {credit > 0 ? <Row label={t('orders.credit')} value={`-${money(order, credit)}`} tone={colors.success} /> : null}
       <View style={styles.totalLine}>
@@ -136,12 +147,15 @@ function Totals({ order }: { order: OrderDetails }) {
   );
 }
 
-/** Uber-style extras the API cannot back yet (docs/BACKEND_REQUESTS.md): an arrival estimate and the courier of a ready delivery. */
+/**
+ * Uber-style extras the API cannot back yet (docs/BACKEND_REQUESTS.md): an arrival estimate on an open delivery
+ * (never pick-up) and the courier once a delivery is ready.
+ */
 function MockExtras({ order }: { order: OrderDetails }) {
   const { t } = useTranslation();
-  const open = !isFinal(order.status);
-  const courier = open && order.status.toUpperCase() === 'READY' && !!order.orderType && isDelivery(order.orderType as OrderType);
-  if (!open) return null;
+  const delivery = !!order.orderType && isDelivery(order.orderType as OrderType);
+  if (!delivery || isFinal(order.status)) return null;
+  const courier = order.status.toUpperCase() === 'READY';
   return (
     <View style={styles.mock}>
       <Text style={styles.eta}>{t('orders.eta', { time: mockEta(order.createdAt) })}</Text>

@@ -273,6 +273,7 @@
     "cancelled": "Order cancelled",
     "items": "Items",
     "subtotal": "Subtotal",
+    "tax": "Tax",
     "discount": "Discount",
     "credit": "Credit",
     "total": "Total",
