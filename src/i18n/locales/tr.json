@@ -1,0 +1,44 @@
+{
+  "common": {
+    "retry": "Tekrar dene",
+    "cancel": "Vazgeç",
+    "save": "Kaydet",
+    "delete": "Sil",
+    "close": "Kapat",
+    "continue": "Devam et",
+    "loading": "Yükleniyor…",
+    "seeAll": "Tümünü gör"
+  },
+  "auth": {},
+  "tabs": {},
+  "home": {},
+  "categories": {
+    "all": "Tümü",
+    "coffee": "Kahve",
+    "pizza": "Pizza",
+    "burger": "Burger",
+    "kebab": "Döner & Kebap",
+    "dessert": "Tatlı",
+    "breakfast": "Kahvaltı",
+    "healthy": "Sağlıklı",
+    "world": "Dünya mutfağı"
+  },
+  "restaurant": {},
+  "product": {},
+  "cart": {},
+  "checkout": {},
+  "payment": {},
+  "orders": {},
+  "orderStatus": {},
+  "search": {},
+  "account": {},
+  "addresses": {},
+  "favorites": {},
+  "rewards": {},
+  "legal": {},
+  "errors": {
+    "network": "Bağlantı kurulamadı",
+    "generic": "Bir şeyler ters gitti",
+    "sessionExpired": "Oturumun sona erdi, tekrar giriş yap"
+  }
+}

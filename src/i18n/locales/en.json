@@ -1,0 +1,44 @@
+{
+  "common": {
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "close": "Close",
+    "continue": "Continue",
+    "loading": "Loading…",
+    "seeAll": "See all"
+  },
+  "auth": {},
+  "tabs": {},
+  "home": {},
+  "categories": {
+    "all": "All",
+    "coffee": "Coffee",
+    "pizza": "Pizza",
+    "burger": "Burgers",
+    "kebab": "Kebab",
+    "dessert": "Desserts",
+    "breakfast": "Breakfast",
+    "healthy": "Healthy",
+    "world": "World food"
+  },
+  "restaurant": {},
+  "product": {},
+  "cart": {},
+  "checkout": {},
+  "payment": {},
+  "orders": {},
+  "orderStatus": {},
+  "search": {},
+  "account": {},
+  "addresses": {},
+  "favorites": {},
+  "rewards": {},
+  "legal": {},
+  "errors": {
+    "network": "Couldn't connect",
+    "generic": "Something went wrong",
+    "sessionExpired": "Your session expired. Sign in again."
+  }
+}
