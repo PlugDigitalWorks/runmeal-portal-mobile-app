@@ -68,8 +68,29 @@
     "healthy": "Sağlıklı",
     "world": "Dünya mutfağı"
   },
-  "restaurant": {},
-  "product": {},
+  "restaurant": {
+    "open": "Açık",
+    "closed": "Kapalı",
+    "closedOpensAt": "Kapalı · {{time}}'te açılır",
+    "closedBanner": "Şu an kapalı, sipariş verilemez",
+    "emptyMenu": "Bu restoranın menüsü şu an boş"
+  },
+  "product": {
+    "addToCart": "Sepete ekle",
+    "required": "{{group}} seçimi zorunlu",
+    "minError": "{{group}} için en az {{count}} seçim yap",
+    "maxError": "En fazla {{count}} seçim yapabilirsin",
+    "requiredTag": "Zorunlu",
+    "optional": "İsteğe bağlı",
+    "chooseOne": "Birini seç",
+    "selectAtLeast": "En az {{count}} seç",
+    "max": "En fazla {{count}}",
+    "free": "Ücretsiz",
+    "note": "Not",
+    "notePlaceholder": "Restorana notun (isteğe bağlı)",
+    "error": "Ürün yüklenemedi",
+    "addFailed": "Sepete eklenemedi, tekrar dene"
+  },
   "cart": {},
   "checkout": {},
   "payment": {},

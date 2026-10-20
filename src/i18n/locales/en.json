@@ -68,8 +68,29 @@
     "healthy": "Healthy",
     "world": "World food"
   },
-  "restaurant": {},
-  "product": {},
+  "restaurant": {
+    "open": "Open",
+    "closed": "Closed",
+    "closedOpensAt": "Closed · opens {{time}}",
+    "closedBanner": "Closed right now, you can't order",
+    "emptyMenu": "This menu is empty right now"
+  },
+  "product": {
+    "addToCart": "Add to cart",
+    "required": "Choose {{group}}",
+    "minError": "Choose at least {{count}} for {{group}}",
+    "maxError": "You can choose up to {{count}}",
+    "requiredTag": "Required",
+    "optional": "Optional",
+    "chooseOne": "Choose one",
+    "selectAtLeast": "Choose at least {{count}}",
+    "max": "Up to {{count}}",
+    "free": "Free",
+    "note": "Note",
+    "notePlaceholder": "A note for the restaurant (optional)",
+    "error": "Couldn't load this item",
+    "addFailed": "Couldn't add to cart, try again"
+  },
   "cart": {},
   "checkout": {},
   "payment": {},
