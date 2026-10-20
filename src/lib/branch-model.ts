@@ -1,4 +1,4 @@
-import type { Branch, BusinessHours, DayHours } from '@/types/branch';
+import type { Branch, BranchDetail, BusinessHours, DayHours } from '@/types/branch';
 
 const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
 const toMinutes = (hhmm: string) => {
@@ -53,3 +53,62 @@ export function formatDistance(meters: number | null, lang: 'tr' | 'en'): string
 }
 
 export const bannerOf = (branch: Pick<Branch, 'bannerUrls' | 'logoUrl'>): string | null => branch.bannerUrls?.[0] ?? null;
+
+export type PaymentMethod = 'ONLINE_CARD' | 'CARD_ON_DELIVERY' | 'CASH';
+type Settings = Pick<Branch, 'order_type_settings' | 'payment_settings'>;
+
+/**
+ * The payment methods a branch accepts. A method the branch has no setting for counts as open (the checkout
+ * rule: the API's availability check has the final word); staging sends `[]` where the settings object would be,
+ * which reads as "not defined" too.
+ */
+export function paymentMethodsFor(settings: Pick<Branch, 'payment_settings'>): PaymentMethod[] {
+  const payment = settings.payment_settings;
+  const online = payment?.onlineMethods as { card?: { isActive?: boolean } } | undefined;
+  const offline = payment?.offlineMethods as { cash?: { isActive?: boolean }; cardOnDelivery?: { isActive?: boolean } } | undefined;
+  const methods: PaymentMethod[] = [];
+  if (online?.card?.isActive ?? true) methods.push('ONLINE_CARD');
+  if (offline?.cardOnDelivery?.isActive ?? true) methods.push('CARD_ON_DELIVERY');
+  if (offline?.cash?.isActive ?? true) methods.push('CASH');
+  return methods;
+}
+
+export type Fulfillment = 'delivery' | 'pickup';
+
+/** Delivery and pickup as the branch's own settings enable them (scheduled variants count); none when it sets neither. */
+export function fulfillmentOf(settings: Pick<Branch, 'order_type_settings'>): Fulfillment[] {
+  const s = settings.order_type_settings;
+  const options: Fulfillment[] = [];
+  if (s?.delivery?.isActive || s?.scheduledDelivery?.isActive) options.push('delivery');
+  if (s?.pickup?.isActive || s?.scheduledPickup?.isActive) options.push('pickup');
+  return options;
+}
+
+/** The detail call nests the order-type settings under `parameters`; the nearby row has them at the top. */
+export const settingsOf = (branch: Branch | BranchDetail): Settings => ({
+  order_type_settings: branch.order_type_settings ?? (branch as BranchDetail).parameters?.order_type_settings,
+  payment_settings: branch.payment_settings,
+});
+
+/** Monday first, the order a weekly timetable is read in. */
+export const WEEK_DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
+export type WeekDay = (typeof WEEK_DAYS)[number];
+
+/** "11:00–23:00" (several slots joined by a comma); null for a closed day or an open day without slots. */
+export function slotsText(day: DayHours | undefined): string | null {
+  if (!day?.isOpen || day.timeSlots.length === 0) return null;
+  return day.timeSlots.map((s) => `${s.open}–${s.close}`).join(', ');
+}
+
+export const todayHours = (hours: BusinessHours | undefined, now: Date = new Date()): string | null => (hours ? slotsText(dayOf(hours, now)) : null);
+
+/** The weekday key of a date in WEEK_DAYS terms, for highlighting today's row. */
+export const weekDayOf = (now: Date = new Date()): WeekDay => DAYS[now.getDay()];
+
+/** Apple Maps on iOS, Google Maps elsewhere; the pin when the branch has coordinates, otherwise a text search. */
+export function mapsUrl(branch: Pick<Branch, 'name' | 'addressText' | 'locationGeog'>, platform: string): string {
+  const point = branch.locationGeog?.coordinates;
+  const query = encodeURIComponent(point ? branch.name : branch.addressText ?? branch.name);
+  if (platform === 'ios') return point ? `https://maps.apple.com/?ll=${point[1]},${point[0]}&q=${query}` : `https://maps.apple.com/?q=${query}`;
+  return point ? `https://www.google.com/maps/search/?api=1&query=${point[1]},${point[0]}` : `https://www.google.com/maps/search/?api=1&query=${query}`;
+}

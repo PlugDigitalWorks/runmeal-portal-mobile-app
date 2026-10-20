@@ -44,6 +44,8 @@ export interface BranchDetail extends Omit<Branch, 'distanceM'> {
   isOpen: boolean;
   timeZone?: string;
   district?: string | null;
+  /** Shown in the info sheet when the detail row carries it; not every branch does. */
+  phone?: string | null;
   province?: string | null;
   parameters?: { business_hours?: BusinessHours; order_type_settings?: Branch['order_type_settings'] } | null;
 }

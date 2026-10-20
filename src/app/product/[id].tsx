@@ -41,7 +41,9 @@ export default function ProductSheet() {
   const groups = useMemo(() => [...(product?.optionGroups ?? [])].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)), [product]);
   const selections = picked ?? initialSelections(groups);
   // The menu is already cached by the restaurant page; the product call carries no currency.
-  const currency = queryClient.getQueryData<Menu>(qk.menu(branchId))?.currency ?? 'TRY';
+  const cachedMenu = queryClient.getQueryData<Menu>(qk.menu(branchId));
+  const currency = cachedMenu?.currency ?? 'TRY';
+  const symbol = cachedMenu?.currencySymbol;
   const unit = Number(product?.discountedPrice ?? product?.price ?? 0) + optionsTotal(groups, selections);
   const total = unit * quantity;
 
@@ -117,6 +119,7 @@ export default function ProductSheet() {
             value={product.discountedPrice ?? product.price}
             original={product.discountedPrice != null ? Number(product.price) : null}
             currency={currency}
+            symbol={symbol}
             size="lg"
           />
           {product.description ? <Text style={styles.description}>{product.description}</Text> : null}
@@ -127,6 +130,7 @@ export default function ProductSheet() {
                 group={group}
                 selected={selections[group.id] ?? []}
                 currency={currency}
+                symbol={symbol}
                 invalid={problem?.groupName === group.name}
                 onToggle={(optionId) => onToggle(group, optionId)}
               />
@@ -153,7 +157,7 @@ export default function ProductSheet() {
         <View style={styles.footerRow}>
           <QuantityStepper value={quantity} onChange={setQuantity} />
           <View style={styles.cta}>
-            <Button title={`${t('product.addToCart')} · ${formatMoney(total, currency)}`} onPress={onAdd} loading={adding} />
+            <Button title={`${t('product.addToCart')} · ${formatMoney(total, currency, { symbol })}`} onPress={onAdd} loading={adding} />
           </View>
         </View>
       </View>
@@ -162,9 +166,9 @@ export default function ProductSheet() {
   );
 }
 
-type GroupProps = { group: OptionGroup; selected: string[]; currency: string; invalid: boolean; onToggle: (optionId: string) => void };
+type GroupProps = { group: OptionGroup; selected: string[]; currency: string; symbol?: string | null; invalid: boolean; onToggle: (optionId: string) => void };
 
-function OptionGroupBlock({ group, selected, currency, invalid, onToggle }: GroupProps) {
+function OptionGroupBlock({ group, selected, currency, symbol, invalid, onToggle }: GroupProps) {
   const { t } = useTranslation();
   const single = group.type === 'SINGLE' || group.type === 'VARIANT';
   const rule = group.minSelections && group.minSelections > 1 ? t('product.selectAtLeast', { count: group.minSelections }) : group.isRequired ? t('product.chooseOne') : null;
@@ -200,7 +204,7 @@ function OptionGroupBlock({ group, selected, currency, invalid, onToggle }: Grou
               {Number(option.priceDelta) === 0 ? (
                 <Text style={styles.free}>{t('product.free')}</Text>
               ) : (
-                <Text style={styles.delta}>+{formatMoney(option.priceDelta, currency)}</Text>
+                <Text style={styles.delta}>+{formatMoney(option.priceDelta, currency, { symbol })}</Text>
               )}
             </Pressable>
           );
