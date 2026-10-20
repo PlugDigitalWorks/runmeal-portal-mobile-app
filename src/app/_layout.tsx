@@ -40,6 +40,8 @@ export default function RootLayout() {
                   <Stack.Screen name="addresses/index" options={{ title: t('addresses.title') }} />
                   <Stack.Screen name="addresses/form" options={({ route }) => ({ title: (route.params as { id?: string } | undefined)?.id ? t('addresses.editTitle') : t('addresses.newTitle') })} />
                   <Stack.Screen name="cart" options={{ title: t('cart.title') }} />
+                  <Stack.Screen name="checkout" options={{ title: t('checkout.title') }} />
+                  <Stack.Screen name="payment" options={{ presentation: 'fullScreenModal', headerShown: false, gestureEnabled: false }} />
                   <Stack.Screen name="restaurants" options={{ title: t('restaurants.title') }} />
                   <Stack.Screen name="search" options={{ title: t('search.title') }} />
                   <Stack.Screen

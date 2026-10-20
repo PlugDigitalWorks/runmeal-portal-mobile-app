@@ -1,4 +1,4 @@
-import { router, Stack, type Href } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { ShoppingBag } from 'lucide-react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -121,8 +121,7 @@ export function CartScreen({ variant = 'stack' }: Props) {
       Alert.alert(t('cart.minBasket', { amount: formatMoneyWhole(minimum, currency, symbol) }));
       return;
     }
-    // The checkout screen arrives with Task 10; the cast keeps typed routes happy until it exists.
-    router.push('/checkout' as Href);
+    router.push('/checkout');
   };
 
   return (

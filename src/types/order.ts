@@ -21,6 +21,8 @@ export interface InitializePaymentInput {
   paymentMethod: PaymentMethod;
   orderType: OrderType;
   scheduledFor?: string;
+  /** Runmeal credit to spend on this order; 0 or absent spends none. */
+  creditUsedAmount?: number;
   note?: string;
 }
 
