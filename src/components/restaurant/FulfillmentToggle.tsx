@@ -34,6 +34,8 @@ export function FulfillmentToggle({ branchId, options, mode, onModeChange, dista
   const prep = mockPrep(branchId);
   const mockMin = minBasket == null && SHOW_MOCKS;
   const min = minBasket ?? (SHOW_MOCKS ? mockMinBasket(branchId, currency) : null);
+  // Without mocks the card may have nothing real to say (no minimum basket, no address); an empty frame is worse than none.
+  const hasCard = SHOW_MOCKS || (mode === 'delivery' ? min != null : !!addressText);
 
   return (
     <View style={styles.wrap}>
@@ -54,15 +56,16 @@ export function FulfillmentToggle({ branchId, options, mode, onModeChange, dista
           );
         })}
       </View>
-      <View style={styles.card}>
-        {mode === 'delivery' ? (
-          <>
-            {SHOW_MOCKS ? (
-              <View style={styles.line}>
-                <Bike size={20} color={colors.foreground} />
-                <Text style={styles.strong}>{t('restaurant.deliveryTime', eta)}</Text>
-                <MockTag />
-              </View>
+      {hasCard ? (
+        <View testID="fulfillment-card" style={styles.card}>
+          {mode === 'delivery' ? (
+            <>
+              {SHOW_MOCKS ? (
+                <View style={styles.line}>
+                  <Bike size={20} color={colors.foreground} />
+                  <Text style={styles.strong}>{t('restaurant.deliveryTime', eta)}</Text>
+                  <MockTag />
+                </View>
             ) : null}
             <View style={styles.line}>
               {SHOW_MOCKS ? (
@@ -97,6 +100,7 @@ export function FulfillmentToggle({ branchId, options, mode, onModeChange, dista
           </>
         )}
       </View>
+      ) : null}
       <View style={styles.note}>
         <Info size={14} color={colors.mutedForeground} />
         <Text style={styles.noteText}>{t(mode === 'delivery' ? 'restaurant.courierNote' : 'restaurant.pickupNote')}</Text>

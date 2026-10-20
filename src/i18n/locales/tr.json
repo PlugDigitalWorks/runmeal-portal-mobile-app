@@ -132,7 +132,6 @@
     "discountedTab": "İndirimli",
     "percentOff": "%{{percent}} indirim",
     "liked": "%{{percent}} beğenildi ({{count}} değerlendirme)",
-    "addProduct": "{{name}} ürününü ekle",
     "cartProgress": "{{amount}}'lik ürün daha ekle, {{reward}} kupon kazan!",
     "cartProgressDone": "Kuponu kazandın!",
     "infoTitle": "Restoran bilgisi",
@@ -152,7 +151,6 @@
       "sunday": "Pazar"
     },
     "reviewsTitle": "Yorumlar",
-    "reviewsRating": "{{rating}} puan, {{count}} değerlendirme",
     "reviewItem0": "Sipariş sıcak ve hızlı geldi, porsiyonlar doyurucu.",
     "reviewItem1": "Lezzet harika, paketleme de çok özenliydi.",
     "reviewItem2": "Fiyatına göre gayet iyi, tekrar sipariş veririm.",

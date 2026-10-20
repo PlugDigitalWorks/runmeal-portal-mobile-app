@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react-nativ
 import { Alert, ScrollView } from 'react-native';
 import Restaurant from '@/app/restaurant/[branchId]';
 import { formatMoney } from '@/lib/money';
-import { mockProductLike } from '@/mocks/restaurant-mocks';
+import { mockProductLike, restaurantRating } from '@/mocks/restaurant-mocks';
 import * as branches from '@/services/branch.service';
 import * as menus from '@/services/menu.service';
 import { renderWithProviders } from './helpers/render-with-providers';
@@ -103,7 +103,9 @@ describe('cover and title card', () => {
     for (const label of ['Geri', 'Menüde ara', 'Favorilere ekle', 'Paylaş', 'Restoran bilgisi']) expect(screen.getByLabelText(label)).toBeTruthy();
     const rating = within(screen.getByLabelText('Yorumlar'));
     expect(rating.getByText('Mock')).toBeTruthy();
-    expect(rating.getByText(/\+$/)).toBeTruthy();
+    const { rating: score, count } = restaurantRating('br1');
+    expect(rating.getByText(count >= 100 ? `${count}+` : String(count))).toBeTruthy();
+    expect(rating.getByText(new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 1 }).format(score))).toBeTruthy();
   });
 
   it('opens the info sheet with the address and the maps link, and the reviews sheet titled Mock', async () => {
@@ -155,6 +157,23 @@ describe('delivery / pick-up and payment methods', () => {
     mockShowMocks = true;
     await renderPage(detail({ minBasketPrice: 250, order_type_settings: { delivery: on } }));
     expect(await screen.findByText(`Min ${formatMoney(250, 'TRY', { symbol: '₺', whole: true })}`)).toBeTruthy();
+  });
+
+  it('draws no empty card when there is nothing real to show (mocks off, no minimum basket / no address)', async () => {
+    await renderPage(detail({ order_type_settings: { delivery: on } }));
+    await screen.findByRole('tab', { name: 'Teslimat' });
+    expect(screen.queryByTestId('fulfillment-card')).toBeNull();
+  });
+
+  it('draws the card once a real minimum basket exists, and for pick-up with an address', async () => {
+    await renderPage(detail({ minBasketPrice: 250, order_type_settings: { delivery: on } }));
+    expect(await screen.findByTestId('fulfillment-card')).toBeTruthy();
+  });
+
+  it('draws no pick-up card without an address while mocks are off', async () => {
+    await renderPage(detail({ addressText: null, order_type_settings: { pickup: on } }));
+    await screen.findByRole('tab', { name: 'Gel-al' });
+    expect(screen.queryByTestId('fulfillment-card')).toBeNull();
   });
 
   it('shows every payment method unless the branch switches one off', async () => {
@@ -236,6 +255,28 @@ describe('search, popular and discounted', () => {
     expect(rail.getByText('%10 indirim')).toBeTruthy();
     // The menu row shows the same sale price.
     expect(within(screen.getByTestId('section-c1')).getByText(formatMoney(180, 'TRY', { symbol: '₺' }))).toBeTruthy();
+  });
+
+  it('shows the old price struck through on a discounted popular card', async () => {
+    const sale = menu([{ id: 'c1', name: 'Burgerler', description: null, products: [product('a', 'Çift Burger', { price: 200, discountedPrice: 180, tags: ['bestseller'] })] }]);
+    await renderPage(detail(), sale);
+    const popular = within(await screen.findByTestId('section-popular'));
+    expect(popular.getByText(formatMoney(180, 'TRY', { symbol: '₺' }))).toBeTruthy();
+    expect(popular.getByText(formatMoney(200, 'TRY', { symbol: '₺' }))).toBeTruthy();
+  });
+
+  it('keeps the pinned title row (back, search) while searching, without the tabs', async () => {
+    await renderPage(detail(), pizzas);
+    await screen.findByText('Pepperoni');
+    await fireEvent(screen.getByTestId('menu-tabs'), 'layout', { nativeEvent: { layout: { x: 0, y: 400, width: 390, height: 50 } } });
+    await fireEvent.changeText(screen.getByPlaceholderText('Restoranda ara'), 'marg');
+    await fireEvent.scroll(screen.getByTestId('menu-scroll'), {
+      nativeEvent: { contentOffset: { x: 0, y: 500 }, layoutMeasurement: { width: 390, height: 800 }, contentSize: { width: 390, height: 1300 } },
+    });
+    const pinned = within(screen.getByTestId('menu-tabs-pinned'));
+    expect(pinned.getByLabelText('Geri')).toBeTruthy();
+    expect(pinned.getByLabelText('Menüde ara')).toBeTruthy();
+    expect(pinned.queryByRole('button', { name: 'Pizzalar' })).toBeNull();
   });
 
   it('opens the product sheet from a popular card', async () => {

@@ -306,8 +306,8 @@ export default function Restaurant() {
           </>
         )}
       </ScrollView>
-      {/* Pinned copy of the tabs: sits at the top once the in-flow row scrolls under the status bar, without shifting the content. */}
-      {stuck && !searching && tabs.length > 0 ? (
+      {/* Pinned copy of the tabs: sits at the top once the in-flow row scrolls under the status bar, without shifting the content. While searching only the title row stays, so back and search remain reachable. */}
+      {stuck && (searching || tabs.length > 0) ? (
         <View testID="menu-tabs-pinned" style={[styles.pinned, { paddingTop: insets.top }]} pointerEvents="box-none">
           <View style={styles.pinnedBar}>
             <Pressable onPress={() => goBack()} hitSlop={10} accessibilityRole="button" accessibilityLabel={t('restaurant.back')} style={styles.pinnedButton}>
@@ -320,7 +320,7 @@ export default function Restaurant() {
               <Search size={20} color={colors.foreground} />
             </Pressable>
           </View>
-          <MenuTabs tabs={tabs} selected={selected} onSelect={goTo} />
+          {searching ? null : <MenuTabs tabs={tabs} selected={selected} onSelect={goTo} />}
         </View>
       ) : null}
       <RestaurantInfoSheet visible={infoOpen} onClose={() => setInfoOpen(false)} branch={branch} hours={hours} />

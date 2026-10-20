@@ -98,7 +98,7 @@ export interface Review {
   author: string;
   rating: number;
   daysAgo: number;
-  /** Index into `restaurant.reviews.items`. */
+  /** N of the `restaurant.reviewItem<N>` i18n keys. */
   textIndex: number;
 }
 

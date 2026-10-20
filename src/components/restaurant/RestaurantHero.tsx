@@ -55,7 +55,7 @@ export function RestaurantHero({ branch, favorite, selected, onBack, onSearch, o
           <RoundButton label={t(favorite ? 'home.removeFavorite' : 'home.addFavorite')} onPress={onToggleFavorite}>
             <Heart size={18} color={favorite ? colors.primary : colors.foreground} fill={favorite ? colors.primary : 'transparent'} />
           </RoundButton>
-          <RoundButton label={t('restaurant.share')} onPress={() => Share.share({ message: branch.name })}>
+          <RoundButton label={t('restaurant.share')} onPress={() => Share.share({ message: branch.name }).catch(() => undefined)}>
             <Share2 size={18} color={colors.foreground} />
           </RoundButton>
         </View>

@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { Flame, Plus } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { isDiscounted } from '@/lib/menu-picks';
 import { formatMoney } from '@/lib/money';
 import { colors, font, radius, space, weight } from '@/theme';
 import type { MenuProduct } from '@/types/product';
@@ -44,7 +45,16 @@ export function PopularProducts({ products, mocked, onPress }: Props) {
               {product.name}
             </Text>
             <View style={styles.bottom}>
-              <Text style={styles.price}>{formatMoney(product.discountedPrice ?? product.price, product.currency, { symbol: product.currencySymbol })}</Text>
+              <View style={styles.prices}>
+                {isDiscounted(product) ? (
+                  <>
+                    <Text style={styles.sale}>{formatMoney(product.discountedPrice, product.currency, { symbol: product.currencySymbol })}</Text>
+                    <Text style={styles.original}>{formatMoney(product.price, product.currency, { symbol: product.currencySymbol })}</Text>
+                  </>
+                ) : (
+                  <Text style={styles.price}>{formatMoney(product.price, product.currency, { symbol: product.currencySymbol })}</Text>
+                )}
+              </View>
               <View style={styles.add}>
                 <Plus size={18} color={colors.primaryForeground} />
               </View>
@@ -69,7 +79,10 @@ const styles = StyleSheet.create({
   rank: { position: 'absolute', top: 6, left: 6, paddingHorizontal: space.sm, paddingVertical: 2, borderRadius: radius.full, backgroundColor: colors.primary },
   rankText: { fontSize: font.caption, fontWeight: weight.bold, color: colors.primaryForeground },
   name: { fontSize: font.body, fontWeight: weight.semibold, color: colors.foreground, minHeight: 36 },
-  bottom: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  price: { flexShrink: 1, fontSize: font.body, fontWeight: weight.bold, color: colors.foreground },
+  bottom: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
+  prices: { flexShrink: 1 },
+  price: { fontSize: font.body, fontWeight: weight.bold, color: colors.foreground },
+  sale: { fontSize: font.body, fontWeight: weight.bold, color: colors.promo },
+  original: { fontSize: font.small, color: colors.subtle, textDecorationLine: 'line-through' },
   add: { width: 32, height: 32, borderRadius: radius.md, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
 });
