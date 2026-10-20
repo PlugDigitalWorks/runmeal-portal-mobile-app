@@ -5,10 +5,11 @@ import { renderWithProviders } from './helpers/render-with-providers';
 
 const mockBack = jest.fn();
 const mockAdd = jest.fn();
+const mockParams: Record<string, string> = {};
 
 jest.mock('expo-router', () => ({
   router: { back: () => mockBack() },
-  useLocalSearchParams: () => ({ id: 'p1', branchId: 'br1', brandId: 'brand1' }),
+  useLocalSearchParams: () => mockParams,
 }));
 jest.mock('@/queries/useCart', () => ({ useAddToCart: () => ({ mutateAsync: (...args: unknown[]) => mockAdd(...args), isPending: false }) }));
 
@@ -27,6 +28,7 @@ const sizes = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  Object.assign(mockParams, { id: 'p1', branchId: 'br1', brandId: 'brand1' });
   mockAdd.mockResolvedValue(undefined);
   jest.spyOn(menus, 'getProduct').mockResolvedValue({ id: 'p1', categoryId: 'c', name: 'Klasik Burger', description: 'Dana köfte', price: 150, discountedPrice: null, isActive: true, optionGroups: [sizes] } as never);
 });
@@ -58,4 +60,12 @@ it('shows the running total with options and quantity', async () => {
   expect(screen.getByText(/Sepete ekle · ₺170,00/)).toBeTruthy();
   await fireEvent.press(screen.getByLabelText('+'));
   expect(screen.getByText(/Sepete ekle · ₺340,00/)).toBeTruthy();
+});
+
+it('shows the error state instead of adding when the branch or brand is missing', async () => {
+  delete mockParams.brandId;
+  await renderWithProviders(<ProductSheet />);
+  expect(await screen.findByText('Ürün yüklenemedi')).toBeTruthy();
+  expect(screen.queryByText(/Sepete ekle/)).toBeNull();
+  expect(mockAdd).not.toHaveBeenCalled();
 });

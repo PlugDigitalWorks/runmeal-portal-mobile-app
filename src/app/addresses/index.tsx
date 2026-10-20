@@ -56,7 +56,7 @@ export default function AddressesScreen() {
           run(async () => {
             await deleteAddress(address.id);
             // The active address may be the one that went; the context picks the next one from the fresh list.
-            await Promise.all([queryClient.invalidateQueries({ queryKey: qk.addresses }), queryClient.invalidateQueries({ queryKey: ['nearby'] })]);
+            await Promise.all([queryClient.invalidateQueries({ queryKey: qk.addresses }), queryClient.invalidateQueries({ queryKey: qk.nearbyAll })]);
           }, t('addresses.deleteFailed')),
       },
     ]);

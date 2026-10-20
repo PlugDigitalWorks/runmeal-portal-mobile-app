@@ -8,7 +8,7 @@ import { qk } from './keys';
 export function useNearbyBranches() {
   const { coords } = useLocation();
   return useQuery({
-    queryKey: coords ? qk.nearby(coords.latitude, coords.longitude) : ['nearby', 'none'],
+    queryKey: coords ? qk.nearby(coords.latitude, coords.longitude) : [...qk.nearbyAll, 'none'],
     queryFn: () => getNearbyBranches(coords!),
     enabled: !!coords,
     select: (rows) => sortForHome(rows),

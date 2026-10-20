@@ -86,7 +86,8 @@ export default function ProductSheet() {
     </Pressable>
   );
 
-  if (isError) {
+  // Without the branch and brand the cart call cannot be made, so there is nothing safe to show.
+  if (isError || !branchId || !brandId) {
     return (
       <View style={[styles.sheet, styles.center]}>
         <ErrorState message={t('product.error')} onRetry={refetch} />

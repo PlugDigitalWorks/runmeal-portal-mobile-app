@@ -29,7 +29,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
   const selectAddress = useCallback(
     async (id: string) => {
       await setActiveAddress(id);
-      await Promise.all([queryClient.invalidateQueries({ queryKey: qk.addresses }), queryClient.invalidateQueries({ queryKey: ['nearby'] })]);
+      await Promise.all([queryClient.invalidateQueries({ queryKey: qk.addresses }), queryClient.invalidateQueries({ queryKey: qk.nearbyAll })]);
     },
     [queryClient],
   );

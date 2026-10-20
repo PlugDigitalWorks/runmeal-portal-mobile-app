@@ -157,7 +157,7 @@ function AddressFields({ existing, isFirst, onSaved }: FieldsProps) {
         // The API makes every new address active unless told otherwise, so only the first one asks for it.
         await createAddress({ ...input, isActive: isFirst });
       }
-      await Promise.all([queryClient.invalidateQueries({ queryKey: qk.addresses }), queryClient.invalidateQueries({ queryKey: ['nearby'] })]);
+      await Promise.all([queryClient.invalidateQueries({ queryKey: qk.addresses }), queryClient.invalidateQueries({ queryKey: qk.nearbyAll })]);
       onSaved();
     } catch (e) {
       setError(apiErrorMessage(e, t('addresses.failed')));

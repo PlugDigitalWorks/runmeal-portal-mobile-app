@@ -8,6 +8,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProductRow } from '@/components/ProductRow';
 import { RestaurantHeader } from '@/components/RestaurantHeader';
 import { isOpenNow, nextOpening } from '@/lib/branch-model';
+import { activeSection, sectionScrollTarget, tabsPinned } from '@/lib/menu-sections';
+import { qk } from '@/queries/keys';
 import { useBranch } from '@/queries/useBranch';
 import { useFavorites } from '@/queries/useFavorites';
 import { useMenu } from '@/queries/useMenu';
@@ -41,7 +43,7 @@ export default function Restaurant() {
   const open = isOpenNow(hours);
   // The detail call has no distance; borrow it from whatever the home feed already fetched.
   const distanceM = useMemo(() => {
-    for (const [, rows] of queryClient.getQueriesData<Branch[]>({ queryKey: ['nearby'] })) {
+    for (const [, rows] of queryClient.getQueriesData<Branch[]>({ queryKey: qk.nearbyAll })) {
       const match = rows?.find((b) => b.id === branchId);
       if (match) return match.distanceM;
     }
@@ -60,16 +62,16 @@ export default function Restaurant() {
 
   const onScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const offset = e.nativeEvent.contentOffset.y;
-      setStuck(offset + pinnedHeight >= tabsLayout.current.y);
+      const { contentOffset, layoutMeasurement, contentSize } = e.nativeEvent;
+      setStuck(tabsPinned(contentOffset.y, pinnedHeight, tabsLayout.current.y));
       if (Date.now() < lockedUntil.current) return;
-      // The section under the pinned tabs is the one being read.
-      const line = offset + pinnedHeight + tabsLayout.current.height + 1;
-      let current: string | null = null;
-      for (const category of categories) {
-        const y = sectionY.current[category.id];
-        if (y != null && y <= line) current = category.id;
-      }
+      const current = activeSection(
+        categories.map((c) => c.id),
+        sectionY.current,
+        { offset: contentOffset.y, viewportHeight: layoutMeasurement.height, contentHeight: contentSize.height },
+        pinnedHeight,
+        tabsLayout.current.height,
+      );
       if (current) setActiveId(current);
     },
     [categories, pinnedHeight],
@@ -78,8 +80,8 @@ export default function Restaurant() {
   const goTo = (id: string) => {
     setActiveId(id);
     lockedUntil.current = Date.now() + SCROLL_LOCK_MS;
-    const y = sectionY.current[id];
-    if (y != null) scrollRef.current?.scrollTo({ y: y - pinnedHeight - tabsLayout.current.height, animated: true });
+    const y = sectionScrollTarget(sectionY.current[id], pinnedHeight, tabsLayout.current.height);
+    if (y != null) scrollRef.current?.scrollTo({ y, animated: true });
   };
 
   const openProduct = (id: string) => {
@@ -127,17 +129,17 @@ export default function Restaurant() {
         </View>
       ) : (
         <>
-          <ScrollView ref={scrollRef} onScroll={onScroll} scrollEventThrottle={32} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+          <ScrollView testID="menu-scroll" ref={scrollRef} onScroll={onScroll} scrollEventThrottle={32} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
             <RestaurantHeader branch={branch} distanceM={distanceM} open={open} opensAt={open ? null : nextOpening(hours)} />
             {categories.length === 0 ? (
               <EmptyState icon={<UtensilsCrossed size={32} color={colors.primarySoftForeground} />} title={t('restaurant.emptyMenu')} />
             ) : (
               <>
-                <View onLayout={(e) => (tabsLayout.current = { y: e.nativeEvent.layout.y, height: e.nativeEvent.layout.height })}>
+                <View testID="menu-tabs" onLayout={(e) => (tabsLayout.current = { y: e.nativeEvent.layout.y, height: e.nativeEvent.layout.height })}>
                   <MenuTabs categories={categories} selected={selected} onSelect={goTo} />
                 </View>
                 {categories.map((category) => (
-                  <View key={category.id} onLayout={(e) => (sectionY.current[category.id] = e.nativeEvent.layout.y)}>
+                  <View key={category.id} testID={`section-${category.id}`} onLayout={(e) => (sectionY.current[category.id] = e.nativeEvent.layout.y)}>
                     <Text style={styles.sectionTitle}>{category.name}</Text>
                     {category.products.map((product) => (
                       <ProductRow key={product.id} product={product} onPress={() => openProduct(product.id)} />
@@ -149,7 +151,7 @@ export default function Restaurant() {
           </ScrollView>
           {/* Pinned copy of the tabs: sits over the nav bar once the in-flow row scrolls under it, without shifting the content. */}
           {stuck && categories.length > 0 ? (
-            <View style={[styles.pinned, { paddingTop: pinnedHeight }]} pointerEvents="box-none">
+            <View testID="menu-tabs-pinned" style={[styles.pinned, { paddingTop: pinnedHeight }]} pointerEvents="box-none">
               <MenuTabs categories={categories} selected={selected} onSelect={goTo} />
             </View>
           ) : null}
