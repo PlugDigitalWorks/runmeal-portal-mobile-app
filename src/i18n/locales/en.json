@@ -43,7 +43,20 @@
   "tabs": {
     "home": "Home"
   },
-  "home": {},
+  "home": {
+    "deliverTo": "Deliver to",
+    "searchPlaceholder": "What are you craving?",
+    "nearby": "Near you",
+    "branchCount_one": "{{count}} restaurant",
+    "branchCount_other": "{{count}} restaurants",
+    "closed": "Closed",
+    "opensAt": "· opens {{time}}",
+    "emptyTitle": "No restaurants deliver here yet",
+    "changeAddress": "Change address",
+    "addFavorite": "Add to favourites",
+    "removeFavorite": "Remove from favourites",
+    "profile": "My account"
+  },
   "categories": {
     "all": "All",
     "coffee": "Coffee",

@@ -43,7 +43,19 @@
   "tabs": {
     "home": "Ana sayfa"
   },
-  "home": {},
+  "home": {
+    "deliverTo": "Teslimat adresi",
+    "searchPlaceholder": "Ne yemek istersin?",
+    "nearby": "Yakınındakiler",
+    "branchCount_other": "{{count}} restoran",
+    "closed": "Kapalı",
+    "opensAt": "· {{time}}'te açılır",
+    "emptyTitle": "Bu adrese henüz teslimat yapan restoran yok",
+    "changeAddress": "Adresi değiştir",
+    "addFavorite": "Favorilere ekle",
+    "removeFavorite": "Favorilerden çıkar",
+    "profile": "Hesabım"
+  },
   "categories": {
     "all": "Tümü",
     "coffee": "Kahve",
