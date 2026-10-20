@@ -20,7 +20,6 @@ export interface InitializePaymentInput {
   branchId: string;
   paymentMethod: PaymentMethod;
   orderType: OrderType;
-  tableId?: string;
   scheduledFor?: string;
   note?: string;
 }

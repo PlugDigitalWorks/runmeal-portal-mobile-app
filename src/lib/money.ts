@@ -12,5 +12,5 @@ export function formatMoney(value: number | string | null | undefined, currency:
   const amount = Number(value ?? 0);
   return new Intl.NumberFormat(override ?? getMoneyLocale(), { style: 'currency', currency, currencyDisplay: 'narrowSymbol' })
     .format(Number.isFinite(amount) ? amount : 0)
-    .replace(/ /g, ' ');
+    .replace(/\u00a0/g, ' ');
 }
