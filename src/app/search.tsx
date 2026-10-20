@@ -7,9 +7,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ProductRow } from '@/components/ProductRow';
 import { SearchBranchRow } from '@/components/SearchBranchRow';
 import { SHOW_MOCKS } from '@/config';
-import { CATEGORY_IDS } from '@/lib/categories';
+import { CATEGORY_IDS, type CategoryId } from '@/lib/categories';
 import { clearRecent, loadRecent, pushRecent } from '@/lib/recent-searches';
 import { MIN_QUERY, searchBranches, searchProducts, type ProductHit } from '@/lib/search';
+import { foldText } from '@/lib/text';
 import { useSearchIndex } from '@/queries/useSearchIndex';
 import { colors, font, radius, space, weight } from '@/theme';
 import type { Branch } from '@/types/branch';
@@ -17,7 +18,7 @@ import { Chip } from '@/ui/Chip';
 import { EmptyState } from '@/ui/EmptyState';
 
 /** Demo suggestions: the API has no trending searches (docs/BACKEND_REQUESTS.md), so the row is labelled "(Mock)". */
-const POPULAR = ['pizza', 'burger', 'coffee', 'dessert'] as const;
+const POPULAR: CategoryId[] = ['pizza', 'burger', 'coffee', 'dessert'];
 
 type Row = { kind: 'branch'; branch: Branch } | { kind: 'product'; hit: ProductHit };
 type Section = { key: 'branches' | 'products'; data: Row[] };
@@ -32,7 +33,7 @@ export default function SearchScreen() {
   const { branches, menus, loadingMenus } = useSearchIndex();
   const [query, setQuery] = useState('');
   const [recent, setRecent] = useState<string[]>([]);
-  // The deferred value lags typing, so a long menu never blocks the keyboard (a 250 ms debounce in effect).
+  // The deferred value lets typing render first and the (heavier) result list catch up; it is not a timed debounce.
   const deferred = useDeferredValue(query);
   const trimmed = deferred.trim();
   const active = trimmed.length >= MIN_QUERY;
@@ -41,9 +42,13 @@ export default function SearchScreen() {
     loadRecent().then(setRecent);
   }, []);
 
+  /** Only searches that can match something are worth coming back to. */
   const remember = useCallback((q: string) => {
+    if (foldText(q.trim()).length < MIN_QUERY) return;
     pushRecent(q).then(setRecent);
   }, []);
+  /** Chips write a term the keyword matcher finds ("kebap"), not their label ("Döner & Kebap"). */
+  const searchCuisine = (id: CategoryId) => setQuery(t(`search.cuisineQuery.${id}`));
 
   const sections = useMemo<Section[]>(() => {
     if (!active) return [];
@@ -91,7 +96,7 @@ export default function SearchScreen() {
           <Text style={styles.groupTitle}>{t('search.popular')}</Text>
           <View style={styles.chips}>
             {POPULAR.map((id) => (
-              <Chip key={id} label={t(`categories.${id}`)} onPress={() => setQuery(t(`categories.${id}`))} />
+              <Chip key={id} label={t(`categories.${id}`)} onPress={() => searchCuisine(id)} />
             ))}
           </View>
         </View>
@@ -101,7 +106,7 @@ export default function SearchScreen() {
           <Text style={styles.groupTitle}>{t('search.cuisines')}</Text>
           <View style={styles.chips}>
             {CATEGORY_IDS.map((id) => (
-              <Chip key={id} label={t(`categories.${id}`)} onPress={() => setQuery(t(`categories.${id}`))} />
+              <Chip key={id} label={t(`categories.${id}`)} onPress={() => searchCuisine(id)} />
             ))}
           </View>
         </View>

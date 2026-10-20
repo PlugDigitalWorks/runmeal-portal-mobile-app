@@ -256,7 +256,16 @@
   },
   "orderStatus": {},
   "search": {
-    "title": "Ara",
+    "cuisineQuery": {
+      "coffee": "kahve",
+      "pizza": "pizza",
+      "burger": "burger",
+      "kebab": "kebap",
+      "dessert": "tatlı",
+      "breakfast": "kahvaltı",
+      "healthy": "salata",
+      "world": "sushi"
+    },
     "placeholder": "Restoran veya yemek ara",
     "back": "Geri",
     "clear": "Aramayı temizle",

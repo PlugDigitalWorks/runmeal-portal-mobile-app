@@ -89,6 +89,38 @@ it('offers cuisine chips when there is no history and hides the mock row without
   await renderWithProviders(<SearchScreen />);
   expect(await screen.findByText('Mutfaklar')).toBeTruthy();
   expect(screen.queryByText('Popüler aramalar (Mock)')).toBeNull();
-  await fireEvent.press(screen.getByText('Kahve'));
-  expect(screen.getByPlaceholderText('Restoran veya yemek ara').props.value).toBe('Kahve');
+  await fireEvent.press(screen.getByText('Döner & Kebap'));
+  // The label would match nothing; the chip searches the keyword the matcher knows.
+  expect(screen.getByPlaceholderText('Restoran veya yemek ara').props.value).toBe('kebap');
+});
+
+it('searches the keyword of a popular chip too', async () => {
+  await renderWithProviders(<SearchScreen />);
+  await screen.findByText('Popüler aramalar (Mock)');
+  // The popular row comes first; the cuisine row below repeats the label.
+  await fireEvent.press(screen.getAllByText('Kahve')[0]);
+  expect(screen.getByPlaceholderText('Restoran veya yemek ara').props.value).toBe('kahve');
+});
+
+it('clears the recent searches with Temizle', async () => {
+  await AsyncStorage.setItem('rm_recent_searches', JSON.stringify(['pizza']));
+  await renderWithProviders(<SearchScreen />);
+  await fireEvent.press(await screen.findByText('Temizle'));
+  expect(screen.queryByText('Son aramalar')).toBeNull();
+  await waitFor(async () => expect(await AsyncStorage.getItem('rm_recent_searches')).toBeNull());
+});
+
+it('does not remember a search that is too short to match', async () => {
+  await renderWithProviders(<SearchScreen />);
+  await type(' a ');
+  await fireEvent(screen.getByPlaceholderText('Restoran veya yemek ara'), 'submitEditing');
+  await act(async () => {});
+  expect(await AsyncStorage.getItem('rm_recent_searches')).toBeNull();
+});
+
+it('keeps the spinner while the nearby restaurants are still loading', async () => {
+  mockIndex = { branches: [], menus: {}, loadingMenus: true };
+  await renderWithProviders(<SearchScreen />);
+  await type('pizza');
+  expect(await screen.findByText('Menüler taranıyor…')).toBeTruthy();
 });

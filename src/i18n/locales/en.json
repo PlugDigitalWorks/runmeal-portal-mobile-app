@@ -256,7 +256,16 @@
   },
   "orderStatus": {},
   "search": {
-    "title": "Search",
+    "cuisineQuery": {
+      "coffee": "coffee",
+      "pizza": "pizza",
+      "burger": "burger",
+      "kebab": "kebab",
+      "dessert": "dessert",
+      "breakfast": "breakfast",
+      "healthy": "salad",
+      "world": "sushi"
+    },
     "placeholder": "Search restaurants or dishes",
     "back": "Back",
     "clear": "Clear search",
