@@ -26,7 +26,13 @@ export const IS_STAGING = env.isStaging;
 export const PORTAL_WEB_ORIGIN = process.env.EXPO_PUBLIC_PORTAL_WEB_ORIGIN ?? env.portalWebOrigin;
 export const RECAPTCHA_SITE_KEY = process.env.EXPO_PUBLIC_RECAPTCHA_SITE_KEY ?? env.recaptchaSiteKey;
 export const GOOGLE_WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ?? env.googleWebClientId;
-/** Off until com.runmeal.portal has its Google iOS/Android OAuth clients (see docs/BACKEND_REQUESTS.md). */
-export const SIGN_IN_GOOGLE = process.env.EXPO_PUBLIC_SIGN_IN_GOOGLE === '1';
-/** Off until runmeal-api accepts com.runmeal.portal as an Apple audience. */
-export const SIGN_IN_APPLE = process.env.EXPO_PUBLIC_SIGN_IN_APPLE === '1';
+/**
+ * The iOS OAuth client Google Cloud issues for com.runmeal.portal. Empty means
+ * Google sign-in is not configured on iOS: the button explains that instead of
+ * calling the native SDK, which crashes without the client's URL scheme.
+ */
+export const GOOGLE_IOS_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? '';
+/** Default on; EXPO_PUBLIC_SIGN_IN_GOOGLE=0 hides the Google button. */
+export const SIGN_IN_GOOGLE = process.env.EXPO_PUBLIC_SIGN_IN_GOOGLE !== '0';
+/** Default on; EXPO_PUBLIC_SIGN_IN_APPLE=0 hides the Apple button. runmeal-api must accept com.runmeal.portal as an Apple audience. */
+export const SIGN_IN_APPLE = process.env.EXPO_PUBLIC_SIGN_IN_APPLE !== '0';

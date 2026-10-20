@@ -5,9 +5,13 @@ import { withEntitlementsPlist, type ConfigPlugin } from 'expo/config-plugins';
 // so a build for a personal iPhone sets PERSONAL_TEAM=1. Store builds keep it.
 const personalTeam = process.env.PERSONAL_TEAM === '1';
 // The app shows the Apple button only when this capability is in the build.
-const usesAppleSignIn = process.env.EXPO_PUBLIC_SIGN_IN_APPLE === '1' && !personalTeam;
-// The Google plugin needs the reversed iOS client id; without it the Google button stays off.
-const googleIosUrlScheme = process.env.GOOGLE_IOS_URL_SCHEME;
+const usesAppleSignIn = process.env.EXPO_PUBLIC_SIGN_IN_APPLE !== '0' && !personalTeam;
+// The Google plugin needs the reversed iOS client id. Take it from GOOGLE_IOS_URL_SCHEME, or derive it
+// from EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID so one value configures both the plugin and the app.
+const googleIosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+const googleIosUrlScheme =
+  process.env.GOOGLE_IOS_URL_SCHEME ||
+  (googleIosClientId ? `com.googleusercontent.apps.${googleIosClientId.replace('.apps.googleusercontent.com', '')}` : undefined);
 
 const config: ExpoConfig = {
   name: 'Runmeal',

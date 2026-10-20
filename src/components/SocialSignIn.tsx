@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Constants from 'expo-constants';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as Crypto from 'expo-crypto';
 import Svg, { Path } from 'react-native-svg';
 import { GoogleSignin, isErrorWithCode, isSuccessResponse, statusCodes } from '@react-native-google-signin/google-signin';
 import { useTranslation } from 'react-i18next';
-import { GOOGLE_WEB_CLIENT_ID, SIGN_IN_APPLE, SIGN_IN_GOOGLE } from '@/config';
+import { GOOGLE_IOS_CLIENT_ID, GOOGLE_WEB_CLIENT_ID, SIGN_IN_APPLE, SIGN_IN_GOOGLE } from '@/config';
 import { loginWithApple, loginWithGoogle } from '@/services/auth.service';
 import type { AuthResponse } from '@/types/auth';
 import { colors, font, radius } from '@/theme';
@@ -17,10 +17,10 @@ const appleSignInBuilt = SIGN_IN_APPLE && Platform.OS === 'ios' && Constants.exp
 const BUTTON_HEIGHT = 52;
 
 let googleConfigured = false;
-/** Once, before the first Google sign-in: the web client makes Google issue an ID token for runmeal-api. */
+/** Once, before the first Google sign-in: the web client makes Google issue an ID token for runmeal-api; iOS also needs its own client. */
 function configureGoogle() {
   if (googleConfigured) return;
-  GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID });
+  GoogleSignin.configure({ webClientId: GOOGLE_WEB_CLIENT_ID, ...(GOOGLE_IOS_CLIENT_ID ? { iosClientId: GOOGLE_IOS_CLIENT_ID } : {}) });
   googleConfigured = true;
 }
 
@@ -32,10 +32,9 @@ type Props = {
 };
 
 /**
- * Sign in with Apple (iOS) and Google above the email form, with an "or use
- * your email" divider when either is shown. Both use the provider's native
- * sheet and hand its token to runmeal-api (POST /auth/apple/native,
- * /auth/google/native).
+ * Sign in with Apple (iOS) and Google below the email form, after an "or"
+ * divider. Both use the provider's native sheet and hand its token to
+ * runmeal-api (POST /auth/apple/native, /auth/google/native).
  */
 export function SocialSignIn({ onSignedIn, onError, busy }: Props) {
   const { t } = useTranslation();
@@ -87,6 +86,11 @@ export function SocialSignIn({ onSignedIn, onError, busy }: Props) {
 
   const signInWithGoogle = async () => {
     if (busy) return;
+    // Without the iOS client's URL scheme the native SDK crashes the app, so explain instead of calling it.
+    if (Platform.OS === 'ios' && !GOOGLE_IOS_CLIENT_ID) {
+      Alert.alert(t('auth.googleNotConfiguredTitle'), t('auth.googleNotConfiguredBody'));
+      return;
+    }
     try {
       configureGoogle();
       if (Platform.OS === 'android') await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
@@ -103,17 +107,22 @@ export function SocialSignIn({ onSignedIn, onError, busy }: Props) {
 
   return (
     <View style={styles.wrap}>
+      <View style={styles.divider}>
+        <View style={styles.line} />
+        <Text style={styles.dividerText}>{t('auth.or')}</Text>
+        <View style={styles.line} />
+      </View>
       {appleAvailable ? (
         <AppleAuthentication.AppleAuthenticationButton
           buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
           buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-          cornerRadius={radius.lg}
+          cornerRadius={radius.md}
           style={styles.apple}
           onPress={signInWithApple}
         />
       ) : null}
       {SIGN_IN_GOOGLE ? (
-        // Google's branding: white button, outline, the four-colour G and "Sign in with Google".
+        // Google's branding: white button, outline and the four-colour G.
         <Pressable
           onPress={signInWithGoogle}
           disabled={busy}
@@ -121,14 +130,9 @@ export function SocialSignIn({ onSignedIn, onError, busy }: Props) {
           style={({ pressed }) => [styles.google, pressed && styles.googlePressed]}
         >
           <GoogleLogo />
-          <Text style={styles.googleText}>{t('auth.signInWithGoogle')}</Text>
+          <Text style={styles.googleText}>{t('auth.continueWithGoogle')}</Text>
         </Pressable>
       ) : null}
-      <View style={styles.divider}>
-        <View style={styles.line} />
-        <Text style={styles.dividerText}>{t('auth.orEmail')}</Text>
-        <View style={styles.line} />
-      </View>
     </View>
   );
 }
@@ -154,14 +158,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: '#747775',
     backgroundColor: '#FFFFFF',
   },
   googlePressed: { backgroundColor: colors.background },
   googleText: { fontSize: 19, fontWeight: '500', color: '#1F1F1F' },
-  divider: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6 },
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   line: { flex: 1, height: StyleSheet.hairlineWidth, backgroundColor: colors.border },
   dividerText: { fontSize: font.small, color: colors.mutedForeground },
 });

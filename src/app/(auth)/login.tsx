@@ -74,18 +74,6 @@ export default function Login() {
           <Text style={styles.subtitle}>{t('auth.subtitle')}</Text>
         </View>
 
-        {SIGN_IN_GOOGLE || SIGN_IN_APPLE ? (
-          <SocialSignIn
-            busy={busy}
-            onSignedIn={async (auth) => {
-              setError(null);
-              await signIn(auth);
-              router.replace('/');
-            }}
-            onError={(e) => setError(apiErrorMessage(e, t('errors.generic')))}
-          />
-        ) : null}
-
         <TextField
           label={t('auth.email')}
           value={email}
@@ -124,6 +112,18 @@ export default function Login() {
         <Pressable onPress={() => setWithPassword((v) => !v)} hitSlop={8} style={styles.linkWrap}>
           <Text style={styles.link}>{withPassword ? t('auth.useCode') : t('auth.usePassword')}</Text>
         </Pressable>
+        {SIGN_IN_GOOGLE || SIGN_IN_APPLE ? (
+          <SocialSignIn
+            busy={busy}
+            onSignedIn={async (auth) => {
+              setError(null);
+              await signIn(auth);
+              router.replace('/');
+            }}
+            onError={(e) => setError(apiErrorMessage(e, t('errors.generic')))}
+          />
+        ) : null}
+
         <Pressable onPress={() => router.push('/(auth)/register')} hitSlop={8} style={styles.linkWrap}>
           <Text style={styles.footer}>{t('auth.noAccount')}</Text>
         </Pressable>

@@ -21,10 +21,19 @@ The environment is picked from the host of `API_URL`: a host containing `staging
 | `PORTAL_WEB_ORIGIN` | `EXPO_PUBLIC_PORTAL_WEB_ORIGIN` | `https://staging-portalfe.runmeal.com` | `https://portalfe.runmeal.com` |
 | `RECAPTCHA_SITE_KEY` | `EXPO_PUBLIC_RECAPTCHA_SITE_KEY` | portal web `.env.staging` key | portal web `.env.production` key |
 | `GOOGLE_WEB_CLIENT_ID` | `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | staging web client id | production web client id |
-| `SIGN_IN_GOOGLE` | `EXPO_PUBLIC_SIGN_IN_GOOGLE=1` | off | off |
-| `SIGN_IN_APPLE` | `EXPO_PUBLIC_SIGN_IN_APPLE=1` | off | off |
+| `GOOGLE_IOS_CLIENT_ID` | `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | empty | empty |
+| `SIGN_IN_GOOGLE` | `EXPO_PUBLIC_SIGN_IN_GOOGLE` | on (`0` turns it off) | on (`0` turns it off) |
+| `SIGN_IN_APPLE` | `EXPO_PUBLIC_SIGN_IN_APPLE` | on (`0` turns it off) | on (`0` turns it off) |
 
-Build-time only: `GOOGLE_IOS_URL_SCHEME` (adds the Google Sign-In config plugin) and `PERSONAL_TEAM=1` (build for a free Apple team without Sign in with Apple).
+Build-time only: `GOOGLE_IOS_URL_SCHEME` (adds the Google Sign-In config plugin; derived from `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` when unset) and `PERSONAL_TEAM=1` (build for a free Apple team without Sign in with Apple).
+
+### Making Google and Apple sign-in work
+
+Both buttons show by default. Until the steps below are done they appear but cannot finish a sign-in.
+
+- Google, iOS: create an iOS OAuth client for `com.runmeal.portal` in Google Cloud and put its ID in `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`. While it is empty the iOS button only shows a "not ready" message.
+- Google, Android: create an Android OAuth client with the package `com.runmeal.portal` and the signing certificate's SHA-1.
+- Apple: the backend's `APPLE_SIGNIN_BUNDLE_ID` must accept `com.runmeal.portal`.
 
 ## Checks
 

@@ -9,6 +9,13 @@ jest.mock('@/components/Recaptcha', () => {
   return { Recaptcha: ({ onToken }: { onToken: (t: string) => void }) => { useEffect(() => onToken('cap'), [onToken]); return null; } };
 });
 jest.mock('expo-router', () => ({ router: { push: jest.fn(), replace: jest.fn() }, Link: ({ children }: { children: unknown }) => children }));
+// Social flags default to on; a test turns them off through these.
+let mockSocialOn = true;
+jest.mock('@/config', () => {
+  const config = { ...jest.requireActual('@/config') };
+  for (const flag of ['SIGN_IN_GOOGLE', 'SIGN_IN_APPLE']) Object.defineProperty(config, flag, { get: () => mockSocialOn });
+  return config;
+});
 jest.mock('@/context/AuthContext', () => ({ useAuth: () => ({ signIn: jest.fn() }) }));
 
 it('sends an OTP and opens the code screen', async () => {
@@ -20,7 +27,18 @@ it('sends an OTP and opens the code screen', async () => {
   expect(router.push).toHaveBeenCalledWith({ pathname: '/(auth)/verify', params: { email: 'e@x.com', mode: 'login' } });
 });
 
-it('hides social buttons while the flags are off', async () => {
+beforeEach(() => {
+  mockSocialOn = true;
+});
+
+it('shows Google below the email form by default', async () => {
+  await render(<Login />);
+  expect(screen.getByText('Google ile devam et')).toBeTruthy();
+  expect(screen.queryByText(/Apple/)).toBeNull();
+});
+
+it('hides the social buttons when both flags are off', async () => {
+  mockSocialOn = false;
   await render(<Login />);
   expect(screen.queryByText(/Google/)).toBeNull();
   expect(screen.queryByText(/Apple/)).toBeNull();
