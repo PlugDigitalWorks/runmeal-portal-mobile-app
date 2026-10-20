@@ -17,6 +17,8 @@ const mockParams: { id?: string } = {};
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), back: jest.fn(), replace: jest.fn() },
   useLocalSearchParams: () => mockParams,
+  // Renders the header button so it can be pressed like on screen.
+  Stack: { Screen: ({ options }: { options?: { headerRight?: () => unknown } }) => options?.headerRight?.() ?? null },
   Redirect: ({ href }: { href: string }) => {
     const { Text: RNText } = jest.requireActual('react-native');
     return <RNText>{`redirect:${href}`}</RNText>;
@@ -75,6 +77,14 @@ describe('my addresses', () => {
     await waitFor(() => expect(getAddresses).toHaveBeenCalledTimes(2));
   });
 
+  it('adds a new address from the header button', async () => {
+    (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1', isActive: true })]);
+    await withLocation(<AddressesScreen />);
+    await screen.findByTestId('address-a1');
+    await fireEvent.press(screen.getAllByLabelText('Yeni adres')[0]);
+    expect(router.push).toHaveBeenCalledWith('/addresses/form');
+  });
+
   it('deletes only after the person confirms', async () => {
     (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1', isActive: true })]);
     (deleteAddress as jest.Mock).mockResolvedValue(undefined);
@@ -121,9 +131,9 @@ describe('address form', () => {
     expect(createAddress).not.toHaveBeenCalled();
   });
 
-  it('adds a geocoded first address and makes it the active one', async () => {
+  it('adds a geocoded first address, asking the API to make it active', async () => {
     (getAddresses as jest.Mock).mockResolvedValue([]);
-    (createAddress as jest.Mock).mockResolvedValue(address({ id: 'new' }));
+    (createAddress as jest.Mock).mockResolvedValue(undefined);
     await withLocation(<AddressFormScreen />);
     // The form must know the list is empty before it can tell this is the first address.
     await waitFor(() => expect(getAddresses).toHaveBeenCalled());
@@ -142,14 +152,16 @@ describe('address form', () => {
       longitude: 29.0303,
       buildingNumber: null,
       apartmentNumber: null,
+      isActive: true,
     });
-    await waitFor(() => expect(setActiveAddress).toHaveBeenCalledWith('new'));
+    // The API answers without the new address, so there is no follow-up set-active call.
+    expect(setActiveAddress).not.toHaveBeenCalled();
     await waitFor(() => expect(router.back).toHaveBeenCalled());
   });
 
   it('fills the address from the phone location and keeps its coordinates', async () => {
     (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1', isActive: true })]);
-    (createAddress as jest.Mock).mockResolvedValue(address({ id: 'new' }));
+    (createAddress as jest.Mock).mockResolvedValue(undefined);
     (Location.geocodeAsync as jest.Mock).mockClear();
     await withLocation(<AddressFormScreen />);
     await fireEvent.press(screen.getByText('Konumumu kullan'));
@@ -160,7 +172,8 @@ describe('address form', () => {
     await waitFor(() => expect(createAddress).toHaveBeenCalled());
     expect(Location.geocodeAsync).not.toHaveBeenCalled();
     expect(createAddress).toHaveBeenCalledWith(expect.objectContaining({ latitude: 40.9909, longitude: 29.0303, province: 'İstanbul', district: 'Kadıköy' }));
-    // Not the first address, so the active one stays.
+    // The API activates every new address by default; a later one must opt out explicitly.
+    expect(createAddress).toHaveBeenCalledWith(expect.objectContaining({ isActive: false }));
     expect(setActiveAddress).not.toHaveBeenCalled();
   });
 
@@ -181,7 +194,7 @@ describe('address form', () => {
 describe('onboarding', () => {
   it('opens the tabs once the first address is saved', async () => {
     (getAddresses as jest.Mock).mockResolvedValue([]);
-    (createAddress as jest.Mock).mockResolvedValue(address({ id: 'new' }));
+    (createAddress as jest.Mock).mockResolvedValue(undefined);
     await withLocation(<OnboardingAddress />);
     expect(screen.getByText('Nereye getirelim?')).toBeTruthy();
     await waitFor(() => expect(getAddresses).toHaveBeenCalled());
@@ -190,7 +203,7 @@ describe('onboarding', () => {
     await fireEvent.changeText(screen.getByLabelText('Telefon'), '+905550000000');
     await fireEvent.press(screen.getByText('Adresi kaydet'));
     await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/(tabs)'));
-    expect(setActiveAddress).toHaveBeenCalledWith('new');
+    expect(createAddress).toHaveBeenCalledWith(expect.objectContaining({ isActive: true }));
   });
 });
 
@@ -203,6 +216,17 @@ describe('address sheet', () => {
     expect(onClose).toHaveBeenCalled();
     await waitFor(() => expect(setActiveAddress).toHaveBeenCalledWith('a2'));
     await waitFor(() => expect(getAddresses).toHaveBeenCalledTimes(2));
+  });
+
+  it('stays open and tells the person when the address could not be changed', async () => {
+    (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1', isActive: true }), address({ id: 'a2', street: 'Bağdat Cd.' })]);
+    (setActiveAddress as jest.Mock).mockRejectedValue(new Error('offline'));
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    const onClose = jest.fn();
+    await withLocation(<AddressSheet visible onClose={onClose} />);
+    await fireEvent.press(await screen.findByTestId('sheet-address-a2'));
+    await waitFor(() => expect(alert).toHaveBeenCalledWith('Bir şeyler ters gitti'));
+    expect(onClose).not.toHaveBeenCalled();
   });
 
   it('leads to the new address form', async () => {

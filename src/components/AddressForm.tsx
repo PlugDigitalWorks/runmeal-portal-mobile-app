@@ -8,7 +8,7 @@ import { addressCoordinates, addressFirstLine, normalizePhone } from '@/lib/addr
 import { geocodeText, getUserLocation, reverseGeocode, type Coordinates } from '@/lib/location';
 import { qk } from '@/queries/keys';
 import { useAddresses } from '@/queries/useAddresses';
-import { createAddress, setActiveAddress, updateAddress } from '@/services/address.service';
+import { createAddress, updateAddress } from '@/services/address.service';
 import { colors, font, radius, space } from '@/theme';
 import type { Address } from '@/types/address';
 import { Button } from '@/ui/Button';
@@ -106,6 +106,8 @@ function AddressFields({ existing, isFirst, onSaved }: FieldsProps) {
       setPostalCode(place.postalCode ?? '');
       setFieldErrors({});
       setLocated({ point, region: { countryCode, province: place.province, district: place.district } });
+    } catch {
+      setError(t('addresses.locationFailed'));
     } finally {
       setLocating(false);
     }
@@ -152,12 +154,8 @@ function AddressFields({ existing, isFirst, onSaved }: FieldsProps) {
       if (id) {
         await updateAddress(id, input);
       } else {
-        const created = await createAddress(input);
-        if (isFirst) {
-          // The first address becomes the delivery address. If activating fails the address still
-          // exists and the context falls back to it, so a retry must not create a duplicate.
-          await setActiveAddress(created.id).catch(() => {});
-        }
+        // The API makes every new address active unless told otherwise, so only the first one asks for it.
+        await createAddress({ ...input, isActive: isFirst });
       }
       await Promise.all([queryClient.invalidateQueries({ queryKey: qk.addresses }), queryClient.invalidateQueries({ queryKey: ['nearby'] })]);
       onSaved();

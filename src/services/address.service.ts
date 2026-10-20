@@ -9,14 +9,13 @@ export async function getAddresses(): Promise<Address[]> {
   return Array.isArray(payload) ? payload : (payload?.data ?? []);
 }
 
-export async function createAddress(input: CreateAddressInput): Promise<Address> {
-  const { data } = await api.post<ApiResponse<Address>>('/addresses', input);
-  return unwrap(data);
+/** The API answers only `{ message }`, never the new address; the caller refetches the list. */
+export async function createAddress(input: CreateAddressInput): Promise<void> {
+  await api.post('/addresses', input);
 }
 
-export async function updateAddress(addressId: string, input: Partial<CreateAddressInput>): Promise<Address> {
-  const { data } = await api.patch<ApiResponse<Address>>(`/addresses/${addressId}`, input);
-  return unwrap(data);
+export async function updateAddress(addressId: string, input: Partial<CreateAddressInput>): Promise<void> {
+  await api.patch(`/addresses/${addressId}`, input);
 }
 
 export async function deleteAddress(addressId: string): Promise<void> {

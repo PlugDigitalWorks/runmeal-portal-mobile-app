@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { router } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { Check, MapPin, Pencil, Plus, Trash2 } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -81,6 +81,15 @@ export default function AddressesScreen() {
 
   return (
     <View style={styles.screen}>
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable onPress={add} hitSlop={10} accessibilityRole="button" accessibilityLabel={t('addresses.add')}>
+              <Plus size={24} color={colors.primary} />
+            </Pressable>
+          ),
+        }}
+      />
       <FlatList
         data={addresses ?? []}
         keyExtractor={(a) => a.id}

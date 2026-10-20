@@ -1,9 +1,10 @@
 import { router } from 'expo-router';
 import { Check, Plus } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useLocation } from '@/context/LocationContext';
 import { addressFirstLine, addressSecondLine } from '@/lib/address';
+import { apiErrorMessage } from '@/lib/api-error';
 import { useAddresses } from '@/queries/useAddresses';
 import { colors, font, radius, space, weight } from '@/theme';
 import type { Address } from '@/types/address';
@@ -17,9 +18,15 @@ export function AddressSheet({ visible, onClose }: Props) {
   const { activeAddress, selectAddress } = useLocation();
 
   const choose = async (address: Address) => {
-    // Close first: the feed refetches behind the sheet once the new address is active.
+    if (address.id !== activeAddress?.id) {
+      try {
+        await selectAddress(address.id);
+      } catch (e) {
+        // Stay open: closing would look like the address changed when it did not.
+        return Alert.alert(apiErrorMessage(e, t('errors.generic')));
+      }
+    }
     onClose();
-    if (address.id !== activeAddress?.id) await selectAddress(address.id).catch(() => {});
   };
 
   const add = () => {
