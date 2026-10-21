@@ -501,7 +501,11 @@
   "errors": {
     "network": "Bağlantı kurulamadı",
     "generic": "Bir şeyler ters gitti",
-    "sessionExpired": "Oturumun sona erdi, tekrar giriş yap"
+    "sessionExpired": "Oturumun sona erdi, tekrar giriş yap",
+    "server": "Sunucu bir hata döndürdü",
+    "serverBody": "Hata kodu: {{code}}. Biraz sonra tekrar dene.",
+    "notCustomerTitle": "Bu hesapla sipariş verilemiyor",
+    "notCustomerBody": "Giriş yaptığın hesap bir yönetici hesabı. Sipariş vermek için müşteri hesabıyla giriş yap."
   },
   "sort": {
     "title": "Sırala",

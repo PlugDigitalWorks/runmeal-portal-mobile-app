@@ -1,5 +1,5 @@
 import { AxiosError, type AxiosResponse } from 'axios';
-import { apiErrorCode, apiErrorMessage } from '../api-error';
+import { apiErrorCode, apiErrorMessage, classifyLoadError } from '../api-error';
 
 const withBody = (data: unknown) =>
   new AxiosError('x', '400', undefined, undefined, { data, status: 400 } as AxiosResponse);
@@ -18,4 +18,13 @@ it('reads the machine-readable code of an API error', () => {
   expect(apiErrorCode(withBody({ code: 'PAYMENT_ORDER_TYPE_INVALID', message: 'x' }))).toBe('PAYMENT_ORDER_TYPE_INVALID');
   expect(apiErrorCode(withBody({ message: 'x' }))).toBeUndefined();
   expect(apiErrorCode(new Error('boom'))).toBeUndefined();
+});
+
+it('tells a forbidden account, the network and the server apart', () => {
+  const withStatus = (status: number, code?: string) =>
+    new AxiosError('x', String(status), undefined, undefined, { data: { code }, status } as AxiosResponse);
+  expect(classifyLoadError(withStatus(403, 'FORBIDDEN'))).toEqual({ kind: 'forbidden', status: 403, code: 'FORBIDDEN' });
+  expect(classifyLoadError(withStatus(500))).toEqual({ kind: 'server', status: 500, code: undefined });
+  expect(classifyLoadError(new AxiosError('Network Error', 'ERR_NETWORK'))).toEqual({ kind: 'network' });
+  expect(classifyLoadError(new Error('boom'))).toEqual({ kind: 'network' });
 });

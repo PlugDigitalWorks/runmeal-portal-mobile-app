@@ -501,7 +501,11 @@
   "errors": {
     "network": "Couldn't connect",
     "generic": "Something went wrong",
-    "sessionExpired": "Your session expired. Sign in again."
+    "sessionExpired": "Your session expired. Sign in again.",
+    "server": "The server returned an error",
+    "serverBody": "Error code: {{code}}. Try again in a moment.",
+    "notCustomerTitle": "This account can't place orders",
+    "notCustomerBody": "You signed in with a manager account. Sign in with a customer account to order."
   },
   "sort": {
     "title": "Sort",

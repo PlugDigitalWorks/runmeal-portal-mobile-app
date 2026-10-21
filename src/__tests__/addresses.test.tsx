@@ -1,4 +1,5 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
+import { AxiosError, AxiosHeaders } from 'axios';
 import type { ReactElement } from 'react';
 import { Alert } from 'react-native';
 import { router } from 'expo-router';
@@ -24,7 +25,7 @@ jest.mock('expo-router', () => ({
     return <RNText>{`redirect:${href}`}</RNText>;
   },
 }));
-const mockAuth = { status: 'signedIn' };
+const mockAuth = { status: 'signedIn', signOut: jest.fn(async () => undefined) };
 jest.mock('@/context/AuthContext', () => ({ useAuth: () => mockAuth }));
 jest.mock('@/services/address.service', () => ({
   getAddresses: jest.fn(),
@@ -297,6 +298,41 @@ describe('start screen', () => {
     await start();
     await fireEvent.press(await screen.findByText('Tekrar dene'));
     expect(await screen.findByText('redirect:/(tabs)')).toBeTruthy();
+  });
+
+  const apiFailure = (status: number, code: string) =>
+    new AxiosError('Request failed', String(status), undefined, undefined, {
+      status,
+      statusText: '',
+      headers: {},
+      config: { headers: new AxiosHeaders() },
+      data: { status: false, message: 'nope', code },
+    });
+
+  it('tells a manager account it cannot order and offers only sign-out', async () => {
+    (getAddresses as jest.Mock).mockRejectedValue(apiFailure(403, 'FORBIDDEN'));
+    await start();
+    expect(await screen.findByText('Bu hesapla sipariş verilemiyor')).toBeTruthy();
+    expect(screen.queryByText('Tekrar dene')).toBeNull();
+    await fireEvent.press(screen.getByText('Çıkış yap'));
+    expect(mockAuth.signOut).toHaveBeenCalled();
+  });
+
+  it('shows the server error code with retry and sign-out', async () => {
+    (getAddresses as jest.Mock).mockRejectedValue(apiFailure(500, 'INTERNAL_SERVER_ERROR'));
+    await start();
+    expect(await screen.findByText('Sunucu bir hata döndürdü')).toBeTruthy();
+    expect(screen.getByText('Hata kodu: INTERNAL_SERVER_ERROR. Biraz sonra tekrar dene.')).toBeTruthy();
+    expect(screen.getByText('Tekrar dene')).toBeTruthy();
+    expect(screen.getByText('Çıkış yap')).toBeTruthy();
+  });
+
+  it('keeps a way out on a network failure', async () => {
+    (getAddresses as jest.Mock).mockRejectedValue(new Error('offline'));
+    await start();
+    expect(await screen.findByText('Bağlantı kurulamadı')).toBeTruthy();
+    await fireEvent.press(screen.getByText('Çıkış yap'));
+    expect(mockAuth.signOut).toHaveBeenCalled();
   });
 
   it('sends a signed-out person to the sign-in without asking for addresses', async () => {

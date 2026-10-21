@@ -26,7 +26,7 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: 'com.runmeal.portal',
     // Raise for every TestFlight / App Store upload of the same version.
-    buildNumber: '2',
+    buildNumber: '3',
     // Only HTTPS and the OS's own crypto: no export compliance questions on each upload.
     config: { usesNonExemptEncryption: false },
     // The paid team that signs store and TestFlight builds; a personal-team build picks its own in Xcode.
