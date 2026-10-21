@@ -8,7 +8,9 @@ const personalTeam = process.env.PERSONAL_TEAM === '1';
 const usesAppleSignIn = process.env.EXPO_PUBLIC_SIGN_IN_APPLE !== '0' && !personalTeam;
 // The Google plugin needs the reversed iOS client id. Take it from GOOGLE_IOS_URL_SCHEME, or derive it
 // from EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID so one value configures both the plugin and the app.
-const googleIosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+// Same default as GOOGLE_IOS_CLIENT_ID in src/config.ts ("Runmeal Portal iOS" in Google Cloud).
+const googleIosClientId =
+  process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? '709162763845-sdaqha6d9ctk59qqsutnv6ma62e225si.apps.googleusercontent.com';
 const googleIosUrlScheme =
   process.env.GOOGLE_IOS_URL_SCHEME ||
   (googleIosClientId ? `com.googleusercontent.apps.${googleIosClientId.replace('.apps.googleusercontent.com', '')}` : undefined);
@@ -24,7 +26,7 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: 'com.runmeal.portal',
     // Raise for every TestFlight / App Store upload of the same version.
-    buildNumber: '1',
+    buildNumber: '2',
     // Only HTTPS and the OS's own crypto: no export compliance questions on each upload.
     config: { usesNonExemptEncryption: false },
     // The paid team that signs store and TestFlight builds; a personal-team build picks its own in Xcode.

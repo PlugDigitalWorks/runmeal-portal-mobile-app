@@ -30,7 +30,7 @@ Uygulamanın kullandığı web client'lar (proje `709162763845`):
 
 **Google Cloud Console'da (aynı proje, 709162763845) yapılacaklar:**
 
-1. **iOS OAuth client:** Application type iOS, Bundle ID `com.runmeal.portal`. Oluşan **iOS client ID'yi bize gönderin**. Uygulamaya `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` olarak girilecek; URL scheme bundan türetilir.
+1. **iOS OAuth client: yapıldı.** "Runmeal Portal iOS" (Bundle ID `com.runmeal.portal`, client `709162763845-sdaqha6d9ctk59qqsutnv6ma62e225si.apps.googleusercontent.com`). Uygulamada varsayılan değer olarak tanımlı; TestFlight build 2'den itibaren kullanılıyor.
 2. **Android OAuth client:** Application type Android, package `com.runmeal.portal`. Aşağıdaki SHA-1 parmak izlerinin her biri eklenmeli; gerekirse parmak izi başına ayrı bir Android client açılır.
 
    | Anahtar | SHA-1 | Ne zaman |
