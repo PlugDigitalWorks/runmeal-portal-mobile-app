@@ -1,5 +1,5 @@
 import type { ExpoConfig } from 'expo/config';
-import { withEntitlementsPlist, type ConfigPlugin } from 'expo/config-plugins';
+import { withAppBuildGradle, withEntitlementsPlist, type ConfigPlugin } from 'expo/config-plugins';
 
 // A free (personal) Apple team cannot sign Sign in with Apple,
 // so a build for a personal iPhone sets PERSONAL_TEAM=1. Store builds keep it.
@@ -100,4 +100,36 @@ const withoutAppleSignIn: ConfigPlugin = (base) =>
     return mod;
   });
 
-export default usesAppleSignIn ? config : withoutAppleSignIn(config);
+// Gradle properties naming the Play upload key: RUNMEAL_PORTAL_UPLOAD_STORE_FILE and friends.
+const signingPrefix = 'RUNMEAL_PORTAL_UPLOAD';
+
+/**
+ * Signs release builds with the Play upload key when ~/.gradle/gradle.properties
+ * names it (see README "Play upload key"); otherwise release builds keep the debug key,
+ * which is fine for test APKs and refused by Play.
+ */
+const withReleaseSigning: ConfigPlugin = (base) =>
+  withAppBuildGradle(base, (mod) => {
+    const p = signingPrefix;
+    mod.modResults.contents = mod.modResults.contents
+      .replace(
+        /signingConfigs \{\n/,
+        `signingConfigs {
+        release {
+            if (findProperty('${p}_STORE_FILE')) {
+                storeFile file(findProperty('${p}_STORE_FILE'))
+                storePassword findProperty('${p}_STORE_PASSWORD')
+                keyAlias findProperty('${p}_KEY_ALIAS')
+                keyPassword findProperty('${p}_KEY_PASSWORD')
+            }
+        }
+`,
+      )
+      .replace(
+        /(release \{\n\s*\/\/ Caution![^\n]*\n[^\n]*\n\s*)signingConfig signingConfigs\.debug/,
+        `$1signingConfig findProperty('${p}_STORE_FILE') ? signingConfigs.release : signingConfigs.debug`,
+      );
+    return mod;
+  });
+
+export default withReleaseSigning(usesAppleSignIn ? config : withoutAppleSignIn(config));

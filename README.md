@@ -74,6 +74,39 @@ Both buttons show by default in development and preview builds. Until the steps 
 - Apple: the backend's `APPLE_SIGNIN_BUNDLE_ID` must accept `com.runmeal.portal`. It takes one value today, so the brand app and this app cannot both sign in until the backend accepts a list.
 - Turn Google and Apple on together: remove both `0`s from the `production` profile in the same build. App Store rule 4.8 asks for Sign in with Apple whenever another third-party sign-in is offered, so Google alone must not ship.
 
+What to send the backend and account owners (client IDs, SHA-1s, the Apple bundle list change) is in `docs/SOCIAL_SIGN_IN_HANDOFF.md`.
+
+## Test builds (TestFlight and Play internal testing)
+
+Local builds, like the brand app. They use the default environment (staging API, mocks and both social buttons on). Raise `ios.buildNumber` and `android.versionCode` in `app.config.ts` for every upload.
+
+**iOS (TestFlight):** the app record for `com.runmeal.portal` must exist in App Store Connect.
+
+```bash
+LANG=en_US.UTF-8 npx expo prebuild -p ios --clean
+xcodebuild -workspace ios/Runmeal.xcworkspace -scheme Runmeal -configuration Release \
+  -destination 'generic/platform=iOS' -archivePath build/Runmeal.xcarchive \
+  -allowProvisioningUpdates DEVELOPMENT_TEAM=T776LGPKWZ archive
+xcodebuild -exportArchive -archivePath build/Runmeal.xcarchive \
+  -exportOptionsPlist ExportOptions.plist -allowProvisioningUpdates   # method app-store-connect, destination upload
+```
+
+**Android (Play internal testing):** release builds are signed with the Play upload key. The key never goes in this repo; its location and passwords live in `~/.gradle/gradle.properties`:
+
+```properties
+RUNMEAL_PORTAL_UPLOAD_STORE_FILE=/Users/you/.android-keys/runmeal-portal-upload.jks
+RUNMEAL_PORTAL_UPLOAD_KEY_ALIAS=upload
+RUNMEAL_PORTAL_UPLOAD_STORE_PASSWORD=…
+RUNMEAL_PORTAL_UPLOAD_KEY_PASSWORD=…
+```
+
+```bash
+JAVA_HOME=/opt/homebrew/opt/openjdk@17 npx expo prebuild -p android --clean
+cd android && JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew bundleRelease   # app/build/outputs/bundle/release/app-release.aab
+```
+
+Without those properties release builds fall back to the debug key: fine for test APKs, refused by Play. Upload the first AAB by hand in Play Console (internal testing). Keep a copy of the `.jks` and its password in the team's password manager; a lost upload key can only be reset through Play support.
+
 ## EAS profiles
 
 `eas.json` has three build profiles; `appVersionSource` is `local`.

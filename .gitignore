@@ -194,3 +194,6 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Local release archives (README "Test builds")
+/build
