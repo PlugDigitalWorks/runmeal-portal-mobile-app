@@ -1,22 +1,40 @@
-import { isAxiosError } from 'axios';
 import { router } from 'expo-router';
 import { TriangleAlert } from 'lucide-react-native';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
-import { apiErrorMessage } from '@/lib/api-error';
+import { canDeleteAccount, classifyDeleteError, type DeleteFailure } from '@/lib/account-deletion';
+import { expireSession } from '@/lib/api';
+import { getTokens } from '@/lib/session';
 import { deleteAccount } from '@/services/auth.service';
 import { colors, font, radius, space, weight } from '@/theme';
 
+/** The message for a failed delete; `unauthorized` has none, the session-expired flow speaks for it. */
+function failureKey(failure: Exclude<DeleteFailure, { kind: 'unauthorized' }>): string {
+  switch (failure.kind) {
+    case 'refused':
+      return `deleteAccount.errors.${failure.code}`;
+    case 'forbidden':
+      return 'deleteAccount.errors.forbidden';
+    case 'unavailable':
+      return 'deleteAccount.unavailable';
+    case 'unknown':
+      return 'deleteAccount.errors.unknown';
+    default:
+      return 'deleteAccount.failed';
+  }
+}
+
 /**
  * App Store guideline 5.1.1(v) and Google Play's account deletion policy: an account made in the app
- * can be deleted in the app. Asks once more, then deletes it on the API (DELETE /profile) and signs out here.
- * If the API has no such route yet, its error is shown and the person stays signed in.
+ * can be deleted in the app. Asks once more, then DELETE /profile; on 204 the account is gone, so the
+ * app only forgets it locally. Any refusal keeps the person signed in, and a lost answer is never
+ * reported as a success or sent again on its own.
  */
 export default function DeleteAccountScreen() {
   const { t } = useTranslation();
-  const { user, signOut } = useAuth();
+  const { user, forgetDeletedAccount } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // A second tap mid-request would send a second delete.
@@ -30,14 +48,16 @@ export default function DeleteAccountScreen() {
     try {
       await deleteAccount();
     } catch (e) {
-      // runmeal-api has no DELETE /profile yet (docs/BACKEND_REQUESTS.md): say so plainly instead of a raw routing error.
-      const missing = isAxiosError(e) && (e.response?.status === 404 || e.response?.status === 405);
-      setError(missing ? t('deleteAccount.unavailable') : apiErrorMessage(e, t('deleteAccount.failed')));
       inFlight.current = false;
       setBusy(false);
+      // A rejected token refresh already ended the session; sign-in and its notice are on the way.
+      if (!getTokens()) return;
+      const failure = classifyDeleteError(e);
+      if (failure.kind === 'unauthorized') return void expireSession();
+      setError(t(failureKey(failure)));
       return;
     }
-    await signOut();
+    await forgetDeletedAccount();
     router.replace('/(auth)/login');
     Alert.alert(t('deleteAccount.doneTitle'), t('deleteAccount.doneBody'));
   };
@@ -48,6 +68,14 @@ export default function DeleteAccountScreen() {
       { text: t('deleteAccount.confirm'), style: 'destructive', onPress: remove },
     ]);
 
+  if (!canDeleteAccount(user)) {
+    return (
+      <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+        <Text style={styles.body}>{t('deleteAccount.notEligible')}</Text>
+      </ScrollView>
+    );
+  }
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.warning}>
@@ -56,7 +84,7 @@ export default function DeleteAccountScreen() {
       </View>
       {user?.email ? <Text style={styles.body}>{t('deleteAccount.account', { email: user.email })}</Text> : null}
       <Text style={styles.heading}>{t('deleteAccount.whatHappens')}</Text>
-      {(['profile', 'loyalty', 'signIn', 'orders'] as const).map((key) => (
+      {(['closed', 'profile', 'loyalty', 'signIn', 'orders', 'wallet'] as const).map((key) => (
         <View key={key} style={styles.bullet}>
           <Text style={styles.dot}>•</Text>
           <Text style={styles.body}>{t(`deleteAccount.points.${key}`)}</Text>

@@ -483,20 +483,30 @@
     "account": "{{email}} hesabıyla giriş yaptın.",
     "whatHappens": "Neler olur",
     "points": {
+      "closed": "Hesabın kalıcı olarak kapatılır; aynı e-postayla yeniden kayıt olursan yeni bir hesap açılır.",
       "profile": "Adın, e-postan, telefonun ve kayıtlı adreslerin silinir.",
       "loyalty": "Damgaların ve ödüllerin kaybolur.",
       "signIn": "Her yerden çıkış yapılır; Apple veya Google ile giriş bağlantısı kaldırılır.",
-      "orders": "Geçmiş sipariş kayıtları, yasal fiş saklama gereği kişisel bilgilerin olmadan tutulur."
+      "orders": "Geçmiş sipariş ve ödeme kayıtların yasal zorunluluk nedeniyle korunur.",
+      "wallet": "Apple veya Google Cüzdan'a eklediğin kartlar devre dışı bırakılır; telefonunda güncellenmesi biraz zaman alabilir."
     },
     "button": "Hesabımı sil",
     "deleting": "Siliniyor…",
     "confirmTitle": "Hesabın silinsin mi?",
-    "confirmBody": "Hesabın ve damgaların kalıcı olarak silinir.",
-    "confirm": "Sil",
+    "confirmBody": "Hesabın kalıcı olarak kapatılır ve profil bilgilerin silinir. Geçmiş sipariş ve ödeme kayıtların korunur.",
+    "confirm": "Hesabımı sil",
     "failed": "Hesabın silinemedi. Tekrar dene.",
     "unavailable": "Hesap silme şu an kullanılamıyor, lütfen destekle iletişime geç.",
+    "notEligible": "Bu hesap uygulamadan silinemez.",
+    "errors": {
+      "USER_ACCOUNT_DELETE_BALANCE_REMAINING": "Hesabınızı silmeden önce cüzdan bakiyenizin kapatılması gerekiyor.",
+      "USER_ACCOUNT_DELETE_ACTIVE_OPERATION": "Hesabınızı silmeden önce aktif siparişlerinizin ve bekleyen ödemelerinizin tamamlanması gerekiyor.",
+      "USER_ACCOUNT_DELETE_PROVIDER_UNAVAILABLE": "Hesabınız silinemedi. Lütfen daha sonra tekrar deneyin.",
+      "forbidden": "Bu hesapla bu işlem yapılamıyor.",
+      "unknown": "Bağlantı kesildi, hesabının silinip silinmediğini doğrulayamadık. Bağlantını kontrol edip tekrar dene."
+    },
     "doneTitle": "Hesap silindi",
-    "doneBody": "Hesabın silindi."
+    "doneBody": "Hesabın kapatıldı."
   },
   "errors": {
     "network": "Bağlantı kurulamadı",

@@ -7,6 +7,8 @@ export interface User {
   fullName?: string;
   role: string;
   phoneNumber?: string;
+  /** A table-QR guest account; the API leaves it out for regular accounts. */
+  isGuest?: boolean;
 }
 
 export interface SessionTokens {

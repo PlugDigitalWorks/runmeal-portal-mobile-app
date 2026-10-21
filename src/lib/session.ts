@@ -7,6 +7,13 @@ const TOKENS_KEY = 'rm_session';
 const USER_KEY = 'rm_user';
 
 let tokens: SessionTokens | null = null;
+// Bumped whenever the session is replaced or cleared, so work that started under an older session
+// (a refresh, a profile read) cannot write that session back after a sign-out or an account deletion.
+let epoch = 0;
+
+export function sessionEpoch(): number {
+  return epoch;
+}
 
 /** Read synchronously by the axios interceptor. */
 export function getAccessToken(): string | null {
@@ -39,6 +46,7 @@ export async function loadSession(): Promise<{ tokens: SessionTokens | null; use
 }
 
 export async function saveSession({ user, ...next }: AuthResponse): Promise<void> {
+  epoch++;
   tokens = { accessToken: next.accessToken, refreshToken: next.refreshToken, sid: next.sid };
   await Promise.all([
     SecureStore.setItemAsync(TOKENS_KEY, JSON.stringify(tokens)),
@@ -46,21 +54,29 @@ export async function saveSession({ user, ...next }: AuthResponse): Promise<void
   ]);
 }
 
-/** A refresh may or may not rotate the refresh token and sid; keep what it does not send. */
-export async function saveTokens(next: SessionTokens): Promise<void> {
+/**
+ * A refresh may or may not rotate the refresh token and sid; keep what it does not send.
+ * With `since`, writes only if the session is still the one from that epoch; returns whether it wrote.
+ */
+export async function saveTokens(next: SessionTokens, since?: number): Promise<boolean> {
+  if (since !== undefined && since !== epoch) return false;
   tokens = {
     accessToken: next.accessToken,
     refreshToken: next.refreshToken ?? tokens?.refreshToken,
     sid: next.sid ?? tokens?.sid,
   };
   await SecureStore.setItemAsync(TOKENS_KEY, JSON.stringify(tokens));
+  return true;
 }
 
-export async function saveUser(user: User): Promise<void> {
+/** With `since`, writes only if the session is still the one from that epoch. */
+export async function saveUser(user: User, since?: number): Promise<void> {
+  if (since !== undefined && since !== epoch) return;
   await AsyncStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
 export async function clearSession(): Promise<void> {
+  epoch++;
   tokens = null;
   await Promise.all([SecureStore.deleteItemAsync(TOKENS_KEY), AsyncStorage.removeItem(USER_KEY)]);
 }

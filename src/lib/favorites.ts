@@ -22,3 +22,5 @@ export async function toggleFavorite(branch: FavoriteBranch): Promise<FavoriteBr
   await AsyncStorage.setItem(KEY, JSON.stringify(next));
   return next;
 }
+
+export const clearFavorites = () => AsyncStorage.removeItem(KEY);

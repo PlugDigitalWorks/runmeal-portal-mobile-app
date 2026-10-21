@@ -3,7 +3,7 @@ import { API_URL } from '@/config';
 import type { ApiResponse } from '@/types/api';
 import type { SessionTokens } from '@/types/auth';
 import { getDeviceId } from './device-id';
-import { clearSession, getAccessToken, getTokens, saveTokens } from './session';
+import { clearSession, getAccessToken, getTokens, saveTokens, sessionEpoch } from './session';
 
 /** The API scopes refresh sessions per client; the storefront is `user` (brandfe's AUTH_CLIENT). */
 export const AUTH_CLIENT = 'user';
@@ -36,29 +36,42 @@ export function onSessionExpired(listener: ExpiredListener): () => void {
   return () => expiredListeners.delete(listener);
 }
 
+/** Ends the local session as expired and tells the app, which shows sign-in with the "session expired" notice. */
+export async function expireSession(): Promise<void> {
+  await clearSession();
+  expiredListeners.forEach((listener) => listener());
+}
+
+/** A refresh that finished after the session it belonged to was cleared or replaced: its tokens were dropped. */
+export class SessionEndedError extends Error {
+  constructor() {
+    super('The session ended during the refresh');
+    this.name = 'SessionEndedError';
+  }
+}
+
 let refreshing: Promise<string> | null = null;
 
 /** One refresh for every request that hit a 401 at the same time. */
 function refreshAccessToken(): Promise<string> {
   refreshing ??= (async () => {
     const current = getTokens();
+    const epoch = sessionEpoch();
     try {
       const { data } = await api.post<ApiResponse<SessionTokens>>('/auth/refresh', {
         client: AUTH_CLIENT,
         refreshToken: current?.refreshToken,
         sid: current?.sid,
       });
-      await saveTokens(data.data);
+      // A sign-out or account deletion while this was in flight must stay signed out.
+      if (!(await saveTokens(data.data, epoch))) throw new SessionEndedError();
       return data.data.accessToken;
     } catch (error) {
       // Only a rejected refresh token ends the session; offline or a 5xx keeps it for the next try.
       // A sign-in that happened meanwhile wrote new tokens and must not be wiped.
       const status = error instanceof AxiosError ? error.response?.status : undefined;
       const rejected = status === 400 || status === 401 || status === 403;
-      if (rejected && getTokens()?.refreshToken === current?.refreshToken) {
-        await clearSession();
-        expiredListeners.forEach((listener) => listener());
-      }
+      if (rejected && sessionEpoch() === epoch) await expireSession();
       throw error;
     } finally {
       refreshing = null;

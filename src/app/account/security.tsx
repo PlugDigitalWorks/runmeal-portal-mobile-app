@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { AccountRow } from '@/components/account/AccountRow';
 import { useAuth } from '@/context/AuthContext';
+import { canDeleteAccount } from '@/lib/account-deletion';
 import { apiErrorMessage } from '@/lib/api-error';
 import { logoutAll, setPassword } from '@/services/auth.service';
 import { colors, font, space, weight } from '@/theme';
@@ -15,11 +16,11 @@ const MIN_LENGTH = 8;
 
 /**
  * Real security actions: PATCH /auth/set-password (first password or a change; the API wants only
- * `password`), POST /auth/logout-all followed by the local sign-out, and the way to /delete-account.
+ * `password`), POST /auth/logout-all followed by the local sign-out, and, for a customer account, the way to /delete-account.
  */
 export default function SecurityScreen() {
   const { t } = useTranslation();
-  const { signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [password, setPasswordText] = useState('');
   const [repeat, setRepeat] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +83,9 @@ export default function SecurityScreen() {
         </View>
         <View style={styles.group}>
           <AccountRow icon={LogOut} title={t('account.security.logoutAll')} hideChevron onPress={confirmLogoutAll} />
-          <AccountRow icon={Trash2} title={t('account.security.delete')} onPress={() => router.push('/delete-account')} />
+          {canDeleteAccount(user) ? (
+            <AccountRow icon={Trash2} title={t('account.security.delete')} onPress={() => router.push('/delete-account')} />
+          ) : null}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

@@ -1,6 +1,7 @@
 import { AxiosError, AxiosHeaders, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
-import { api, onSessionExpired } from '../api';
+import { deleteAccount } from '@/services/auth.service';
+import { api, onSessionExpired, SessionEndedError } from '../api';
 import { clearSession, getTokens, saveSession } from '../session';
 
 type Reply = { status: number; data: unknown };
@@ -94,3 +95,48 @@ it('does not try to refresh without a refresh token', async () => {
   await expect(api.get('/profile')).rejects.toBeInstanceOf(AxiosError);
   expect(calls).toHaveLength(1);
 });
+
+it('deletes the account with the bearer token, no body, and an empty 204', async () => {
+  await saveSession({ accessToken: 'old', refreshToken: 'r1', sid: 's1', user });
+  replies = [() => ({ status: 204, data: '' })];
+
+  await expect(deleteAccount()).resolves.toBeUndefined();
+  expect(calls[0]).toMatchObject({ method: 'delete', url: '/profile' });
+  expect(calls[0].data).toBeUndefined();
+  expect(sentAuth[0]).toBe('Bearer old');
+});
+
+it('does not write back the tokens of a refresh that finishes after the session was cleared', async () => {
+  await saveSession({ accessToken: 'old', refreshToken: 'r1', sid: 's1', user });
+  let answerRefresh: () => void = () => {};
+  const refreshAnswered = new Promise<void>((resolve) => (answerRefresh = resolve));
+  const expired = jest.fn();
+  const unsubscribe = onSessionExpired(expired);
+  replies = [() => ({ status: 401, data: {} })];
+  // The refresh is held open until the account is deleted locally.
+  api.defaults.adapter = async (config) => {
+    if (config.url === '/auth/refresh') {
+      calls.push(config);
+      await refreshAnswered;
+      return { status: 200, data: { status: true, data: { accessToken: 'new', refreshToken: 'r2', sid: 's1' } }, headers: {}, config, statusText: '200' } as AxiosResponse;
+    }
+    return respond(config);
+  };
+
+  const pending = api.get('/carts');
+  await waitForCall('/auth/refresh');
+  await clearSession();
+  answerRefresh();
+
+  await expect(pending).rejects.toBeInstanceOf(SessionEndedError);
+  expect(getTokens()).toBeNull();
+  expect(await SecureStore.getItemAsync('rm_session')).toBeNull();
+  expect(calls.filter((c) => c.url === '/carts')).toHaveLength(1);
+  expect(expired).not.toHaveBeenCalled();
+  unsubscribe();
+});
+
+async function waitForCall(url: string) {
+  for (let i = 0; i < 50 && !calls.some((c) => c.url === url); i++) await new Promise((r) => setTimeout(r, 0));
+  expect(calls.some((c) => c.url === url)).toBe(true);
+}

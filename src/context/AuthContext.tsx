@@ -3,7 +3,8 @@ import { Alert } from 'react-native';
 import i18n from '@/i18n';
 import { onSessionExpired } from '@/lib/api';
 import { queryClient } from '@/lib/query-client';
-import { clearSession, loadSession, saveSession, saveUser } from '@/lib/session';
+import { clearSession, loadSession, saveSession, saveUser, sessionEpoch } from '@/lib/session';
+import { clearUserData } from '@/lib/user-data';
 import { logout } from '@/services/auth.service';
 import { getProfile } from '@/services/profile.service';
 import type { AuthResponse, User } from '@/types/auth';
@@ -15,6 +16,11 @@ type AuthValue = {
   status: Status;
   signIn: (auth: AuthResponse) => Promise<void>;
   signOut: () => Promise<void>;
+  /**
+   * After DELETE /profile succeeded: the account is gone, so no logout call. Clears the session,
+   * every cached and stored piece of the account's data, and drops the app on sign-in.
+   */
+  forgetDeletedAccount: () => Promise<void>;
   /** Re-reads the profile, e.g. after the person edits their name. */
   refreshUser: () => Promise<void>;
 };
@@ -26,9 +32,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<Status>('loading');
 
   const refreshUser = useCallback(async () => {
+    const epoch = sessionEpoch();
     const profile = await getProfile();
+    if (sessionEpoch() !== epoch) return;
     setUser(profile);
-    await saveUser(profile);
+    await saveUser(profile, epoch);
   }, []);
 
   useEffect(() => {
@@ -52,11 +60,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // goes through the silent token refresh and signs out only if the refresh token is dead.
       setUser(session.user);
       setStatus('signedIn');
+      const epoch = sessionEpoch();
       try {
         const profile = await getProfile();
-        if (cancelled) return;
+        // A sign-out or account deletion meanwhile must not bring the profile back.
+        if (cancelled || sessionEpoch() !== epoch) return;
         setUser(profile);
-        await saveUser(profile);
+        await saveUser(profile, epoch);
       } catch {
         // Offline or a transient error: keep the stored session.
       }
@@ -95,7 +105,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus('signedOut');
   }, []);
 
-  const value = useMemo(() => ({ user, status, signIn, signOut, refreshUser }), [user, status, signIn, signOut, refreshUser]);
+  const forgetDeletedAccount = useCallback(async () => {
+    // Session first: a refresh or profile read still in flight now finds a newer epoch and writes nothing back.
+    await clearSession();
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await clearUserData();
+    setUser(null);
+    setStatus('signedOut');
+  }, []);
+
+  const value = useMemo(
+    () => ({ user, status, signIn, signOut, forgetDeletedAccount, refreshUser }),
+    [user, status, signIn, signOut, forgetDeletedAccount, refreshUser],
+  );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 

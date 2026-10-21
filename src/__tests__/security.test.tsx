@@ -8,12 +8,14 @@ const mockPush = jest.fn();
 const mockReplace = jest.fn();
 const mockSignOut = jest.fn(async () => undefined);
 jest.mock('expo-router', () => ({ router: { push: (p: unknown) => mockPush(p), replace: (p: unknown) => mockReplace(p) } }));
-jest.mock('@/context/AuthContext', () => ({ useAuth: () => ({ signOut: mockSignOut }) }));
+let mockUser: { role: string; isGuest?: boolean } | null = { role: 'customer' };
+jest.mock('@/context/AuthContext', () => ({ useAuth: () => ({ user: mockUser, signOut: mockSignOut }) }));
 
 const calls: { method?: string; url?: string; data?: unknown }[] = [];
 let failWith: number | null = null;
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUser = { role: 'customer' };
   calls.length = 0;
   failWith = null;
   api.defaults.adapter = async (config) => {
@@ -83,4 +85,13 @@ it('links to account deletion', async () => {
   await renderWithProviders(<SecurityScreen />);
   await fireEvent.press(screen.getByText('Hesabımı sil'));
   expect(mockPush).toHaveBeenCalledWith('/delete-account');
+});
+
+it.each([
+  ['a staff account', { role: 'manager' }],
+  ['a guest account', { role: 'customer', isGuest: true }],
+])('hides account deletion for %s', async (_label, user) => {
+  mockUser = user;
+  await renderWithProviders(<SecurityScreen />);
+  expect(screen.queryByText('Hesabımı sil')).toBeNull();
 });

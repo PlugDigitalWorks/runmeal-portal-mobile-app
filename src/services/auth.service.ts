@@ -67,7 +67,13 @@ export async function setPassword(password: string): Promise<void> {
   await api.patch('/auth/set-password', { password });
 }
 
-/** Deletes the signed-in account, revokes its Apple grant and ends every session. */
+/** Long enough for the API to close the account; past it the result is unknown and the screen says so. */
+const DELETE_ACCOUNT_TIMEOUT_MS = 30_000;
+
+/**
+ * DELETE /profile: closes the signed-in account and ends every session. Answers 204 with no body,
+ * so nothing is read from the response.
+ */
 export async function deleteAccount(): Promise<void> {
-  await api.delete('/profile');
+  await api.delete('/profile', { timeout: DELETE_ACCOUNT_TIMEOUT_MS });
 }

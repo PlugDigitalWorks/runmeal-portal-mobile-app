@@ -483,20 +483,30 @@
     "account": "Signed in as {{email}}.",
     "whatHappens": "What happens",
     "points": {
+      "closed": "Your account is closed for good; signing up again with the same email creates a new account.",
       "profile": "Your name, email, phone and saved addresses are deleted.",
       "loyalty": "Your loyalty stamps and rewards are lost.",
       "signIn": "You're signed out everywhere, and Sign in with Apple or Google is disconnected.",
-      "orders": "Past order records are kept without your details, as the law requires for receipts."
+      "orders": "Your past order and payment records are kept, as the law requires.",
+      "wallet": "Cards you added to Apple or Google Wallet are deactivated; your phone may take a while to update them."
     },
     "button": "Delete my account",
     "deleting": "Deleting…",
     "confirmTitle": "Delete your account?",
-    "confirmBody": "Your account and loyalty stamps will be gone for good.",
-    "confirm": "Delete",
+    "confirmBody": "Your account will be closed for good and your profile deleted. Your past order and payment records are kept.",
+    "confirm": "Delete my account",
     "failed": "Couldn't delete your account. Try again.",
     "unavailable": "Account deletion isn't available right now. Please contact support.",
+    "notEligible": "This account can't be deleted from the app.",
+    "errors": {
+      "USER_ACCOUNT_DELETE_BALANCE_REMAINING": "Your wallet balance must be settled before deleting your account.",
+      "USER_ACCOUNT_DELETE_ACTIVE_OPERATION": "Complete your active orders and pending payments before deleting your account.",
+      "USER_ACCOUNT_DELETE_PROVIDER_UNAVAILABLE": "Your account could not be deleted. Please try again later.",
+      "forbidden": "This account can't do that.",
+      "unknown": "The connection dropped, so we couldn't confirm whether your account was deleted. Check your connection and try again."
+    },
     "doneTitle": "Account deleted",
-    "doneBody": "Your account has been deleted."
+    "doneBody": "Your account has been closed."
   },
   "errors": {
     "network": "Couldn't connect",
