@@ -31,15 +31,15 @@ Uygulamanın kullandığı web client'lar (proje `709162763845`):
 **Google Cloud Console'da (aynı proje, 709162763845) yapılacaklar:**
 
 1. **iOS OAuth client: yapıldı.** "Runmeal Portal iOS" (Bundle ID `com.runmeal.portal`, client `709162763845-sdaqha6d9ctk59qqsutnv6ma62e225si.apps.googleusercontent.com`). Uygulamada varsayılan değer olarak tanımlı; TestFlight build 2'den itibaren kullanılıyor.
-2. **Android OAuth client:** Application type Android, package `com.runmeal.portal`. Aşağıdaki SHA-1 parmak izlerinin her biri eklenmeli; gerekirse parmak izi başına ayrı bir Android client açılır.
+2. **Android OAuth client'lar: yapıldı.** Application type Android, package `com.runmeal.portal`, parmak izi başına bir client:
 
-   | Anahtar | SHA-1 | Ne zaman |
+   | Client | Anahtar | SHA-1 |
    |---|---|---|
-   | Upload key (yerel release build) | `CB:80:9A:C4:D0:B7:22:7B:A1:C1:AC:A7:9E:58:01:58:B7:6F:02:81` | Şimdi |
-   | Debug key (geliştirme / test APK) | `5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25` | Şimdi (yalnızca test) |
-   | Play App Signing key | Play Console → Test ve yayınla → Uygulama bütünlüğü → Uygulama imzalama | İlk Play yüklemesinden sonra |
+   | Portal Android Play (`709162763845-odd7q6i6eeqcch410p0anl5l47kfkr97`) | Play App Signing key (Play'den yüklenen kurulumlar) | `B0:CC:D9:0C:09:58:58:86:5F:88:9C:D8:25:50:4A:77:C0:71:5B:F6` |
+   | Portal Android Upload | Upload key (yerel release build) | `CB:80:9A:C4:D0:B7:22:7B:A1:C1:AC:A7:9E:58:01:58:B7:6F:02:81` |
+   | Portal Android Debug | Debug key (geliştirme / test APK) | `5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25` |
 
-   Play'den yüklenen kurulumlar Play'in kendi anahtarıyla imzalanır. Play App Signing SHA-1'i eklenmeden Play kurulumunda Google girişi çalışmaz.
+   Play'den yüklenen kurulumlar Play'in kendi anahtarıyla imzalanır; bu yüzden Play kurulumunda girişi "Portal Android Play" client'ı karşılar. Google'a göre ayarların etkinleşmesi 5 dakika ile birkaç saat sürebilir.
 
 3. **OAuth consent ekranı:** "Production" yayın durumunda olmalı. "Testing" durumunda yalnızca test kullanıcıları giriş yapabilir.
 
@@ -66,7 +66,7 @@ App Store kuralı 4.8: iOS'ta Google girişi sunuluyorsa Sign in with Apple da s
 ## 3. Yayın için hesap tarafında gerekenler
 
 - **App Store Connect:** `com.runmeal.portal` için yeni uygulama kaydı (isim: "Runmeal", dil Türkçe/İngilizce, SKU örneğin `runmeal-portal`). TestFlight yüklemesi için kaydın var olması gerekir.
-- **Google Play Console:** "Runmeal" adlı yeni uygulama, package `com.runmeal.portal`. İlk AAB, Play Console'dan elle **Dahili test** kanalına yüklenir. Play App Signing'e kayıt da o sırada yapılır.
+- **Google Play Console: yapıldı.** "Runmeal" (package `com.runmeal.portal`, varsayılan dil en-GB). 1.0.0 (versionCode 1) **Dahili test** kanalında, "Dharma Internal" tester listesiyle. Katılım linki: https://play.google.com/apps/internaltest/4701747942761439919. Play App Signing etkin.
 
 ## 4. Mağaza öncesi diğer backend istekleri
 
