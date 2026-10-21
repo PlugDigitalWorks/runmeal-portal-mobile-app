@@ -9,7 +9,7 @@ import { addressFirstLine, addressSecondLine } from '@/lib/address';
 import { apiErrorMessage } from '@/lib/api-error';
 import { qk } from '@/queries/keys';
 import { useAddresses } from '@/queries/useAddresses';
-import { deleteAddress } from '@/services/address.service';
+import { deleteAddress, setActiveAddress } from '@/services/address.service';
 import type { Address } from '@/types/address';
 import { colors, font, radius, space, weight } from '@/theme';
 import { EmptyState } from '@/ui/EmptyState';
@@ -42,7 +42,8 @@ export default function AddressesScreen() {
   };
 
   const choose = async (address: Address) => {
-    if (address.id === activeAddress?.id) return router.back();
+    // Only the address the API marks active can skip the call: the context's stand-in for "none active" still needs it.
+    if (address.isActive) return router.back();
     if (await run(() => selectAddress(address.id), t('addresses.failed'))) router.back();
   };
 
@@ -55,7 +56,9 @@ export default function AddressesScreen() {
         onPress: () =>
           run(async () => {
             await deleteAddress(address.id);
-            // The active address may be the one that went; the context picks the next one from the fresh list.
+            // The API promotes nothing when the active address goes, and checkout needs one marked active.
+            const next = addresses?.find((a) => a.id !== address.id);
+            if (address.id === activeAddress?.id && next) await setActiveAddress(next.id);
             await Promise.all([queryClient.invalidateQueries({ queryKey: qk.addresses }), queryClient.invalidateQueries({ queryKey: qk.nearbyAll })]);
           }, t('addresses.deleteFailed')),
       },

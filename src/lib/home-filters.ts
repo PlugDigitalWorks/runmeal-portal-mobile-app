@@ -1,5 +1,5 @@
 import type { Branch } from '@/types/branch';
-import { isOpenNow, sortForHome } from './branch-model';
+import { fulfillmentOf, isOpenNow, settingsOf, sortForHome } from './branch-model';
 import { branchMatchesCategory, type CategoryId } from './categories';
 
 /** `topRated` and `fastest` are mock-backed (the API has no rating or delivery time); they only exist while mocks are shown. */
@@ -40,10 +40,10 @@ export function applyHomeView(
   mock?: MockValues,
 ): Branch[] {
   return sortBranches(branches, sort, now, mock).filter((b) => {
-    const settings = b.order_type_settings;
+    const fulfillment = fulfillmentOf(settingsOf(b));
     if (filters.openNow && !isOpenNow(b.business_hour, now)) return false;
-    if (filters.delivery && !(settings?.delivery?.isActive || settings?.scheduledDelivery?.isActive)) return false;
-    if (filters.pickup && !(settings?.pickup?.isActive || settings?.scheduledPickup?.isActive)) return false;
+    if (filters.delivery && !fulfillment.includes('delivery')) return false;
+    if (filters.pickup && !fulfillment.includes('pickup')) return false;
     if (filters.topRated && mock && mock.rating(b) < 4) return false;
     return !category || branchMatchesCategory(b, category, menuTexts[b.id]);
   });

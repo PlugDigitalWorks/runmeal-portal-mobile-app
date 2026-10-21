@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { NotAvailable } from '@/components/account/NotAvailable';
+import { SHOW_MOCKS } from '@/config';
 import { useAuth } from '@/context/AuthContext';
 import { colors, space } from '@/theme';
 import { Button } from '@/ui/Button';
@@ -8,6 +10,11 @@ import { TextField } from '@/ui/TextField';
 
 /** Changing the sign-in email needs an API route that does not exist yet; the form is a labelled mock. */
 export default function EmailScreen() {
+  // Mock data only: a build without mocks reached here by deep link shows nothing fake.
+  return SHOW_MOCKS ? <EmailMock /> : <NotAvailable />;
+}
+
+function EmailMock() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [email, setEmail] = useState('');

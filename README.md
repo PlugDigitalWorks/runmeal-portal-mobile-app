@@ -57,9 +57,9 @@ The environment is picked from the host of `API_URL`: a host containing `staging
 | `RECAPTCHA_SITE_KEY` | `EXPO_PUBLIC_RECAPTCHA_SITE_KEY` | portal web `.env.staging` key | portal web `.env.production` key |
 | `GOOGLE_WEB_CLIENT_ID` | `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` | staging web client id | production web client id |
 | `GOOGLE_IOS_CLIENT_ID` | `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` | empty | empty |
-| `SIGN_IN_GOOGLE` | `EXPO_PUBLIC_SIGN_IN_GOOGLE` | on (`0` turns it off) | on (`0` turns it off) |
-| `SIGN_IN_APPLE` | `EXPO_PUBLIC_SIGN_IN_APPLE` | on (`0` turns it off) | on (`0` turns it off) |
-| `SHOW_MOCKS` | `EXPO_PUBLIC_SHOW_MOCKS` | on (`0` hides every "(Mock)" section and field) | set `0` for store builds |
+| `SIGN_IN_GOOGLE` | `EXPO_PUBLIC_SIGN_IN_GOOGLE` | on (`0` turns it off) | off: the `production` EAS profile sets `0` |
+| `SIGN_IN_APPLE` | `EXPO_PUBLIC_SIGN_IN_APPLE` | on (`0` turns it off) | off: the `production` EAS profile sets `0` |
+| `SHOW_MOCKS` | `EXPO_PUBLIC_SHOW_MOCKS` | on (`0` hides every "(Mock)" section and field) | off: the `production` EAS profile sets `0` |
 
 `API_URL` defaults to `https://staging-api.runmeal.com`, not `api-staging.runmeal.com/api`: that host is the Cloudflare brand edge and rejects sign-in with `BRAND_DOMAIN_NOT_FOUND`.
 
@@ -67,12 +67,12 @@ Build-time only: `GOOGLE_IOS_URL_SCHEME` (adds the Google Sign-In config plugin;
 
 ### Making Google and Apple sign-in work
 
-Both buttons show by default. Until the steps below are done they appear but cannot finish a sign-in.
+Both buttons show by default in development and preview builds. Until the steps below are done they appear but cannot finish a sign-in. Store builds (the `production` EAS profile) ship with email sign-in only: the profile sets `EXPO_PUBLIC_SIGN_IN_GOOGLE=0` and `EXPO_PUBLIC_SIGN_IN_APPLE=0` until the Google iOS client and the backend Apple audience exist.
 
 - Google, iOS: create an iOS OAuth client for `com.runmeal.portal` in Google Cloud and put its ID in `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`. While it is empty the iOS button only shows a "not ready" message.
 - Google, Android: create an Android OAuth client with the package `com.runmeal.portal` and the signing certificate's SHA-1 (debug and EAS release).
 - Apple: the backend's `APPLE_SIGNIN_BUNDLE_ID` must accept `com.runmeal.portal`. It takes one value today, so the brand app and this app cannot both sign in until the backend accepts a list.
-- To ship without either, set `EXPO_PUBLIC_SIGN_IN_GOOGLE=0` and/or `EXPO_PUBLIC_SIGN_IN_APPLE=0`. Note that App Store rule 4.8 asks for Sign in with Apple when another third-party sign-in is offered.
+- Turn Google and Apple on together: remove both `0`s from the `production` profile in the same build. App Store rule 4.8 asks for Sign in with Apple whenever another third-party sign-in is offered, so Google alone must not ship.
 
 ## EAS profiles
 
@@ -90,7 +90,7 @@ npx eas-cli@latest build --profile production --platform all
 npx eas-cli@latest submit --profile production
 ```
 
-Set `EXPO_PUBLIC_SHOW_MOCKS=0` (and the Google/Apple variables above) for `production`, for example as EAS environment variables.
+The `production` profile also sets `EXPO_PUBLIC_SHOW_MOCKS=0`, `EXPO_PUBLIC_SIGN_IN_GOOGLE=0` and `EXPO_PUBLIC_SIGN_IN_APPLE=0`: store builds hide every mock and offer email sign-in only. `development` and `preview` keep the defaults (mocks and both social buttons on).
 
 ## Checks
 

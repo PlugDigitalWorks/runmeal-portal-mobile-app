@@ -3,7 +3,14 @@
   "build": {
     "development": { "developmentClient": true, "distribution": "internal", "env": { "EXPO_PUBLIC_API_URL": "https://staging-api.runmeal.com" } },
     "preview": { "distribution": "internal", "env": { "EXPO_PUBLIC_API_URL": "https://staging-api.runmeal.com" } },
-    "production": { "env": { "EXPO_PUBLIC_API_URL": "https://api.runmeal.com" } }
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.runmeal.com",
+        "EXPO_PUBLIC_SHOW_MOCKS": "0",
+        "EXPO_PUBLIC_SIGN_IN_GOOGLE": "0",
+        "EXPO_PUBLIC_SIGN_IN_APPLE": "0"
+      }
+    }
   },
   "submit": { "production": {} }
 }

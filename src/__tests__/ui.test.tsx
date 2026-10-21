@@ -49,9 +49,9 @@ it('Price hides the original when it is not higher', async () => {
 it('QuantityStepper clamps to min and max', async () => {
   const onChange = jest.fn();
   await render(<QuantityStepper value={1} onChange={onChange} min={1} max={2} />);
-  await fireEvent.press(screen.getByLabelText('-'));
+  await fireEvent.press(screen.getByLabelText('Azalt'));
   expect(onChange).toHaveBeenLastCalledWith(1);
-  await fireEvent.press(screen.getByLabelText('+'));
+  await fireEvent.press(screen.getByLabelText('Artır'));
   expect(onChange).toHaveBeenLastCalledWith(2);
 });
 

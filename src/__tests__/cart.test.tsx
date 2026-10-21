@@ -101,9 +101,9 @@ describe('cart screen', () => {
   it('removes a line when its quantity drops from one to zero', async () => {
     jest.spyOn(carts, 'getCurrentCart').mockResolvedValue(cart());
     const remove = jest.spyOn(carts, 'removeCartItem').mockResolvedValue();
-    const setQty = jest.spyOn(carts, 'setCartItemQty').mockResolvedValue(cart());
+    const setQty = jest.spyOn(carts, 'setCartItemQty').mockResolvedValue(undefined);
     const { client } = await renderWithProviders(<CartScreen />);
-    await fireEvent.press(await screen.findByLabelText('-'));
+    await fireEvent.press(await screen.findByLabelText('Azalt'));
     await waitFor(() => expect(remove).toHaveBeenCalledWith('i1', scope));
     expect(setQty).not.toHaveBeenCalled();
     await settled(client);
@@ -111,9 +111,9 @@ describe('cart screen', () => {
 
   it('changes the quantity of a line above one', async () => {
     jest.spyOn(carts, 'getCurrentCart').mockResolvedValue(cart({ items: [item({ qty: 2, lineTotal: 300 })] }));
-    const setQty = jest.spyOn(carts, 'setCartItemQty').mockResolvedValue(cart());
+    const setQty = jest.spyOn(carts, 'setCartItemQty').mockResolvedValue(undefined);
     const { client } = await renderWithProviders(<CartScreen />);
-    await fireEvent.press(await screen.findByLabelText('+'));
+    await fireEvent.press(await screen.findByLabelText('Artır'));
     await waitFor(() => expect(setQty).toHaveBeenCalledWith('i1', 3, scope));
     await settled(client);
   });

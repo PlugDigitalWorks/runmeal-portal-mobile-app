@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { NotAvailable } from '@/components/account/NotAvailable';
+import { SHOW_MOCKS } from '@/config';
 import { loadNotifPrefs, saveNotifPrefs } from '@/lib/notif-prefs';
 import { DEFAULT_NOTIF_PREFS, NOTIF_KEYS, type NotifKey, type NotifPrefs } from '@/mocks/account-mocks';
 import { colors, font, space, weight } from '@/theme';
 
 /** Four switches kept in AsyncStorage (`rm_notif_prefs`); nothing is wired to push or email yet. */
 export default function NotificationsScreen() {
+  // Mock data only: a build without mocks reached here by deep link shows nothing fake.
+  return SHOW_MOCKS ? <NotificationsMock /> : <NotAvailable />;
+}
+
+function NotificationsMock() {
   const { t } = useTranslation();
   const [prefs, setPrefs] = useState<NotifPrefs>(DEFAULT_NOTIF_PREFS);
   // A switch flipped before the saved values arrive wins over the late read.

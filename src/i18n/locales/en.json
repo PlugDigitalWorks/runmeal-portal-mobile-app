@@ -2,11 +2,10 @@
   "common": {
     "retry": "Try again",
     "cancel": "Cancel",
-    "save": "Save",
     "delete": "Delete",
     "close": "Close",
-    "continue": "Continue",
-    "loading": "Loading…",
+    "decrease": "Decrease",
+    "increase": "Increase",
     "seeAll": "See all",
     "mock": "Mock"
   },
@@ -324,6 +323,7 @@
   },
   "account": {
     "title": "My account",
+    "notAvailable": "This is not available yet",
     "signOut": "Sign out",
     "signOutConfirmTitle": "Sign out?",
     "credit": "Runmeal credit {{amount}}",

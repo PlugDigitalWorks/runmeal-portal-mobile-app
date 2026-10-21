@@ -5,7 +5,14 @@ import '@/i18n';
 import TabsLayout from '@/app/(tabs)/_layout';
 import * as carts from '@/services/cart.service';
 
+// useCart only fetches for signed-in people.
 jest.mock('@/context/AuthContext', () => ({ useAuth: () => ({ status: 'signedIn' }) }));
+let mockShowMocks = true;
+jest.mock('@/config', () => {
+  const config = { ...jest.requireActual('@/config') };
+  Object.defineProperty(config, 'SHOW_MOCKS', { get: () => mockShowMocks });
+  return config;
+});
 
 const item = (id: string, qty: number) => ({ id, productId: id, productName: id, price: 10, qty, imgUrl: null, lineTotal: 10 * qty });
 const cart = (items: ReturnType<typeof item>[]) => ({ id: 'c1', branchId: 'b1', brandId: 'r1', isActive: true, items, totalCartPrice: 0, finalPrice: 0 }) as never;
@@ -37,7 +44,10 @@ async function renderTabs() {
   );
 }
 
-beforeEach(() => jest.restoreAllMocks());
+beforeEach(() => {
+  jest.restoreAllMocks();
+  mockShowMocks = true;
+});
 
 it('has the five tabs in order and no account tab', async () => {
   jest.spyOn(carts, 'getCurrentCart').mockResolvedValue(null);
@@ -61,4 +71,12 @@ it('shows no badge for an empty cart', async () => {
   await waitFor(() => expect(spy).toHaveBeenCalled());
   await act(async () => {});
   expect(screen.queryByText('0')).toBeNull();
+});
+
+it('has no Kampanyalar tab when mocks are off: every campaign is mock data', async () => {
+  mockShowMocks = false;
+  jest.spyOn(carts, 'getCurrentCart').mockResolvedValue(null);
+  await renderTabs();
+  expect(await screen.findByLabelText('Siparişlerim, tab, 4 of 4')).toBeTruthy();
+  expect(screen.queryByText('Kampanyalar')).toBeNull();
 });

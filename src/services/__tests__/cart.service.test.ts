@@ -1,5 +1,5 @@
 import { api } from '@/lib/api';
-import { applyPromotion, clearCart, getCurrentCart } from '@/services/cart.service';
+import { applyPromotion, clearCart, getCurrentCart, setCartItemQty } from '@/services/cart.service';
 
 type Call = { method?: string; url?: string; data?: unknown; headers: Record<string, unknown> };
 const calls: Call[] = [];
@@ -51,4 +51,14 @@ it('applies an internal coupon with the order type', async () => {
   await applyPromotion('c1', { promotionCode: 'WELCOME', orderType: 'DELIVERY' }, { branchId: 'b1', brandId: 'r1' });
   expect(calls[0]).toMatchObject({ method: 'post', url: '/carts/c1/promotions/apply', headers: { 'x-branch-id': 'b1' } });
   expect(JSON.parse(String(calls[0].data))).toEqual({ type: 'INTERNAL', promotionCode: 'WELCOME', orderType: 'DELIVERY' });
+});
+
+it('sets a line quantity even when the API answers only a message', async () => {
+  api.defaults.adapter = async (config) => {
+    calls.push({ method: config.method, url: config.url, data: config.data, headers: { ...config.headers } });
+    return { data: { message: 'Updated' }, status: 200, statusText: 'OK', headers: {}, config };
+  };
+  await expect(setCartItemQty('i1', 3, { branchId: 'b1', brandId: 'r1' })).resolves.toBeUndefined();
+  expect(calls[0]).toMatchObject({ method: 'patch', url: '/carts/items/qty', headers: { 'x-branch-id': 'b1', 'x-brand-id': 'r1' } });
+  expect(JSON.parse(calls[0].data as string)).toEqual({ itemId: 'i1', qty: 3 });
 });

@@ -2,11 +2,10 @@
   "common": {
     "retry": "Tekrar dene",
     "cancel": "Vazgeç",
-    "save": "Kaydet",
     "delete": "Sil",
     "close": "Kapat",
-    "continue": "Devam et",
-    "loading": "Yükleniyor…",
+    "decrease": "Azalt",
+    "increase": "Artır",
     "seeAll": "Tümünü gör",
     "mock": "Mock"
   },
@@ -324,6 +323,7 @@
   },
   "account": {
     "title": "Hesabım",
+    "notAvailable": "Bu özellik henüz kullanılamıyor",
     "signOut": "Çıkış yap",
     "signOutConfirmTitle": "Çıkış yapmak istiyor musun?",
     "credit": "Runmeal kredisi {{amount}}",

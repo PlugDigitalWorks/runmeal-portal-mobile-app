@@ -34,6 +34,24 @@ it('falls back to the first address when none is marked active', async () => {
   expect(await screen.findByText('a1|40.99|false')).toBeTruthy();
 });
 
+it('heals a list with no active address by activating the first one, once', async () => {
+  // The API keeps answering "none active" here, so a second attempt would be a loop.
+  (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1' }), address({ id: 'a2' })]);
+  (setActiveAddress as jest.Mock).mockResolvedValue(undefined);
+  await renderWithProviders(<LocationProvider><Probe /></LocationProvider>);
+  await screen.findByText('a1|40.99|false');
+  await waitFor(() => expect(getAddresses).toHaveBeenCalledTimes(2));
+  expect(setActiveAddress).toHaveBeenCalledTimes(1);
+  expect(setActiveAddress).toHaveBeenCalledWith('a1');
+});
+
+it('leaves a list that has an active address alone', async () => {
+  (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1', isActive: true }), address({ id: 'a2' })]);
+  await renderWithProviders(<LocationProvider><Probe /></LocationProvider>);
+  await screen.findByText('a1|40.99|false');
+  expect(setActiveAddress).not.toHaveBeenCalled();
+});
+
 it('has no active address when the person has none', async () => {
   (getAddresses as jest.Mock).mockResolvedValue([]);
   await renderWithProviders(<LocationProvider><Probe /></LocationProvider>);

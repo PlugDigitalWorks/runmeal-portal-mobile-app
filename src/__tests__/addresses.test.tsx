@@ -57,7 +57,8 @@ beforeEach(() => {
   jest.clearAllMocks();
   delete mockParams.id;
   mockAuth.status = 'signedIn';
-  (setActiveAddress as jest.Mock).mockResolvedValue(undefined);
+  // mockReset also drops a leftover one-off rejection, which clearAllMocks keeps.
+  (setActiveAddress as jest.Mock).mockReset().mockResolvedValue(undefined);
 });
 
 describe('my addresses', () => {
@@ -96,6 +97,43 @@ describe('my addresses', () => {
     await waitFor(() => expect(deleteAddress).toHaveBeenCalledWith('a1'));
     // The list refetches after the delete.
     await waitFor(() => expect(getAddresses).toHaveBeenCalledTimes(2));
+  });
+
+  it('makes the next address active when the active one is deleted', async () => {
+    (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1', isActive: true }), address({ id: 'a2', street: 'Bağdat Cd.' })]);
+    (deleteAddress as jest.Mock).mockResolvedValue(undefined);
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    await withLocation(<AddressesScreen />);
+    await screen.findByText('Bağdat Cd.');
+    await fireEvent.press(screen.getAllByLabelText('Sil')[0]);
+    await act(async () => alert.mock.calls[0][2]!.find((b) => b.style === 'destructive')!.onPress!());
+    await waitFor(() => expect(setActiveAddress).toHaveBeenCalledWith('a2'));
+    expect(deleteAddress).toHaveBeenCalledWith('a1');
+    expect((deleteAddress as jest.Mock).mock.invocationCallOrder[0]).toBeLessThan((setActiveAddress as jest.Mock).mock.invocationCallOrder[0]);
+  });
+
+  it('activates nothing when a non-active address is deleted', async () => {
+    (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1', isActive: true }), address({ id: 'a2', street: 'Bağdat Cd.' })]);
+    (deleteAddress as jest.Mock).mockResolvedValue(undefined);
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    await withLocation(<AddressesScreen />);
+    await screen.findByText('Bağdat Cd.');
+    await fireEvent.press(screen.getAllByLabelText('Sil')[1]);
+    await act(async () => alert.mock.calls[0][2]!.find((b) => b.style === 'destructive')!.onPress!());
+    await waitFor(() => expect(getAddresses).toHaveBeenCalledTimes(2));
+    expect(deleteAddress).toHaveBeenCalledWith('a2');
+    expect(setActiveAddress).not.toHaveBeenCalled();
+  });
+
+  it('activates a tapped stand-in address the API does not mark active', async () => {
+    // A failing heal leaves the list with none active; tapping the ticked stand-in must still activate it.
+    (getAddresses as jest.Mock).mockResolvedValue([address({ id: 'a1' })]);
+    (setActiveAddress as jest.Mock).mockRejectedValueOnce(new Error('offline'));
+    await withLocation(<AddressesScreen />);
+    await waitFor(() => expect(setActiveAddress).toHaveBeenCalledTimes(1));
+    await fireEvent.press(await screen.findByTestId('address-a1'));
+    await waitFor(() => expect(setActiveAddress).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(router.back).toHaveBeenCalled());
   });
 
   it('invites the first address when there are none', async () => {

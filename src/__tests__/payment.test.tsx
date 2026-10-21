@@ -2,6 +2,7 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { Alert, BackHandler } from 'react-native';
 import PaymentScreen from '@/app/payment';
 import { getPendingPayment, setPendingPayment } from '@/lib/pending-payment';
+import { qk } from '@/queries/keys';
 import * as payments from '@/services/payment.service';
 import { renderWithProviders } from './helpers/render-with-providers';
 
@@ -66,6 +67,30 @@ it("takes the order id from the payment record when the callback has none", asyn
   await renderWithProviders(<PaymentScreen />);
   await navigate(`${CALLBACK}?status=success&paymentId=p1`);
   await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(order('o7')));
+});
+
+it('trusts its own payment id and the record over the ids in the callback URL', async () => {
+  const wait = jest.spyOn(payments, 'waitForPayment').mockResolvedValue(record({ orderId: 'o1' }));
+  await renderWithProviders(<PaymentScreen />);
+  await navigate(`${CALLBACK}?status=success&paymentId=forged&orderId=o9`);
+  await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(order('o1')));
+  expect(wait).toHaveBeenCalledWith('p1');
+});
+
+it('falls back to the order id in the callback when the record has none', async () => {
+  jest.spyOn(payments, 'waitForPayment').mockResolvedValue(record({ orderId: null }));
+  await renderWithProviders(<PaymentScreen />);
+  await navigate(`${CALLBACK}?status=success&paymentId=p1&orderId=o3`);
+  await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(order('o3')));
+});
+
+it('refreshes the cart, the orders and the credit balance once the order is placed', async () => {
+  jest.spyOn(payments, 'waitForPayment').mockResolvedValue(record());
+  const { client } = await renderWithProviders(<PaymentScreen />);
+  const invalidate = jest.spyOn(client, 'invalidateQueries');
+  await navigate(`${CALLBACK}?status=success&paymentId=p1&orderId=o1`);
+  await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(order('o1')));
+  for (const key of [qk.cart, qk.orders, qk.credit]) expect(invalidate).toHaveBeenCalledWith({ queryKey: key });
 });
 
 it('shows a retry when the provider reports a failure, without asking the API', async () => {

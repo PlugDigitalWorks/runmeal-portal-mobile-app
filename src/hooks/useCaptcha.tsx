@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
+import { Keyboard } from 'react-native';
 import { CaptchaSheet } from '@/components/CaptchaSheet';
 
 /**
@@ -22,6 +23,8 @@ export function useCaptcha(): { requestToken: () => Promise<string | null>; shee
   const requestToken = useCallback(
     () =>
       new Promise<string | null>((resolve) => {
+        // The open keyboard would sit over the sheet's challenge.
+        Keyboard.dismiss();
         pending.current?.(null);
         pending.current = resolve;
         setRun((n) => n + 1);

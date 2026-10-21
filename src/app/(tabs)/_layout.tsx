@@ -1,17 +1,14 @@
-import { Redirect, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { Compass, Gift, Heart, ShoppingBag, UtensilsCrossed } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/context/AuthContext';
+import { SHOW_MOCKS } from '@/config';
 import { useCart } from '@/queries/useCart';
 import { colors, font, weight } from '@/theme';
 
 export default function TabsLayout() {
   const { t } = useTranslation();
-  const { status } = useAuth();
   const { data: cart } = useCart();
   const cartCount = (cart?.items ?? []).reduce((sum, item) => sum + item.qty, 0);
-  // Sign-out and an expired session both land here: the tabs are for signed-in people only.
-  if (status === 'signedOut') return <Redirect href="/(auth)/login" />;
   return (
     <Tabs
       screenOptions={{
@@ -35,7 +32,11 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen name="orders" options={{ title: t('tabs.orders'), tabBarIcon: ({ color, size }) => <UtensilsCrossed color={color} size={size} /> }} />
-      <Tabs.Screen name="campaigns" options={{ title: t('tabs.campaigns'), tabBarIcon: ({ color, size }) => <Gift color={color} size={size} /> }} />
+      <Tabs.Screen
+        name="campaigns"
+        // Every campaign is mock data: a store build without mocks has no Kampanyalar tab.
+        options={{ title: t('tabs.campaigns'), href: SHOW_MOCKS ? undefined : null, tabBarIcon: ({ color, size }) => <Gift color={color} size={size} /> }}
+      />
     </Tabs>
   );
 }

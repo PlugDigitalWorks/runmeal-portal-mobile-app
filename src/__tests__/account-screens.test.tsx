@@ -5,6 +5,7 @@ import CouponsScreen from '@/app/account/coupons';
 import EmailScreen from '@/app/account/email';
 import FeedbackScreen from '@/app/account/feedback';
 import MoreScreen from '@/app/account/more';
+import NotificationsScreen from '@/app/account/notifications';
 import ProfileScreen from '@/app/account/profile';
 import { getCreditBalance } from '@/services/loyalty.service';
 import { getProfile } from '@/services/profile.service';
@@ -120,6 +121,19 @@ it('thanks for feedback without calling the API, once a mark is picked', async (
   await fireEvent.press(screen.getByText('Gönder'));
   await waitFor(() => expect(alert).toHaveBeenCalledWith('Teşekkürler (Mock)'));
   expect(mockBack).toHaveBeenCalled();
+});
+
+it.each([
+  ['cards', CardsScreen],
+  ['email', EmailScreen],
+  ['notifications', NotificationsScreen],
+  ['feedback', FeedbackScreen],
+])('says the %s screen is not available, with no mock content, when mocks are off', async (_name, Screen) => {
+  mockShowMocks = false;
+  await renderWithProviders(<Screen />);
+  expect(screen.getByText('Bu özellik henüz kullanılamıyor')).toBeTruthy();
+  for (const text of ['Visa •••• 4242', 'Doğrulama kodu gönder', 'Gönder']) expect(screen.queryByText(text)).toBeNull();
+  expect(screen.queryByRole('switch')).toBeNull();
 });
 
 it('links the legal pages and names the company in About', async () => {

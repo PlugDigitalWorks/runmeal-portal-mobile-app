@@ -1,4 +1,5 @@
 import type { Branch, BranchDetail, BusinessHours, DayHours } from '@/types/branch';
+import type { PaymentMethod } from '@/types/order';
 
 const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as const;
 const toMinutes = (hhmm: string) => {
@@ -54,7 +55,6 @@ export function formatDistance(meters: number | null, lang: 'tr' | 'en'): string
 
 export const bannerOf = (branch: Pick<Branch, 'bannerUrls' | 'logoUrl'>): string | null => branch.bannerUrls?.[0] ?? null;
 
-export type PaymentMethod = 'ONLINE_CARD' | 'CARD_ON_DELIVERY' | 'CASH';
 type Settings = Pick<Branch, 'order_type_settings' | 'payment_settings'>;
 
 /**

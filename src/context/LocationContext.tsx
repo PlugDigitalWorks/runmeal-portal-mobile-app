@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { addressCoordinates } from '@/lib/address';
 import { useAddresses } from '@/queries/useAddresses';
 import { qk } from '@/queries/keys';
@@ -25,6 +25,24 @@ export function LocationProvider({ children }: { children: ReactNode }) {
 
   // The API marks one address active; the first one stands in if it ever sends none.
   const activeAddress = data?.find((a) => a.isActive) ?? data?.[0] ?? null;
+
+  // Checkout needs an address the API itself marks active, and deleting the active one promotes
+  // nothing. So a list with none active is healed by activating the stand-in, once per address
+  // so a failing or ignored call cannot loop.
+  const healed = useRef<string | null>(null);
+  const standIn = data?.length && !data.some((a) => a.isActive) ? data[0].id : null;
+  useEffect(() => {
+    if (!standIn || healed.current === standIn) return;
+    healed.current = standIn;
+    (async () => {
+      try {
+        await setActiveAddress(standIn);
+        await queryClient.invalidateQueries({ queryKey: qk.addresses });
+      } catch {
+        // Not fatal: the stand-in still drives the feed, and checkout explains a missing address.
+      }
+    })();
+  }, [standIn, queryClient]);
 
   const selectAddress = useCallback(
     async (id: string) => {

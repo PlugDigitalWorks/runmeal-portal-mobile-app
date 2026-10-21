@@ -197,6 +197,7 @@ export default function CheckoutScreen() {
       if (!orderId) orderId = await getPayment(payment.paymentId).then((record) => record.orderId, () => null);
       void queryClient.invalidateQueries({ queryKey: qk.cart });
       void queryClient.invalidateQueries({ queryKey: qk.orders });
+      void queryClient.invalidateQueries({ queryKey: qk.credit });
       // No id (or no way to read it) does not mean the order failed; the list shows it.
       if (orderId) router.replace(orderHref({ id: orderId, branchId, brandId }));
       else router.replace('/(tabs)/orders');

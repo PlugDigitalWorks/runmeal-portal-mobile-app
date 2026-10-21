@@ -1,7 +1,7 @@
 import { Banknote, CreditCard } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { PaymentMethod } from '@/lib/branch-model';
+import type { PaymentMethod } from '@/types/order';
 import { colors, font, radius, space, weight } from '@/theme';
 
 /** Online card and card on delivery share the card glyph; only cash gets its own. */

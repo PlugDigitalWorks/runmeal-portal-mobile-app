@@ -30,9 +30,9 @@ export async function addCartItem(dto: AddItemDto, scope: CartScope): Promise<Ca
   return unwrap(data);
 }
 
-export async function setCartItemQty(itemId: string, qty: number, scope: CartScope): Promise<Cart> {
-  const { data } = await api.patch<ApiResponse<Cart>>('/carts/items/qty', { itemId, qty }, { headers: branchHeaders(scope) });
-  return unwrap(data);
+/** The API may answer only `{ message }`; the caller re-reads the cart. */
+export async function setCartItemQty(itemId: string, qty: number, scope: CartScope): Promise<void> {
+  await api.patch('/carts/items/qty', { itemId, qty }, { headers: branchHeaders(scope) });
 }
 
 export async function removeCartItem(itemId: string, scope: CartScope): Promise<void> {

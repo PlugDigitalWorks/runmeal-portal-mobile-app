@@ -2,7 +2,9 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { NotAvailable } from '@/components/account/NotAvailable';
 import { RatingMark } from '@/components/restaurant/RatingMark';
+import { SHOW_MOCKS } from '@/config';
 import { colors, font, radius, space, weight } from '@/theme';
 import { Button } from '@/ui/Button';
 
@@ -10,6 +12,11 @@ const RATINGS = [1, 2, 3, 4, 5] as const;
 
 /** Feedback form, a labelled mock: nothing is sent anywhere. Five Runmeal logos stand in for stars. */
 export default function FeedbackScreen() {
+  // Mock data only: a build without mocks reached here by deep link shows nothing fake.
+  return SHOW_MOCKS ? <FeedbackMock /> : <NotAvailable />;
+}
+
+function FeedbackMock() {
   const { t } = useTranslation();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');

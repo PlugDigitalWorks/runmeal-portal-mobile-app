@@ -67,7 +67,7 @@ it('shows the running total with options and quantity', async () => {
   await renderWithProviders(<ProductSheet />);
   await fireEvent.press(await screen.findByText('Large'));
   expect(screen.getByText(/Sepete ekle · ₺170,00/)).toBeTruthy();
-  await fireEvent.press(screen.getByLabelText('+'));
+  await fireEvent.press(screen.getByLabelText('Artır'));
   expect(screen.getByText(/Sepete ekle · ₺340,00/)).toBeTruthy();
 });
 

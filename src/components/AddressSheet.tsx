@@ -18,7 +18,8 @@ export function AddressSheet({ visible, onClose }: Props) {
   const { activeAddress, selectAddress } = useLocation();
 
   const choose = async (address: Address) => {
-    if (address.id !== activeAddress?.id) {
+    // Only an address the API marks active skips the call; the context's stand-in for "none active" still needs it.
+    if (!address.isActive) {
       try {
         await selectAddress(address.id);
       } catch (e) {

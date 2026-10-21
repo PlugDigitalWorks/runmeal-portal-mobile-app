@@ -17,4 +17,6 @@ export const qk = {
   slots: (branchId: string, type: string) => ['slots', branchId, type] as const,
   credit: ['credit'] as const,
   stamps: (brandId: string) => ['stamps', brandId] as const,
+  /** Device-local favourites (AsyncStorage), cached like any other query. */
+  favorites: ['favorites'] as const,
 };

@@ -39,6 +39,8 @@ export default function PaymentScreen() {
     clearPendingPayment();
     void queryClient.invalidateQueries({ queryKey: qk.cart });
     void queryClient.invalidateQueries({ queryKey: qk.orders });
+    // Credit used on the order (or earned by it) changes the balance.
+    void queryClient.invalidateQueries({ queryKey: qk.credit });
   };
 
   const toOrder = (orderId: string | null) => {
@@ -71,12 +73,15 @@ export default function PaymentScreen() {
     if (result.status === 'failure') return fail();
     setChecking(true);
     let record: PaymentRecord | null = null;
+    // The id this app started the payment with, and the order id on the record it reads, are the
+    // source of truth; the ids in the callback URL are only a fallback.
+    const paymentId = pending.paymentId || result.paymentId;
     try {
-      record = await waitForPayment(result.paymentId ?? pending.paymentId);
+      if (paymentId) record = await waitForPayment(paymentId);
     } catch {
       // The read failed, not the payment.
     }
-    if (record && isPaid(record)) return toOrder(result.orderId ?? record.orderId);
+    if (record && isPaid(record)) return toOrder(record.orderId ?? result.orderId);
     if (record && isFailedPayment(record)) return fail();
     // A late webhook (or a read that failed) leaves the answer open although the provider said success.
     confirmLater();

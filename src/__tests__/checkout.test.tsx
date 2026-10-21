@@ -8,6 +8,7 @@ import * as branches from '@/services/branch.service';
 import * as carts from '@/services/cart.service';
 import * as loyalty from '@/services/loyalty.service';
 import * as payments from '@/services/payment.service';
+import { qk } from '@/queries/keys';
 import { renderWithProviders } from './helpers/render-with-providers';
 
 const mockPush = jest.fn();
@@ -128,9 +129,12 @@ describe('placing the order', () => {
     jest.spyOn(payments, 'initializePayment').mockResolvedValue({ paymentId: 'p1' });
     jest.spyOn(payments, 'getPayment').mockResolvedValue({ id: 'p1', status: 'SUCCESS', orderId: 'o9', branchId: 'b1', brandId: 'r1' });
     const { client } = await renderWithProviders(<CheckoutScreen />);
+    const invalidate = jest.spyOn(client, 'invalidateQueries');
     await fireEvent.press(await screen.findByText('Nakit'));
     await fireEvent.press(await screen.findByText(/Siparişi onayla/));
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith(expect.objectContaining({ params: expect.objectContaining({ id: 'o9' }) })));
+    // The placed order may have spent credit.
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: qk.credit });
     await settled(client);
   });
 

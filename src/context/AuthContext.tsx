@@ -34,7 +34,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const session = await loadSession();
+      let session: Awaited<ReturnType<typeof loadSession>>;
+      try {
+        session = await loadSession();
+      } catch {
+        // An unreadable Keychain must not leave the app on the splash: start signed out on a clean slate.
+        await clearSession().catch(() => {});
+        if (!cancelled) setStatus('signedOut');
+        return;
+      }
       if (cancelled) return;
       if (!session.tokens || !session.user) {
         setStatus('signedOut');

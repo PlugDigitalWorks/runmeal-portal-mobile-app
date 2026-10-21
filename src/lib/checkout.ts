@@ -17,8 +17,8 @@ export function orderTypesFor(settings: Pick<Branch, 'order_type_settings'>): Or
 }
 
 /**
- * branch-model's rule (a missing setting counts as open) plus brandfe's checkout rule:
- * a scheduled pick-up is paid by card only.
+ * branch-model's rule (a method counts only when its setting is explicitly `isActive: true`)
+ * plus brandfe's checkout rule: a scheduled pick-up is paid by card only.
  */
 export function paymentMethodsForOrder(settings: Pick<Branch, 'payment_settings'>, orderType: OrderType): PaymentMethod[] {
   const methods = paymentMethodsFor(settings);

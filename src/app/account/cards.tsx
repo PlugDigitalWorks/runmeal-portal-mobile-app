@@ -1,6 +1,8 @@
 import { CreditCard } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { NotAvailable } from '@/components/account/NotAvailable';
+import { SHOW_MOCKS } from '@/config';
 import { MOCK_CARDS, type MockCard } from '@/mocks/account-mocks';
 import { colors, font, radius, space, weight } from '@/theme';
 import { Button } from '@/ui/Button';
@@ -10,6 +12,11 @@ import { Button } from '@/ui/Button';
  * are drawn, and there is deliberately no field that takes a real card number.
  */
 export default function CardsScreen() {
+  // Mock data only: a build without mocks reached here by deep link shows nothing fake.
+  return SHOW_MOCKS ? <CardsMock /> : <NotAvailable />;
+}
+
+function CardsMock() {
   const { t } = useTranslation();
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>

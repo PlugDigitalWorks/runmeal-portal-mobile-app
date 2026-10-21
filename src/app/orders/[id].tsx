@@ -37,8 +37,8 @@ export default function OrderScreen() {
     if (status) void queryClient.invalidateQueries({ queryKey: qk.orders });
   }, [status, queryClient]);
 
-  // Checkout (or the payment screen) was replaced by this one, so system back would land on the cart.
-  // After an order "back" means the tabs: the header button, the iOS swipe (off) and Android's back key agree.
+  // This screen replaced checkout (or the payment screen), and back must not return to checkout or payment.
+  // After an order, back means the tabs: the header button, the iOS swipe (off) and Android's back key agree.
   const justPlaced = placed === '1';
   useEffect(() => {
     if (!justPlaced) return;
